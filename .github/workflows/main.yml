@@ -20,12 +20,14 @@ jobs:
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0'
+          dotnet-version: |
+            8.0.x
+            10.0.x
 
       - name: Clone Original Repo
         run: |
           rm -rf AutoRetainer
-          git clone https://github.com/PunishXIV/AutoRetainer.git AutoRetainer
+          git clone --recurse-submodules https://github.com/PunishXIV/AutoRetainer.git AutoRetainer
           rm -rf AutoRetainer/.git
 
       - name: Run Translation
@@ -34,14 +36,21 @@ jobs:
         run: |
           dotnet run --project AutoRetainerLocalizer.csproj
 
+      - name: Build AutoRetainer (Release)
+        env:
+          CI: true
+        run: |
+          dotnet build AutoRetainer/AutoRetainer/AutoRetainer.csproj -c Release -p:CustomCS=true -p:EnableWindowsTargeting=true
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AutoRetainerLocalizer-build-${{ github.run_number }}
+          name: AutoRetainer-build-${{ github.run_number }}
           path: |
-            bin/Debug/net8.0/*.dll
-            bin/Debug/net8.0/*.deps.json
-            bin/Debug/net8.0/*.runtimeconfig.json
+            AutoRetainer/AutoRetainer/bin/Release/**/*.dll
+            AutoRetainer/AutoRetainer/bin/Release/**/*.json
+            AutoRetainer/AutoRetainer/bin/Release/**/*.pdb
+            AutoRetainer/AutoRetainer/bin/Release/**/*.png
           if-no-files-found: error
 
       - name: Commit and Push
