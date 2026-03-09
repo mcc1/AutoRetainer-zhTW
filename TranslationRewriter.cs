@@ -232,7 +232,16 @@ namespace Localizer
             string ProcessText(string rawText, bool isFirstPart)
             {
                 if (string.IsNullOrEmpty(rawText)) return rawText;
-                if (!isRawString) return rawText.Replace("\"", "\\\"");
+                if (!isRawString)
+                {
+                    // For normal interpolated strings ($"..."), escape control chars to keep valid C# syntax.
+                    return rawText
+                        .Replace("\\", "\\\\")
+                        .Replace("\"", "\\\"")
+                        .Replace("\r", "\\r")
+                        .Replace("\n", "\\n")
+                        .Replace("\t", "\\t");
+                }
 
                 var lines = rawText.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
                 for (int i = 0; i < lines.Length; i++)
