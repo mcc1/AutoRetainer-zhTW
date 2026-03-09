@@ -7,29 +7,9 @@ namespace AutoRetainer.UI.MainWindow;
 public static unsafe class TroubleshootingUI
 {
     private static readonly Config EmptyConfig = new();
-
-    public static bool IsPluginInstalled(string name)
-    {
-        return Svc.PluginInterface.InstalledPlugins.Any(x => x.IsLoaded && (x.InternalName.EqualsIgnoreCase(name) || x.Name.EqualsIgnoreCase(name)));
-    }
-
     public static void Draw()
     {
         ImGuiEx.TextWrapped("本分頁將檢查您的配置是否有常見問題，您可以在聯絡技術支援前自行解決這些問題。");
-
-        if(IsPluginInstalled("LightlessSync"))
-
-        if(!Player.Available)
-        {
-            ImGuiEx.TextWrapped($"未登入時無法進行故障排除。");
-            return;
-        }
-
-        if(Data == null)
-        {
-            ImGuiEx.TextWrapped($"找不到目前角色的資料。請開啟傳喚鈴、探險隊（派遣）面板或重新登入以產生資料。");
-            return;
-        }
 
         if(!Svc.ClientState.ClientLanguage.EqualsAny(ClientLanguage.Japanese, ClientLanguage.German, ClientLanguage.French, ClientLanguage.English))
         {

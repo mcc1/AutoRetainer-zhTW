@@ -112,7 +112,7 @@ internal unsafe class RetainerListOverlay : Window
                         }
                         else
                         {
-                            Notify.Error($"找不到僱員 {ret.Name} 的存放計畫");
+                            //Notify.Error($"No entrust plan found for retainer {ret.Name}");
                         }
 
                     }

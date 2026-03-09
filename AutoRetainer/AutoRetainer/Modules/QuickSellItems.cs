@@ -1,11 +1,9 @@
-﻿using Dalamud.Game.Addon.Lifecycle;
-using Dalamud.Game.ClientState.Conditions;
+﻿using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
 using ECommons.Interop;
 using ECommons.MathHelpers;
-using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -16,9 +14,9 @@ namespace AutoRetainer.Modules;
 #pragma warning disable CS0649
 public unsafe class QuickSellItems : IDisposable
 {
-    //TODO: just remake this
-    [Signature("83 B9 ?? ?? ?? ?? ?? 7E 11 39 91", DetourName = nameof(OpenInventoryContextDetour), Fallibility = Fallibility.Fallible)]
-    internal Hook<AgentInventoryContext.Delegates.OpenForItemSlot> openInventoryContextHook;
+    internal delegate void* OpenInventoryContext(AgentInventoryContext* agent, InventoryType inventory, ushort slot, int a4, ushort a5, byte a6);
+    [Signature("83 B9 ?? ?? ?? ?? ?? 7E 11", DetourName = nameof(OpenInventoryContextDetour), Fallibility = Fallibility.Fallible)]
+    internal Hook<OpenInventoryContext> openInventoryContextHook;
 
     public InventoryType[] CanSellFrom = [
         InventoryType.Inventory1,
@@ -62,7 +60,6 @@ public unsafe class QuickSellItems : IDisposable
         putUpForSaleText = Svc.Data.GetExcelSheet<Addon>()?.GetRow(99).Text.ToString() ?? "Put Up for Sale";
         Svc.Hook.InitializeFromAttributes(this);
         Toggle();
-
     }
 
     public void Enable()
@@ -112,24 +109,49 @@ public unsafe class QuickSellItems : IDisposable
         return text.Count > 0;
     }
 
-    private void OpenInventoryContextDetour(AgentInventoryContext* agent, InventoryType inventoryType, int slot, int a4, uint a5)
+    private void* OpenInventoryContextDetour(AgentInventoryContext* agent, InventoryType inventoryType, ushort slot, int a4, ushort a5, byte a6)
     {
-        openInventoryContextHook.Original(agent, inventoryType, slot, a4, a5);
+        var retVal = openInventoryContextHook.Original(agent, inventoryType, slot, a4, a5, a6);
         InternalLog.Verbose($"Inventory hook: {inventoryType}, {slot}");
         try
         {
-            if(CanSellFrom.Contains(inventoryType) && IsReadyToUse() && GetAction(out var text) && TryGetAddonMaster<AddonMaster.ContextMenu>(out var m) && m.IsAddonReady)
+            if(CanSellFrom.Contains(inventoryType) && IsReadyToUse() && GetAction(out var text))
             {
-                var item = InventoryManager.Instance()->GetInventoryContainer(inventoryType)->Items[slot];
-                var data = Svc.Data.GetExcelSheet<Item>().GetRowOrDefault(item.ItemId);
-                if(data.HasValue)
+                var inventory = InventoryManager.Instance()->GetInventoryContainer(inventoryType);
+                if(inventory != null)
                 {
-                    foreach(var x in m.Entries)
+                    var itemSlot = inventory->GetInventorySlot(slot);
+                    if(itemSlot != null)
                     {
-                        if(x.Enabled && x.Text.EqualsAny(text))
+                        var itemId = itemSlot->ItemId;
+                        var item = Svc.Data.GetExcelSheet<Item>()?.GetRow(itemId);
+                        if(item != null)
                         {
-                            x.Select();
-                            break;
+                            var addonId = agent->AgentInterface.GetAddonId();
+                            if(addonId == 0) return retVal;
+                            var addon = AtkStage.Instance()->RaptureAtkUnitManager->GetAddonById((ushort)addonId);
+                            if(addon == null) return retVal;
+
+                            for(var i = 0; i < agent->ContextItemCount; i++)
+                            {
+                                var contextItemParam = agent->EventParams[agent->ContexItemStartIndex + i];
+                                if(contextItemParam.Type != ValueType.String) continue;
+                                var contextItemName = contextItemParam.GetValueAsString();
+
+                                if(text.Contains(contextItemName))
+                                {
+                                    if(Bitmask.IsBitSet(agent->ContextItemDisabledMask, i))
+                                    {
+                                        DebugLog($"QRA found {i}:{contextItemName} but it's disabled");
+                                        continue;
+                                    }
+                                    Callback.Fire(addon, true, 0, i, 0U, 0, 0);
+                                    agent->AgentInterface.Hide();
+                                    addon->Close(true);
+                                    DebugLog($"QRA Selected {i}:{contextItemName}");
+                                    return retVal;
+                                }
+                            }
                         }
                     }
                 }
@@ -139,6 +161,8 @@ public unsafe class QuickSellItems : IDisposable
         {
             ex.Log();
         }
+
+        return retVal;
     }
 
     public void Disable()

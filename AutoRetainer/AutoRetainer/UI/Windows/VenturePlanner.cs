@@ -95,7 +95,7 @@ public sealed class VenturePlanner : Window
                         {
                             var d = i == 0;
                             if(d) ImGui.BeginDisabled();
-                            if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowUp))
+                            if(ImGui.ArrowButton("##up", ImGuiDir.Up))
                             {
                                 Safe(() => (adata.VenturePlan.List[i], adata.VenturePlan.List[i - 1]) = (adata.VenturePlan.List[i - 1], adata.VenturePlan.List[i]));
                             }
@@ -105,7 +105,7 @@ public sealed class VenturePlanner : Window
                         {
                             var d = i == adata.VenturePlan.List.Count - 1;
                             if(d) ImGui.BeginDisabled();
-                            if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowDown))
+                            if(ImGui.ArrowButton("##down", ImGuiDir.Down))
                             {
                                 Safe(() => (adata.VenturePlan.List[i], adata.VenturePlan.List[i + 1]) = (adata.VenturePlan.List[i + 1], adata.VenturePlan.List[i]));
                             }

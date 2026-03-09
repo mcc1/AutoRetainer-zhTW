@@ -15,7 +15,7 @@ public static unsafe class PartSwapperUtils
         log = [];
         var workshop = HousingManager.Instance()->WorkshopTerritory;
 
-        DebugLog($"Change - Num: {num}");
+        PluginLog.Debug($"Change - Num: {num}");
         var vesselLevel = (int)workshop->Submersible.Data[num].RankId;
 
         CheckAndLogParts(num, type, GetPlanInLevelRange(vesselLevel), log, out var requiredChanges);
@@ -29,7 +29,7 @@ public static unsafe class PartSwapperUtils
         {
             if(IsLevelInRange(vesselLevel, partsData.MinLevel, partsData.MaxLevel))
             {
-                DebugLog($"Change - {partsData.GUID}");
+                PluginLog.Debug($"Change - {partsData.GUID}");
 
                 return partsData;
             }

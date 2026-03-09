@@ -1420,5 +1420,16 @@
   "loading submarine.png": "loading submarine.png",
   "loading bell.png": "loading bell.png",
   "loading notify.png": "loading notify.png",
-  "loading wait.png": "loading wait.png"
+  "loading wait.png": "loading wait.png",
+  "Skip item sell/trade confirmation while plugin is active": "Skip item sell/trade confirmation while plugin is active",
+  "Add current account": "Add current account",
+  "Right click to add this single item to list immediately": "Right click to add this single item to list immediately",
+  "Multi Mode/Exclusions and Order": "Multi Mode/Exclusions and Order",
+  "Enable multi-mode for this character": "Enable multi-mode for this character",
+  "Allow selling items from Armory Chest": "Allow selling items from Armory Chest",
+  "Do not sell items, instead print in chat what would be sold": "Do not sell items, instead print in chat what would be sold",
+  "* Items that already in Unconditional Sell List WILL NOT BE ADDED to Quick Venture Sell List": "* Items that already in Unconditional Sell List WILL NOT BE ADDED to Quick Venture Sell List",
+  "* Items that already in Quick Venture Sell List WILL BE MOVED to Unconditional Sell List": "* Items that already in Quick Venture Sell List WILL BE MOVED to Unconditional Sell List",
+  "Alt - delete from either list": "Alt - delete from either list",
+  "When Expert Delivery Continuation is enabled:\n- The plugin will automatically spend available Grand Company Seals to purchase items from the configured Exchange List.\n- If the Exchange List is empty, only Ventures will be purchased.\n\nAfter seals have been spent:\n- Expert Delivery will resume automatically.\n- The process will repeat until there are no eligible items left to deliver or no seals remaining.": "When Expert Delivery Continuation is enabled:\n- The plugin will automatically spend available Grand Company Seals to purchase items from the configured Exchange List.\n- If the Exchange List is empty, only Ventures will be purchased.\n\nAfter seals have been spent:\n- Expert Delivery will resume automatically.\n- The process will repeat until there are no eligible items left to deliver or no seals remaining."
 }

@@ -1,14 +1,13 @@
 using AutoRetainerAPI.Configuration;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
-using ECommons.GameHelpers;
 using Lumina.Excel.Sheets;
 using System.Numerics;
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 using GrandCompanyRank = Lumina.Excel.Sheets.GrandCompanyRank;
 
 namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.GCDeliveryEntries;
-public sealed unsafe class ExchangeLists : InventoryManagementBase
+public sealed unsafe class ExchangeLists : InventoryManagemenrBase
 {
     private ImGuiEx.RealtimeDragDrop<GCExchangeItem> DragDrop = new("GCELDD", x => x.ID);
     public override string Name { get; } = "大國防聯軍 - 軍票交換清單";
@@ -71,7 +70,6 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                 try
                 {
                     var newPlan = EzConfig.DefaultSerializationFactory.Deserialize<GCExchangePlan>(Paste()) ?? throw new NullReferenceException();
-                    newPlan.GUID.Regenerate();  
                     C.AdditionalGCExchangePlans.Add(newPlan);
                     SelectedPlanGuid = newPlan.GUID;
                 }
@@ -87,9 +85,7 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                 ImGui.SameLine(0, 1);
                 if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowsUpToLine, enabled: ImGuiEx.Ctrl && selectedPlan != null))
                 {
-                    C.DefaultGCExchangePlan = selectedPlan.DSFClone();
-                    C.DefaultGCExchangePlan.Name = "";
-                    C.DefaultGCExchangePlan.GUID.Regenerate();
+                    C.DefaultGCExchangePlan = selectedPlan;
                     new TickScheduler(() => C.AdditionalGCExchangePlans.Remove(selectedPlan));
                 }
                 ImGuiEx.Tooltip("將此計畫設為預設計畫，當前預設計畫將會被覆蓋。按住CTRL + 左鍵");
@@ -132,21 +128,9 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                         Data.ExchangePlan = selectedPlan.GUID;
                     }
                 }
-                ImGui.SameLine();
             }
 
-            var charas = C.OfflineData.Where(x => x.ExchangePlan == selectedPlan.GUID).ToArray();
-            if(charas.Length > 0)
-            {
-                ImGuiEx.Text($"共有 {charas.Length} 個角色使用");
-                ImGuiEx.Tooltip($"{charas.Select(x => x.NameWithWorldCensored)}");
-            }
-            else
-            {
-                ImGuiEx.Text($"沒有任何角色使用");
-            }
-
-                var planIndex = C.AdditionalGCExchangePlans.IndexOf(x => x.GUID == SelectedPlanGuid);
+            var planIndex = C.AdditionalGCExchangePlans.IndexOf(x => x.GUID == SelectedPlanGuid);
             if(planIndex == -1)
             {
                 SelectedPlanGuid = Guid.Empty;
@@ -214,7 +198,7 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                 var cont = plan.Items.Select(s => s.ItemID).ToArray();
                 if(ThreadLoadImageHandler.TryGetIconTextureWrap(x.Value.Data.Icon, false, out var t))
                 {
-                    ImGui.Image(t.Handle, new(ImGui.GetTextLineHeight()));
+                    ImGui.Image(t.ImGuiHandle, new(ImGui.GetTextLineHeight()));
                     ImGui.SameLine();
                 }
                 if(ImGui.Selectable(x.Value.Data.GetName() + $"##{x.Key}", cont.Contains(x.Key), ImGuiSelectableFlags.DontClosePopups))
@@ -320,7 +304,7 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                 ImGui.TableNextColumn();
                 if(ThreadLoadImageHandler.TryGetIconTextureWrap(meta.Data.Icon, false, out var t))
                 {
-                    ImGui.Image(t.Handle, new(ImGui.GetFrameHeight()));
+                    ImGui.Image(t.ImGuiHandle, new(ImGui.GetFrameHeight()));
                     ImGui.SameLine();
                 }
                 ImGuiEx.TextV($"{meta.Data.Name.GetText()}");
@@ -331,7 +315,7 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                     {
                         var trans = !meta.Companies.Contains(c);
                         if(trans) ImGui.PushStyleVar(ImGuiStyleVar.Alpha, 0.2f);
-                        ImGui.Image(ctex.Handle, new(ImGui.GetFrameHeight()));
+                        ImGui.Image(ctex.ImGuiHandle, new(ImGui.GetFrameHeight()));
                         if(trans) ImGui.PopStyleVar();
                         ImGuiEx.Tooltip($"{c}" + (trans ? " (unavailable)" : ""));
                         ImGui.SameLine(0, 1);
@@ -342,7 +326,7 @@ public sealed unsafe class ExchangeLists : InventoryManagementBase
                 ImGui.TableNextColumn();
                 if(Svc.Data.GetExcelSheet<GrandCompanyRank>().TryGetRow(meta.MinPurchaseRank, out var rank) && ThreadLoadImageHandler.TryGetIconTextureWrap(rank.IconFlames, false, out var tex))
                 {
-                    ImGui.Image(tex.Handle, new(ImGui.GetFrameHeight()));
+                    ImGui.Image(tex.ImGuiHandle, new(ImGui.GetFrameHeight()));
                     var rankName = Utils.GCRanks[meta.MinPurchaseRank];
                     ImGuiEx.Tooltip(rankName);
                     if(ImGuiEx.HoveredAndClicked()) getFilter() = rankName;

@@ -20,8 +20,6 @@ internal unsafe class Config
     public bool RecordStats = true;
     public bool AutoGCContinuation = false;
     public HashSet<ulong> WhitelistedAccounts = [];
-    public int NumLoginOverlayCols = 1;
-    public float LoginOverlayPercent = 100f;
 
     public bool ShouldSerializeEnableAutoGCHandin()
     {
@@ -140,15 +138,8 @@ internal unsafe class Config
 
     public TeleportOptions GlobalTeleportOptions = new();
     public bool SharedHET = false;
-    internal bool SkipItemConfirmations => true;
+    public bool SkipItemConfirmations = false;
     public ulong LastLoggedInChara = 0;
-
-    public bool TeleportAfterGCExchange = true;
-    public bool TeleportAfterGCExchangeMulti = true;
-
-    public int AutoFuelPurchaseLow = 300;
-    public int AutoFuelPurchaseMax = 900;
-    public bool AutoFuelPurchaseOnlyWsUnlocked = false;
 
     internal bool DontReassign
     {
@@ -263,20 +254,4 @@ internal unsafe class Config
     public List<RetainersVisualOrder> RetainersVisualOrders = [];
     public bool EnableDeployablesSort = false;
     public List<DeployablesVisualOrder> DeployablesVisualOrders = [];
-
-    public bool FullAutoGCDelivery = false;
-    public HalfHourSchedule GCDeliverySchedule = new();
-    public bool FullAutoGCDeliveryOnlyWsUnlocked = false;
-    public int FullAutoGCDeliveryInventory = 50;
-    public bool FullAutoGCDeliveryUseBuffItem = false;
-    public bool FullAutoGCDeliveryUseBuffFCAction = false;
-    public bool FullAutoGCDeliveryDeliverOnVentureExhaust = false;
-    public int FullAutoGCDeliveryDeliverOnVentureLessThan = 50;
-    public bool VendorItemAfterVoyage = false;
-
-    public bool ShutdownOnSubExhaustion = false;
-    public float HoursForShutdown = 3;
-
-    public bool MultiOnPluginLoad = false;
-    public int MultiModeOnPluginLoadDelay = 10;
 }

@@ -1,5 +1,4 @@
-﻿using AutoRetainerAPI.Configuration;
-using Dalamud.Game.Gui.ContextMenu;
+﻿using Dalamud.Game.Gui.ContextMenu;
 using Dalamud.Game.Text.SeStringHandling;
 using ECommons.ChatMethods;
 using ECommons.ExcelServices;
@@ -72,14 +71,9 @@ internal unsafe class ContextMenuManager
                             Name = new SeStringBuilder().Append(Prefix).AddUiForeground("+ Add to Quick Venture sell list", (ushort)UIColor.Yellow).Build(),
                             OnClicked = (a) =>
                             {
-                                if(Data.GetIMSettings(true).AddItemToList(IMListKind.SoftSell, id, out var error))
-                                {
-                                    Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Quick Venture sell list");
-                                }
-                                else
-                                {
-                                    Notify.Error(error);
-                                }
+                                Data.GetIMSettings(true).IMAutoVendorHard.Remove(id);
+                                Data.GetIMSettings(true).IMAutoVendorSoft.Add(id);
+                                Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Quick Venture sell list");
                             }
                         }.RemovePrefix());
                     }
@@ -103,62 +97,21 @@ internal unsafe class ContextMenuManager
                             Name = new SeStringBuilder().Append(Prefix).AddUiForeground("+ Add to Unconditional sell list", (ushort)UIColor.Yellow).Build(),
                             OnClicked = (a) =>
                             {
-                                if(Data.GetIMSettings(true).AddItemToList(IMListKind.HardSell, id, out var error))
-                                {
-                                    Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Unconditional sell list");
-                                }
-                                else
-                                {
-                                    Notify.Error(error);
-                                }
+                                Data.GetIMSettings(true).IMAutoVendorSoft.Remove(id);
+                                Data.GetIMSettings(true).IMAutoVendorHard.Add(id);
+                                Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Unconditional sell list");
                             }
                         }.RemovePrefix());
                     }
-
-                    if(Data.GetIMSettings(true).IMDiscardList.Contains(id))
-                    {
-                        args.AddMenuItem(new MenuItem()
-                        {
-                            Name = new SeStringBuilder().Append(Prefix).AddUiForeground("- Remove from Discard list", (ushort)UIColor.Orange).Build(),
-                            OnClicked = (a) =>
-                            {
-                                Data.GetIMSettings(true).IMDiscardList.Remove(id);
-                                Notify.Success($"Item {ExcelItemHelper.GetName(id)} removed from Discard list");
-                            }
-                        }.RemovePrefix());
-                    }
-                    else
-                    {
-                        args.AddMenuItem(new MenuItem()
-                        {
-                            Name = new SeStringBuilder().Append(Prefix).AddUiForeground("+ Add to Discard list", (ushort)UIColor.Yellow).Build(),
-                            OnClicked = (a) =>
-                            {
-                                if(Data.GetIMSettings(true).AddItemToList(IMListKind.Discard, id, out var error))
-                                {
-                                    Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Discard list");
-                                }
-                                else
-                                {
-                                    Notify.Error(error);
-                                }
-                            }
-                        }.RemovePrefix());
-                    }
-
                     args.AddMenuItem(new MenuItem()
                     {
                         Name = new SeStringBuilder().Append(Prefix).AddText("Protect item from auto actions").Build(),
                         OnClicked = (a) =>
                         {
-                            if(Data.GetIMSettings(true).AddItemToList(IMListKind.Protect, id, out var error))
-                            {
-                                Notify.Success($"{ExcelItemHelper.GetName(id)} added to protection list");
-                            }
-                            else
-                            {
-                                Notify.Error(error);
-                            }
+                            Data.GetIMSettings(true).IMAutoVendorHard.Remove(id);
+                            Data.GetIMSettings(true).IMAutoVendorSoft.Remove(id);
+                            Data.GetIMSettings(true).IMProtectList.Add(id);
+                            Notify.Success($"{ExcelItemHelper.GetName(id)} added to protection list");
                         }
                     }.RemovePrefix());
                 }

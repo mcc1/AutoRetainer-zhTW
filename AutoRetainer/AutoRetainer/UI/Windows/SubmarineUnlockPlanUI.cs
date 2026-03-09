@@ -24,15 +24,6 @@ internal unsafe class SubmarineUnlockPlanUI : Window
     internal Dictionary<uint, bool> RouteExploredCache = [];
     internal int NumUnlockedSubs = 0;
 
-    public static readonly string DrawButtonText = "Open Submarine Unlock Plan Editor";
-    public static void DrawButton()
-    {
-        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.LockOpen, DrawButtonText))
-        {
-            P.SubmarineUnlockPlanUI.IsOpen = true;
-        }
-    }
-
     internal bool IsMapUnlocked(uint map, bool bypassCache = false)
     {
         if(!IsSubDataAvail()) return false;
@@ -191,15 +182,7 @@ internal unsafe class SubmarineUnlockPlanUI : Window
                 {
                     try
                     {
-                        var unlockPlan = JsonConvert.DeserializeObject<SubmarineUnlockPlan>(Paste());
-                        if(!unlockPlan.IsModified())
-                        {
-                            Notify.Error("無法匯入剪貼簿內容。請確認計畫格式是否正確？");
-                        }
-                        else
-                        {
-                            SelectedPlan.CopyFrom(unlockPlan);
-                        }
+                        SelectedPlan.CopyFrom(JsonConvert.DeserializeObject<SubmarineUnlockPlan>(Paste()));
                     }
                     catch(Exception ex)
                     {
@@ -269,7 +252,7 @@ internal unsafe class SubmarineUnlockPlanUI : Window
                 }
                 if(ImGui.CollapsingHeader("顯示當前點探索順序"))
                 {
-                    ImGuiEx.Text(SelectedPlan.GetPrioritizedPointList().Select(x => $"{Svc.Data.GetExcelSheet<SubmarineExploration>().GetRowOrDefault(x.point)?.Destination} ({x.justification})").Join("\n"));
+                    ImGuiEx.Text(SelectedPlan.GetPrioritizedPointList().Select(x => $"{Svc.Data.GetExcelSheet<SubmarineExploration>().GetRow(x.point).Destination} ({x.justification})").Join("\n"));
                 }
             }
             ImGui.EndChild();

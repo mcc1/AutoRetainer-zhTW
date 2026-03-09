@@ -22,7 +22,7 @@ public sealed unsafe class UserInterface : NeoUIEntry
         .Checkbox("在狀態列僅顯示最高優先級圖標", () => ref C.StatusBarMSI)
         .SliderInt(120f, "Status bar icon size", () => ref C.StatusBarIconWidth, 32, 128)
         .Checkbox("遊戲啟動時開啟 AutoRetainer 視窗", () => ref C.DisplayOnStart)
-        //.Checkbox("Skip item sell/trade confirmation while plugin is active", () => ref C.SkipItemConfirmations)
+        .Checkbox("Skip item sell/trade confirmation while plugin is active", () => ref C.SkipItemConfirmations)
         .Checkbox("啟用標題介面按鈕（需重啟插件）", () => ref C.UseTitleScreenButton)
         .Checkbox("隱藏角色搜尋", () => ref C.NoCharaSearch)
         .Checkbox("不為已完成角色顯示背景閃爍", () => ref C.NoGradient)

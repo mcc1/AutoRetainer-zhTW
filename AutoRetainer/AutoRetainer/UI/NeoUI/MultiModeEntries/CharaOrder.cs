@@ -3,7 +3,7 @@ using AutoRetainerAPI.Configuration;
 namespace AutoRetainer.UI.NeoUI.MultiModeEntries;
 public class CharaOrder : NeoUIEntry
 {
-    public override string Path => "多角色模式/排除與排序";
+    public override string Path => "Multi Mode/Exclusions and Order";
 
     private static string Search = "";
     private static ImGuiEx.RealtimeDragDrop<OfflineCharacterData> DragDrop = new("CharaOrder", x => x.Identity);
@@ -21,12 +21,11 @@ public class CharaOrder : NeoUIEntry
             ImGui.SetNextItemWidth(150f);
             ImGui.InputText($"搜索", ref Search, 50);
             DragDrop.Begin();
-            if(ImGui.BeginTable("角色順序表", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+            if(ImGui.BeginTable("角色順序表", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
             {
                 ImGui.TableSetupColumn("##ctrl");
                 ImGui.TableSetupColumn("角色", ImGuiTableColumnFlags.WidthStretch);
                 ImGui.TableSetupColumn("切換開關");
-                ImGui.TableSetupColumn("刪除資料");
                 ImGui.TableHeadersRow();
 
                 for(var index = 0; index < C.OfflineData.Count; index++)
@@ -47,7 +46,6 @@ public class CharaOrder : NeoUIEntry
                         C.SelectedRetainers.Remove(chr.CID);
                     }
                     ImGuiEx.Tooltip("啟用僱員自動化");
-                    ImGuiEx.DragDropRepopulate("EnRet", chr.ExcludeRetainer, ref chr.ExcludeRetainer);
                     ImGui.SameLine();
                     if(ImGuiEx.ButtonCheckbox(FontAwesomeIcon.Ship, ref chr.ExcludeWorkshop, inverted: true))
                     {
@@ -56,33 +54,12 @@ public class CharaOrder : NeoUIEntry
                         chr.EnabledAirships.Clear();
                     }
                     ImGuiEx.Tooltip("啟用潛艇自動化");
-                    ImGuiEx.DragDropRepopulate("EnDep", chr.ExcludeWorkshop, x =>
-                    {
-                        chr.ExcludeWorkshop = x;
-                        if(!x)
-                        {
-                            chr.EnabledSubs.Clear();
-                            chr.EnabledAirships.Clear();
-                        }
-                    });
                     ImGui.SameLine();
                     ImGuiEx.ButtonCheckbox(FontAwesomeIcon.DoorOpen, ref chr.ExcludeOverlay, inverted: true);
                     ImGuiEx.Tooltip("在登入覆蓋視窗顯示");
-                    ImGuiEx.DragDropRepopulate("EnLog", chr.ExcludeOverlay, ref chr.ExcludeOverlay);
                     ImGui.SameLine();
                     ImGuiEx.ButtonCheckbox(FontAwesomeIcon.Coins, ref chr.NoGilTrack, inverted: true);
                     ImGuiEx.Tooltip("將此角色的金幣計入總額");
-                    ImGuiEx.DragDropRepopulate("EnGil", chr.NoGilTrack, ref chr.NoGilTrack);
-                    ImGui.SameLine();
-                    ImGuiEx.ButtonCheckbox(FontAwesomeIcon.GasPump, ref chr.AutoFuelPurchase, color:ImGuiColors.TankBlue);
-                    ImGuiEx.Tooltip("允許此角色在工作坊購買燃料");
-                    ImGuiEx.DragDropRepopulate("EnFuel", chr.AutoFuelPurchase, ref chr.AutoFuelPurchase);
-                    ImGui.TableNextColumn();
-                    if(ImGuiEx.IconButton(FontAwesomeIcon.UserMinus))
-                    {
-                        chr.ClearFCData();
-                    }
-                    ImGuiEx.Tooltip("重置此角色的部隊資料與潛艇資料。資料將在你登入並訪問管制面板後重新生成。");
                     ImGui.SameLine();
                     if(ImGuiEx.IconButton(FontAwesomeIcon.Trash, enabled: ImGuiEx.Ctrl))
                     {

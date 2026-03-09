@@ -1,8 +1,7 @@
 ﻿using AutoRetainer.Internal.InventoryManagement;
 using AutoRetainer.Modules.Voyage;
 using AutoRetainer.Modules.Voyage.Tasks;
-using AutoRetainer.Scheduler.Tasks;
-using AutoRetainerAPI.StaticData;
+using AutoRetainer.StaticData;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Automation.NeoTaskManager.Tasks;
@@ -25,7 +24,7 @@ public static unsafe class TaskNeoHET
 
     public static void Enqueue(Action onFailure, bool tryForceWorkshop = false)
     {
-        DebugLog($"Enqueued HouseEnterTask from {new StackTrace().GetFrames().Select(x => x.GetMethod()?.Name).Prepend("      ").Print("\n")}");
+        PluginLog.Debug($"Enqueued HouseEnterTask from {new StackTrace().GetFrames().Select(x => x.GetMethod()?.Name).Prepend("      ").Print("\n")}");
         P.TaskManager.EnqueueTask(NeoTasks.WaitForNotOccupied(new(timeLimitMS: 10 * 60 * 1000)));
         P.TaskManager.Enqueue(() =>
         {
@@ -117,18 +116,6 @@ public static unsafe class TaskNeoHET
                     new(CloseFCChest)
                     ]);
                 }
-                if(Data.AutoFuelPurchase && Utils.CountItemsInInventory(10155, null, Utils.PlayerEntireInventory) < C.AutoFuelPurchaseLow && (!C.AutoFuelPurchaseOnlyWsUnlocked || !S.WorkstationMonitor.Locked))
-                {
-                    tasks.Add(new(() =>
-                    {
-                        P.TaskManager.InsertStack(() =>
-                        {
-                            TaskRecursivelyBuyFuel.EnqueueNpcInteraction();
-                            TaskRecursivelyBuyFuel.Enqueue();
-                            TaskRecursivelyBuyFuel.EnqueueShopClosure();
-                        });
-                    }));
-                }
                 P.TaskManager.InsertMulti([.. tasks]);
             }
             else
@@ -183,7 +170,7 @@ public static unsafe class TaskNeoHET
 
     public static IGameObject GetFcOrPrivateEntranceFromMarkers()
     {
-        return GetHouseEntranceFromMarkers([.. PrivateMarkers, .. FcMarkers, .. ((C.SharedHET || Data.GetAllowSharedTeleportForRetainers()) ? TaskNeoHET.SharedMarkers : [])]);
+        return GetHouseEntranceFromMarkers([.. PrivateMarkers, .. FcMarkers, .. (C.SharedHET ? TaskNeoHET.SharedMarkers : [])]);
     }
 
     public static IGameObject GetHouseEntranceFromMarkers(IEnumerable<uint> markers)
@@ -192,9 +179,9 @@ public static unsafe class TaskNeoHET
         PluginLog.Warning($"Temporary HUD bypass is being applied");
         return entrance;*/
         var hud = AgentHUD.Instance();
-        if(hud->MapMarkers.Where(x => x.IconId.EqualsAny(markers)).OrderBy(x => Player.DistanceTo(new Vector2(x.Position.X, x.Position.Z))).TryGetFirst(out var marker))
+        if(hud->MapMarkers.Where(x => x.IconId.EqualsAny(markers)).OrderBy(x => Player.DistanceTo(new Vector2(x.X, x.Z))).TryGetFirst(out var marker))
         {
-            var mpos = new Vector2(marker.Position.X, marker.Position.Z);
+            var mpos = new Vector2(marker.X, marker.Z);
             var entrance = Svc.Objects.Where(x => x.IsTargetable && x.Name.ToString().EqualsIgnoreCaseAny([.. Lang.Entrance, Lang.ApartmentEntrance])).OrderBy(x => Vector2.Distance(x.Position.ToVector2(), mpos)).FirstOrDefault(x => Vector2.Distance(mpos, x.Position.ToVector2()) < ValidPlayerToApartmentDistance);
             return entrance;
         }
@@ -207,7 +194,7 @@ public static unsafe class TaskNeoHET
         /*PluginLog.Warning($"Temporary HUD bypass is being applied (2)");
         return true;*/
         var hud = AgentHUD.Instance();
-        if(hud->MapMarkers.Where(x => x.IconId.EqualsAny(markers)).TryGetFirst(x => Player.DistanceTo(new Vector2(x.Position.X, x.Position.Z)) < ValidPlayerToApartmentDistance, out var marker))
+        if(hud->MapMarkers.Where(x => x.IconId.EqualsAny(markers)).TryGetFirst(x => Player.DistanceTo(new Vector2(x.X, x.Z)) < ValidPlayerToApartmentDistance, out var marker))
         {
             return true;
         }

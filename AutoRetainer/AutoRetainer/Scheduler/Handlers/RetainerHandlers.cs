@@ -8,10 +8,6 @@ using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
-using Microsoft.VisualBasic.ApplicationServices;
-using System.Text.RegularExpressions;
-using TerraFX.Interop.Windows;
-using static FFXIVClientStructs.FFXIV.Client.UI.RaptureAtkHistory.Delegates;
 
 namespace AutoRetainer.Scheduler.Handlers;
 
@@ -72,8 +68,7 @@ internal static unsafe class RetainerHandlers
         EnforceSelectStringThrottle();
         //2385	View venture report. (Complete)
         var text = Svc.Data.GetExcelSheet<Lumina.Excel.Sheets.Addon>().GetRow(2385).Text.ToDalamudString().GetText();
-        var ret = Utils.TrySelectSpecificEntry(text);
-        return ret;
+        return Utils.TrySelectSpecificEntry(text);
     }
 
     internal static bool? EnforceSelectString(Func<bool?> Action)
@@ -149,9 +144,6 @@ internal static unsafe class RetainerHandlers
             {
                 new AddonMaster.RetainerTaskAsk((IntPtr)addon).Assign();
                 DebugLog("Clicked assign");
-                var day = Utils.GetDaysSinceUtcStart();
-                Data.SentVenturesByDay[day] = Data.SentVenturesByDay.SafeSelect(day) + 1;
-                Data.SentVenturesByDay.RemoveAll(x => x.Key < day - 30);
                 return true;
             }
         }
@@ -558,7 +550,7 @@ internal static unsafe class RetainerHandlers
             if(state.Type == 0)
             {
                 FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-                DebugLog($"RetainerTaskSupply waiting (2)...");
+                PluginLog.Debug($"RetainerTaskSupply waiting (2)...");
                 return false;
             }
 
@@ -567,15 +559,15 @@ internal static unsafe class RetainerHandlers
                 if(addon->UldManager.NodeList[3]->IsVisible())
                 {
                     var list = addon->UldManager.NodeList[3]->GetAsAtkComponentList();
-                    DebugLog($"Cnt: {list->ListLength}");
+                    PluginLog.Debug($"Cnt: {list->ListLength}");
                     for(var i = 0; i < Math.Min(list->ListLength, 16); i++)
                     {
                         var el = list->AtkComponentBase.UldManager.NodeList[2 + i];
                         var text = GenericHelpers.ReadSeString(&el->GetAsAtkComponentNode()->Component->UldManager.NodeList[9]->GetAsAtkTextNode()->NodeText).GetText();
-                        DebugLog($"Text: {text}, name: {name}");
+                        PluginLog.Debug($"Text: {text}, name: {name}");
                         if(text == name)
                         {
-                            DebugLog($"Match");
+                            PluginLog.Debug($"Match");
                             Callback.Fire(addon, true, 5, i, new AtkValue() { Type = 0, Int = 0 });
                             return true;
                         }
@@ -595,7 +587,7 @@ internal static unsafe class RetainerHandlers
         else
         {
             FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-            DebugLog($"RetainerTaskSupply waiting...");
+            PluginLog.Debug($"RetainerTaskSupply waiting...");
         }
         return false;
     }
@@ -608,7 +600,7 @@ internal static unsafe class RetainerHandlers
             if(state.Type == 0)
             {
                 FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-                DebugLog($"RetainerTaskSupply waiting (2)...");
+                PluginLog.Debug($"RetainerTaskSupply waiting (2)...");
                 return false;
             }
 
@@ -622,7 +614,7 @@ internal static unsafe class RetainerHandlers
         else
         {
             FrameThrottler.Throttle("RetainerTaskSupply.InitWait", 10, true);
-            DebugLog($"RetainerTaskSupply waiting...");
+            PluginLog.Debug($"RetainerTaskSupply waiting...");
         }
         return false;
     }

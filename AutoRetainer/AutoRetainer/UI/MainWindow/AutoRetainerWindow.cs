@@ -93,135 +93,127 @@ internal unsafe class AutoRetainerWindow : Window
     public override void Draw()
     {
         //ImGuiEx.Text(GradientColor.Get(EColor.RedBright, EColor.YellowBright), "This version MUST NOT BE RUNNING UNATTENDED.");
-        try
+        if(!C.AcceptedDisclamer)
         {
-            if(!C.AcceptedDisclamer)
-            {
-                new NuiBuilder()
-                    .Section("免責聲明")
-                    .TextWrapped(ImGuiColors.DalamudYellow, "請注意，嚴禁將 AutoRetainer 用於 RMT 目的")
-                    .TextWrapped(ImGuiColors.DalamudRed, "為避免不必要的後果，使用AutoRetainer時請遵守下列規則 :")
-                    .TextWrapped("1. 不要在遊戲聊天中提及您使用AutoRetainer;")
-                    .TextWrapped("2. 請勿長時間在無人看管的情況下執行 AutoRetainer；")
-                    .TextWrapped("3. 確保您的實際遊戲+AutoRetainer使用時間每天不超過16小時；確保在僱員/潛水艇檢查流程之間存在非活動間隔;")
-                    .TextWrapped("4. 永遠不要回應那些試圖透過交易或聊天進行所謂'機器人檢測'的玩家；應立即將這些玩家加入黑名單;")
-                    .TextWrapped("5. 如果GM詢問，始終聲稱所有操作都是手動完成的，絕不承認使用插件。")
-                    .TextWrapped("違反這些規則可能導致您的帳號受到處罰。")
-                    .TextWrapped(GradientColor.Get(ImGuiColors.DalamudYellow, ImGuiColors.DalamudRed), "您不得將 AutoRetainer 用於RMT行為或其他商業用途。如果您將其用於上述用途，我們將不提供任何支援。")
-                    .Widget(() =>
+            new NuiBuilder()
+                .Section("免責聲明")
+                .TextWrapped(ImGuiColors.DalamudYellow, "請注意，嚴禁將 AutoRetainer 用於 RMT 目的")
+                .TextWrapped(ImGuiColors.DalamudRed, "為避免不必要的後果，使用AutoRetainer時請遵守下列規則 :")
+                .TextWrapped("1. 不要在遊戲聊天中提及您使用AutoRetainer;")
+                .TextWrapped("2. 請勿長時間在無人看管的情況下執行 AutoRetainer；")
+                .TextWrapped("3. 確保您的實際遊戲+AutoRetainer使用時間每天不超過16小時；確保在僱員/潛水艇檢查流程之間存在非活動間隔;")
+                .TextWrapped("4. 永遠不要回應那些試圖透過交易或聊天進行所謂'機器人檢測'的玩家；應立即將這些玩家加入黑名單;")
+                .TextWrapped("5. 如果GM詢問，始終聲稱所有操作都是手動完成的，絕不承認使用插件。")
+                .TextWrapped("違反這些規則可能導致您的帳號受到處罰。")
+                .TextWrapped(GradientColor.Get(ImGuiColors.DalamudYellow, ImGuiColors.DalamudRed), "您不得將 AutoRetainer 用於RMT行為或其他商業用途。如果您將其用於上述用途，我們將不提供任何支援。")
+                .Widget(() =>
+                {
+                    if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Check, "接受並繼續"))
                     {
-                        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.Check, "接受並繼續"))
-                        {
-                            C.AcceptedDisclamer = true;
-                            EzConfig.Save();
-                        }
-                    })
-                    .Draw();
-                return;
-            }
-            var e = SchedulerMain.PluginEnabledInternal;
-            var disabled = MultiMode.Active && !ImGui.GetIO().KeyCtrl;
+                        C.AcceptedDisclamer = true;
+                        EzConfig.Save();
+                    }
+                })
+                .Draw();
+            return;
+        }
+        var e = SchedulerMain.PluginEnabledInternal;
+        var disabled = MultiMode.Active && !ImGui.GetIO().KeyCtrl;
 
-            if(disabled)
+        if(disabled)
+        {
+            ImGui.BeginDisabled();
+        }
+        if(ImGui.Checkbox($"啟用 {P.Name}", ref e))
+        {
+            P.WasEnabled = false;
+            if(e)
             {
-                ImGui.BeginDisabled();
+                SchedulerMain.EnablePlugin(PluginEnableReason.Auto);
             }
-            if(ImGui.Checkbox($"啟用 {P.Name}", ref e))
+            else
             {
-                P.WasEnabled = false;
-                if(e)
-                {
-                    SchedulerMain.EnablePlugin(PluginEnableReason.Auto);
-                }
-                else
-                {
-                    SchedulerMain.DisablePlugin();
-                }
-            }
-            if(C.ShowDeployables && (VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType) || VoyageScheduler.Enabled))
-            {
-                ImGui.SameLine();
-                ImGui.Checkbox($"遠航探索", ref VoyageScheduler.Enabled);
-            }
-            if(disabled)
-            {
-                ImGui.EndDisabled();
-                ImGuiComponents.HelpMarker($"多角色模式正控制此選項。按住 CTRL 可強制覆蓋。");
-            }
-
-            if(P.WasEnabled)
-            {
-                ImGui.SameLine();
-                ImGuiEx.Text(GradientColor.Get(ImGuiColors.DalamudGrey, ImGuiColors.DalamudGrey3, 500), $"已暫停");
-            }
-
-            ImGui.SameLine();
-            if(ImGui.Checkbox("多角色", ref MultiMode.Enabled))
-            {
-                MultiMode.OnMultiModeEnabled();
-            }
-            Utils.DrawLifestreamAvailabilityIndicator();
-            if(C.ShowNightMode)
-            {
-                ImGui.SameLine();
-                if(ImGui.Checkbox("夜間", ref C.NightMode))
-                {
-                    MultiMode.BailoutNightMode();
-                }
-            }
-            if(C.DisplayMMType)
-            {
-                ImGui.SameLine();
-                ImGuiEx.SetNextItemWidthScaled(100f);
-                ImGuiEx.EnumCombo("##mode", ref C.MultiModeType);
-            }
-            if(C.CharEqualize && MultiMode.Enabled)
-            {
-                ImGui.SameLine();
-                if(ImGui.Button("重設計數器"))
-                {
-                    MultiMode.CharaCnt.Clear();
-                }
-            }
-
-            Svc.PluginInterface.GetIpcProvider<object>(ApiConsts.OnMainControlsDraw).SendMessage();
-
-            if(IPC.Suppressed)
-            {
-                ImGuiEx.Text(ImGuiColors.DalamudRed, $"插件操作正被其他插件抑制中");
-                ImGui.SameLine();
-                if(ImGui.SmallButton("取消"))
-                {
-                    IPC.Suppressed = false;
-                }
-            }
-
-            if(P.TaskManager.IsBusy)
-            {
-                ImGui.SameLine();
-                if(ImGui.Button($"中止 {P.TaskManager.NumQueuedTasks} 個流程"))
-                {
-                    P.TaskManager.Abort();
-                }
-            }
-
-            PatreonBanner.DrawRight();
-            ImGuiEx.EzTabBar("tabbar", PatreonBanner.Text,
-                            ("僱員管理", MultiModeUI.Draw, null, true),
-                            ("遠航探索", WorkshopUI.Draw, null, true),
-                            ("故障排除", TroubleshootingUI.Draw, null, true),
-                            ("統計信息", DrawStats, null, true),
-                            ("關於", CustomAboutTab.Draw, null, true)
-                            );
-            if(!C.PinWindow)
-            {
-                C.WindowPos = ImGui.GetWindowPos();
-                C.WindowSize = ImGui.GetWindowSize();
+                SchedulerMain.DisablePlugin();
             }
         }
-        catch(Exception e)
+        if(C.ShowDeployables && (VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType) || VoyageScheduler.Enabled))
         {
-            ImGuiEx.TextWrapped(e.ToStringFull());
+            ImGui.SameLine();
+            ImGui.Checkbox($"遠航探索", ref VoyageScheduler.Enabled);
+        }
+        if(disabled)
+        {
+            ImGui.EndDisabled();
+            ImGuiComponents.HelpMarker($"多角色模式正控制此選項。按住 CTRL 可強制覆蓋。");
+        }
+
+        if(P.WasEnabled)
+        {
+            ImGui.SameLine();
+            ImGuiEx.Text(GradientColor.Get(ImGuiColors.DalamudGrey, ImGuiColors.DalamudGrey3, 500), $"已暫停");
+        }
+
+        ImGui.SameLine();
+        if(ImGui.Checkbox("多角色", ref MultiMode.Enabled))
+        {
+            MultiMode.OnMultiModeEnabled();
+        }
+        if(C.ShowNightMode)
+        {
+            ImGui.SameLine();
+            if(ImGui.Checkbox("夜間", ref C.NightMode))
+            {
+                MultiMode.BailoutNightMode();
+            }
+        }
+        if(C.DisplayMMType)
+        {
+            ImGui.SameLine();
+            ImGuiEx.SetNextItemWidthScaled(100f);
+            ImGuiEx.EnumCombo("##mode", ref C.MultiModeType);
+        }
+        if(C.CharEqualize && MultiMode.Enabled)
+        {
+            ImGui.SameLine();
+            if(ImGui.Button("重設計數器"))
+            {
+                MultiMode.CharaCnt.Clear();
+            }
+        }
+
+        Svc.PluginInterface.GetIpcProvider<object>(ApiConsts.OnMainControlsDraw).SendMessage();
+
+        if(IPC.Suppressed)
+        {
+            ImGuiEx.Text(ImGuiColors.DalamudRed, $"插件操作正被其他插件抑制中");
+            ImGui.SameLine();
+            if(ImGui.SmallButton("取消"))
+            {
+                IPC.Suppressed = false;
+            }
+        }
+
+        if(P.TaskManager.IsBusy)
+        {
+            ImGui.SameLine();
+            if(ImGui.Button($"中止 {P.TaskManager.NumQueuedTasks} 個流程"))
+            {
+                P.TaskManager.Abort();
+            }
+        }
+
+        PatreonBanner.DrawRight();
+        ImGuiEx.EzTabBar("tabbar", PatreonBanner.Text,
+                        ("僱員管理", MultiModeUI.Draw, null, true),
+                        ("遠航探索", WorkshopUI.Draw, null, true),
+                        ("故障排除", TroubleshootingUI.Draw, null, true),
+                        ("統計信息", DrawStats, null, true),
+                        ("關於", CustomAboutTab.Draw, null, true)
+                        );
+        if(!C.PinWindow)
+        {
+            C.WindowPos = ImGui.GetWindowPos();
+            C.WindowSize = ImGui.GetWindowSize();
         }
     }
 

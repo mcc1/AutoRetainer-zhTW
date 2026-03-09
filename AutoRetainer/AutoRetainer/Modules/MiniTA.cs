@@ -26,7 +26,6 @@ internal static unsafe class MiniTA
                 {
                     new AddonMaster.Talk((nint)addon).Click();
                 }
-                ProcessUselessConfirmations();
             }
             if(C.SkipItemConfirmations && (P.TaskManager.IsBusy || AutoGCHandin.Operation))
             {
@@ -46,11 +45,7 @@ internal static unsafe class MiniTA
         var x = Utils.GetSpecificYesno(s => s.Cleanup().ContainsAny(StringComparison.OrdinalIgnoreCase, Ref<string[]>.Get("Skip", () => ((uint[])[397, 398, 399, 4477, 102433, 102434]).Select(a => Svc.Data.GetExcelSheet<Addon>().GetRow(a).Text.GetText().Cleanup()).ToArray())));
         if(x != null && IsAddonReady(x))
         {
-            var m = new AddonMaster.SelectYesno(x);
-            if(EzThrottler.Throttle($"Skip_Yesno_{m.Text}", 200))
-            {
-                m.Yes();
-            }
+            new AddonMaster.SelectYesno(x).Yes();
         }
     }
 
@@ -78,16 +73,16 @@ internal static unsafe class MiniTA
     {
         var addon = Svc.GameGui.GetAddonByName("SelectString", 1);
         if(addon == IntPtr.Zero) return;
-        var selectStrAddon = (AddonSelectString*)addon.Address;
+        var selectStrAddon = (AddonSelectString*)addon;
         if(!IsAddonReady(&selectStrAddon->AtkUnitBase))
         {
             return;
         }
-        //DebugLog($"1: {selectStrAddon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText.ToString()}");
+        //PluginLog.Debug($"1: {selectStrAddon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText.ToString()}");
         if(!Lang.SkipCutsceneStr.Contains(selectStrAddon->AtkUnitBase.UldManager.NodeList[3]->GetAsAtkTextNode()->NodeText.ToString())) return;
         if(EzThrottler.Throttle("SkipCutsceneConfirm"))
         {
-            DebugLog("Selecting cutscene skipping");
+            PluginLog.Debug("Selecting cutscene skipping");
             new AddonMaster.SelectString(addon).Entries[0].Select();
         }
     }
@@ -95,21 +90,5 @@ internal static unsafe class MiniTA
     internal static bool ProcessCutsceneSkip(nint arg)
     {
         return VoyageScheduler.Enabled;
-    }
-
-    internal static void ProcessUselessConfirmations()
-    {
-        if(TryGetAddonMaster<AddonMaster.SelectOk>(out var m) && m.IsAddonReady)
-        {
-            PluginLog.Debug($"Ok: {m.Text} || {m.Text.ContainsPartOf(Svc.Data.GetExcelSheet<Lobby>().GetRow(618).Text)}");
-            if(m.Text.ContainsPartOf(Svc.Data.GetExcelSheet<Lobby>().GetRow(618).Text)
-                || m.Text.ContainsPartOf(Svc.Data.GetExcelSheet<Lobby>().GetRow(1237).Text))
-            {
-                if(EzThrottler.Throttle($"Addon{(nint)m.Addon}"))
-                {
-                    m.Ok();
-                }
-            }
-        }
     }
 }

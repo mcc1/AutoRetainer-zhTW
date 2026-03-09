@@ -1,4 +1,3 @@
-using AutoRetainerAPI.Configuration;
 using ECommons.Configuration;
 using ECommons.ExcelServices;
 using ECommons.Reflection;
@@ -6,12 +5,11 @@ using ECommons.Throttlers;
 using Lumina.Excel.Sheets;
 
 namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries;
-public class EntrustManager : InventoryManagementBase
+public class EntrustManager : InventoryManagemenrBase
 {
     public override string Name { get; } = "委託管理";
     private Guid SelectedGuid = Guid.Empty;
     private string Filter = "";
-    private InventoryManagementCommon InventoryManagementCommon = new();
 
     public override void Draw()
     {
@@ -107,7 +105,7 @@ public class EntrustManager : InventoryManagementBase
                         ImGui.TableNextColumn();
                         if(ThreadLoadImageHandler.TryGetIconTextureWrap(x.Icon, true, out var icon))
                         {
-                            ImGui.Image(icon.Handle, new(ImGui.GetFrameHeight()));
+                            ImGui.Image(icon.ImGuiHandle, new(ImGui.GetFrameHeight()));
                         }
                         ImGui.TableNextColumn();
                         if(ImGui.Checkbox(x.Name.ToString(), ref contains))
@@ -133,10 +131,7 @@ public class EntrustManager : InventoryManagementBase
             });
             ImGuiEx.TreeNodeCollapsingHeader($"存放單一物品 (已選擇{selectedPlan.EntrustItems.Count} 個)###eitems", () =>
             {
-                InventoryManagementCommon.DrawListNew(
-                    itemId => selectedPlan.EntrustItems.Add(itemId), 
-                    itemId => selectedPlan.EntrustItems.Remove(itemId), 
-                    selectedPlan.EntrustItems, (x) =>
+                InventoryManagementCommon.DrawListNew(selectedPlan.EntrustItems, (x) =>
                 {
                     var amount = selectedPlan.EntrustItemsAmountToKeep.SafeSelect(x);
                     ImGui.SameLine();

@@ -1,16 +1,7 @@
 using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage;
-using AutoRetainer.Modules.Voyage.VoyageCalculator;
-using AutoRetainer.UI.Windows;
 using AutoRetainerAPI.Configuration;
-using Dalamud.Game;
-using ECommons;
-using ECommons.Interop;
 using ECommons.MathHelpers;
-using Lumina.Excel.Sheets;
-using System.IO;
-using System.Windows.Forms;
-using OpenFileDialog = ECommons.Interop.OpenFileDialog;
 using VesselDescriptor = (ulong CID, string VesselName);
 
 namespace AutoRetainer.UI.NeoUI;
@@ -32,16 +23,6 @@ public class DeployablesTab : NeoUIEntry
         .Checkbox($"存取探險控制面板時重新派遣船隻", () => ref C.SubsAutoResend2)
         .Checkbox($"在重新派遣之前完成所有船隻的結算", () => ref C.FinalizeBeforeResend)
         .Checkbox($"在派遣介面隱藏飛空艇", () => ref C.HideAirships)
-
-        .Section("計畫設定")
-        .Widget(SubmarineUnlockPlanUI.DrawButtonText, x =>
-        {
-            SubmarineUnlockPlanUI.DrawButton();
-        })
-        .Widget(SubmarinePointPlanUI.DrawButtonText, x =>
-        {
-            SubmarinePointPlanUI.DrawButton();
-        })
 
         .Section("警報設定")
         .Checkbox($"啟用的潛艇數量少於可用上限", () => ref C.AlertNotAllEnabled)
@@ -88,62 +69,7 @@ public class DeployablesTab : NeoUIEntry
         .Section("批量修改配置")
         .Widget(MassConfigurationChangeWidget)
         .Section("註冊、配件與計畫自動化")
-        .Widget(AutomatedSubPlannerWidget)
-        .Section("匯出角色與潛水艇清單至 CSV")
-        .Widget(() =>
-        {
-            ImGuiEx.FilteringCheckbox("僅匯出已啟用多角色模式的角色(否則將匯出全部)", out var exportEnabledCharas);
-            ImGuiEx.FilteringCheckbox("僅匯出已啟用的潛水艇(否則將匯出全部)", out var exportEnabledSubs);
-            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.FileExport, "匯出"))
-            {
-                string[] headers = ["名稱", "Build (1)", "Build (2)", "Build (3)", "Build (4)", "Level (1)", "Level (2)", "Level (3)", "Level (4)", "Route (1)", "Route (2)", "Route (3)", "Route (4)"];
-                List<string[]> data = [];
-                foreach(var x in C.OfflineData)
-                {
-                    if(!x.WorkshopEnabled && exportEnabledCharas) continue;
-                    var entry = "".CreateArray((uint)headers.Length);
-                    entry[0] = x.NameWithWorld;
-                    var list = x.GetVesselData(VoyageType.Submersible);
-                    if(list.Count == 0) continue;
-                    int i = 0;
-                    foreach(var sub in list)
-                    {
-                        if(exportEnabledSubs && !x.EnabledSubs.Contains(sub.Name)) continue;
-                        var a = x.GetAdditionalVesselData(sub.Name, VoyageType.Submersible); ;
-                        if(a != null)
-                        {
-                            entry[i + 1] = a.GetSubmarineBuild().Trim();
-                            entry[i + 5] = $"{a.Level}.{(int)(a.CurrentExp * 100f / a.NextLevelExp)}";
-                            List<string> points = [];
-                            foreach(var s in a.Points)
-                            {
-                                if(s != 0)
-                                {
-                                    var d = Svc.Data.GetExcelSheet<SubmarineExploration>(ClientLanguage.Japanese).GetRowOrDefault(s);
-                                    if(d != null && d.Value.Location.ToString().Length > 0)
-                                    {
-                                        points.Add(d.Value.Location.ToString());
-                                    }
-                                }
-                            }
-                            entry[i + 9] = $"{points.Join("").Trim()}";
-                            i++;
-                            if(i > 3) break;
-                        }
-                    }
-                    data.Add(entry);
-                }
-                OpenFileDialog.SelectFile(x =>
-                {
-                    var name = x.file;
-                    if(!name.EndsWith(".csv", StringComparison.OrdinalIgnoreCase))
-                    {
-                        name = $"{name}.csv";
-                    }
-                    Utils.WriteCsv(name, headers, data);
-                }, title: "Save as...", fileTypes: [("Comma-separated values", ["csv"])], save:true);
-            }
-        });
+        .Widget(AutomatedSubPlannerWidget);
     }
 
     private HashSet<VesselDescriptor> SelectedVessels = [];

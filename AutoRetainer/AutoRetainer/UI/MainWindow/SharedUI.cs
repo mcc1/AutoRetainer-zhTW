@@ -74,12 +74,7 @@ internal static class SharedUI
                 new TickScheduler(() => C.OfflineData.RemoveAll(x => x.CID == data.CID));
             }
             ImGuiComponents.HelpMarker("Character's saved data will be removed without excluding it. Character data will be regenerated once you log back into this character.");
-
-                if(ImGui.Button("清除部隊數據"))
-            {
-                data.ClearFCData();
-            }
-            ImGuiComponents.HelpMarker("角色保存的資料將被清除但不會排除該角色。當您再次登入此角色時，角色資料將重新產生。");
+            ImGuiGroup.EndGroupBox();
         }).Draw();
     }
 }

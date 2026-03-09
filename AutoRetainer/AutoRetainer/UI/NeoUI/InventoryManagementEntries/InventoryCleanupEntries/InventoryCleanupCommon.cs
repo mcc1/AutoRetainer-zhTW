@@ -1,4 +1,3 @@
-using AutoRetainerAPI.Configuration;
 using ECommons.Configuration;
 using System;
 using System.Collections.Generic;
@@ -88,7 +87,6 @@ public static unsafe class InventoryCleanupCommon
                 try
                 {
                     var newPlan = EzConfig.DefaultSerializationFactory.Deserialize<InventoryManagementSettings>(Paste()) ?? throw new NullReferenceException();
-                    newPlan.GUID.Regenerate();
                     C.AdditionalIMSettings.Add(newPlan);
                     SelectedPlanGuid = newPlan.GUID;
                 }
@@ -104,9 +102,7 @@ public static unsafe class InventoryCleanupCommon
                 ImGui.SameLine(0, 1);
                 if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowsUpToLine, enabled: ImGuiEx.Ctrl && selectedPlan != null))
                 {
-                    C.DefaultIMSettings = selectedPlan.DSFClone();
-                    C.DefaultIMSettings.GUID.Regenerate();
-                    C.DefaultIMSettings.Name = "";
+                    C.DefaultIMSettings = selectedPlan;
                     new TickScheduler(() => C.AdditionalIMSettings.Remove(selectedPlan));
                 }
                 ImGuiEx.Tooltip("將此計畫設為預設計畫，當前預設計畫將會被覆蓋。按住CTRL + 左鍵");
@@ -147,28 +143,13 @@ public static unsafe class InventoryCleanupCommon
                         Data.InventoryCleanupPlan = selectedPlan.GUID;
                     }
                 }
-                ImGui.SameLine();
             }
-
-            var charas = C.OfflineData.Where(x => x.ExchangePlan == selectedPlan.GUID).ToArray();
-            if(charas.Length > 0)
-            {
-                ImGuiEx.Text($"共有 {charas.Length} 個角色使用");
-                ImGuiEx.Tooltip($"{charas.Select(x => x.NameWithWorldCensored)}");
-            }
-            else
-            {
-                ImGuiEx.Text($"沒有任何角色使用");
-            }
-
             ImGuiEx.Text("將此方案的清單與預設方案合併:");
             ImGui.Indent();
             ImGui.Checkbox("合併僱員快速出售清單", ref selectedPlan.AdditionModeSoftSellList);
             ImGuiEx.HelpMarker("從快速探索中獲得的物品，若同時包含在此方案與預設方案中，將會被出售。");
             ImGui.Checkbox("合併無條件出售清單", ref selectedPlan.AdditionModeHardSellList);
             ImGuiEx.HelpMarker("包含在此方案與預設方案中的物品都將被出售。如果同時包含在兩者中，將優先採用此方案的「忽略堆疊」設定與「最大堆疊數量」限制。");
-            ImGui.Checkbox("合併丟棄清單", ref selectedPlan.AdditionModeDiscardList);
-            ImGuiEx.HelpMarker("包含在此方案與預設方案中的物品都將被丟棄。如果同時包含在兩者中，將優先採用此方案的「忽略堆疊」設定與「最大堆疊數量」限制。");
             ImGui.Checkbox("合併保護清單", ref selectedPlan.AdditionModeProtectList);
             ImGuiEx.HelpMarker("包含在此方案與預設方案中的物品將受到保護，不會被自動出售、丟棄或籌備給軍隊。");
             ImGui.Unindent();

@@ -13,7 +13,6 @@ using AutoRetainerAPI.Configuration;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Gui.Toast;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Interface.ImGuiNotification;
 using ECommons.Automation;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.Configuration;
@@ -26,13 +25,11 @@ using ECommons.Reflection;
 using ECommons.Singletons;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
 using NotificationMasterAPI;
 using PunishLib;
 using System.Diagnostics;
-using Action = System.Action;
 using LoginOverlay = AutoRetainer.UI.Overlays.LoginOverlay;
 
 namespace AutoRetainer;
@@ -121,7 +118,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
 
     internal void SetConfig(Config c)
     {
-        config = EzConfig.Set<Config>(c);
+        config = c;
     }
 
     public void Load()
@@ -211,33 +208,6 @@ public unsafe class AutoRetainer : IDalamudPlugin
         }
         SingletonServiceManager.Initialize(typeof(AutoRetainerServiceManager));
 
-
-        if(C.MultiOnPluginLoad)
-        {
-            if(C.MultiModeOnPluginLoadDelay > 0)
-            {
-                var n = Svc.NotificationManager.AddNotification(new Notification()
-                {
-                    UserDismissable = false,
-                    Minimized = false,
-                    HardExpiry = DateTime.Now + TimeSpan.FromSeconds(C.MultiModeOnPluginLoadDelay),
-                    InitialDuration = TimeSpan.FromSeconds(C.MultiModeOnPluginLoadDelay),
-                    Title = "AutoRetainer Startup",
-                    Content = $"Multi Mode will be enabled in {C.MultiModeOnPluginLoadDelay} seconds. Click here to cancel."
-                });
-                TaskManager.EnqueueDelay(C.MultiModeOnPluginLoadDelay * 1000);
-                TaskManager.Enqueue((Action)(() => MultiMode.Enabled = true));
-                n.Click += delegate 
-                {
-                    TaskManager.Abort(); 
-                    n.DismissNow(); 
-                };
-            }
-            else
-            {
-                MultiMode.Enabled = true;
-            }
-        }
     }
 
     private void Toasts_Toast(ref SeString message, ref ToastOptions options, ref bool isHandled)
@@ -383,9 +353,25 @@ public unsafe class AutoRetainer : IDalamudPlugin
         }
         else if(arguments.EqualsIgnoreCaseAny("itemsell"))
         {
-            if((!IsOccupied() || TryGetAddonByName<AtkUnitBase>("Shop", out _)) && !P.TaskManager.IsBusy)
+            if(!IsOccupied() && !P.TaskManager.IsBusy)
             {
-                TaskVendorItems.EnqueueFromCommand();
+                if(NpcSaleManager.GetValidNPC() != null && Data.GetIMSettings().IMEnableNpcSell)
+                {
+                    NpcSaleManager.EnqueueIfItemsPresent(true);
+                }
+                else if(Data.GetIMSettings().IMEnableAutoVendor && Utils.GetReachableRetainerBell(true) != null && Player.IsInHomeWorld)
+                {
+                    P.SkipNextEnable = true;
+                    TaskInteractWithNearestBell.Enqueue(true);
+                    P.TaskManager.Enqueue(() => TryGetAddonMaster<AddonMaster.RetainerList>(out var m) && m.IsAddonReady);
+                    P.TaskManager.Enqueue(() =>
+                    {
+                        P.TaskManager.BeginStack();
+                        Safe(Utils.EnqueueVendorItemsByRetainer);
+                        P.TaskManager.InsertStack();
+                    });
+                    P.TaskManager.Enqueue(RetainerListHandlers.CloseRetainerList);
+                }
             }
             else
             {
@@ -460,17 +446,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
         }
         else if(arguments.EqualsIgnoreCase("deliver"))
         {
-            if(!P.TaskManager.IsBusy)
-            {
-                TaskDeliverItems.Enqueue();
-            }
-        }
-        else if(arguments.EqualsIgnoreCase("discard"))
-        {
-            if(!P.TaskManager.IsBusy)
-            {
-                TaskRecursiveItemDiscard.EnqueueIfNeeded();
-            }
+            TaskDeliverItems.Enqueue();
         }
         else if(arguments.StartsWith("set"))
         {
@@ -571,7 +547,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
             if(!retainer.VentureID.EqualsAny(0u, LastVentureID))
             {
                 LastVentureID = retainer.VentureID;
-                DebugLog($"Retainer {retainer.Name} current venture={LastVentureID}");
+                PluginLog.Debug($"Retainer {retainer.Name} current venture={LastVentureID}");
             }
         }
         else
@@ -579,7 +555,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
             if(LastVentureID != 0)
             {
                 LastVentureID = 0;
-                DebugLog($"Last venture ID reset");
+                PluginLog.Debug($"Last venture ID reset");
             }
         }
         //if(C.RetryItemSearch) RetryItemSearch.Tick();

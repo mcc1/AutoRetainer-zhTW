@@ -59,7 +59,7 @@ internal unsafe class RetainersOld : DebugSectionBase
             ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, 0);
             var start = ImGui.GetCursorPos();
             var selected = retainers.Contains(ret.Name.ToString());
-            if(ImGui.Checkbox((string)$"僱員 {(C.NoNames ? i + 1 : ret.Name)}", ref selected))
+            if(ImGui.Checkbox($"僱員 {(C.NoNames ? i + 1 : ret.Name)}", ref selected))
             {
                 if(selected)
                 {

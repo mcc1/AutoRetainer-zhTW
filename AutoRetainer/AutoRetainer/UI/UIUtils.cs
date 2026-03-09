@@ -67,13 +67,6 @@ internal static class UIUtils
 
     public static void DrawSearch()
     {
-        if(C.OfflineData.Any(x => x.WorkshopEnabled || x.Enabled))
-        {
-            if(!Utils.IsLifestreamInstalled())
-            {
-                Utils.DrawLifestreamWarning("多角色模式");
-            }
-        }
         if(!C.NoCharaSearch)
         {
             ImGuiEx.SetNextItemFullWidth();
@@ -115,7 +108,7 @@ internal static class UIUtils
             ImGui.PushFont(UiBuilder.IconFont);
             ImGuiEx.Text(error == null ? null : ImGuiColors.DalamudGrey3, "");
             ImGui.PopFont();
-            ImGuiEx.Tooltip(error ?? $"部隊房屋已在 Lifestream 註冊且路徑已設定。你將被傳送至部隊房屋以重新派遣潛水艇/飛空艇。若有開啟相關設定，也會一併重新派遣僱員。\n房屋地址: {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault((uint)data.FC.ResidentialDistrict)?.Territory.Value.PlaceNameRegion.Value.Name}, ward {data.FC.Ward + 1}, plot {data.FC.Plot + 1}");
+            ImGuiEx.Tooltip(error ?? $"部隊房屋已在 Lifestream 註冊且路徑已設定。你將被傳送至部隊房屋以重新派遣潛水艇/飛空艇。若有開啟相關設定，也會一併重新派遣僱員。\\n房屋地址: {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault((uint)data.FC.ResidentialDistrict)?.Territory.Value.PlaceNameRegion.Value.Name}, ward {data.FC.Ward + 1}, plot {data.FC.Plot + 1}");
             ImGui.SameLine(0, 3);
         }
         if(offlineData.GetAllowPrivateTeleportForRetainers())
@@ -132,39 +125,7 @@ internal static class UIUtils
             ImGui.PushFont(UiBuilder.IconFont);
             ImGuiEx.Text(error == null ? null : ImGuiColors.DalamudGrey3, "");
             ImGui.PopFont();
-            ImGuiEx.Tooltip(error ?? $"個人房屋已在 Lifestream 中註冊且路徑已設定完成。你將被傳送至個人房屋，以重新派遣僱員。\n房屋地址: {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault((uint)data.Private.ResidentialDistrict)?.Territory.Value.PlaceNameRegion.Value.Name}, ward {data.Private.Ward + 1}, plot {data.Private.Plot + 1}");
-            ImGui.SameLine(0, 3);
-        }
-        if(offlineData.GetAllowSharedTeleportForRetainers())
-        {
-            string error = null;
-            string message = "";
-            var black = false;
-            if(Player.CID == offlineData.CID && Player.IsInHomeWorld)
-            {
-                var sharedData = S.LifestreamIPC.GetSharedHousePathData();
-                if(sharedData == null)
-                {
-                    error = "共享房屋尚未在 Lifestream 中註冊";
-                }
-                else if(sharedData.PathToEntrance.Count == 0)
-                {
-                    error = "共有房屋已在 Lifestream 註冊，但尚未設定前往入口的路徑";
-                }
-                else
-                {
-                    message = $"共享房屋已在 Lifestream 中註冊且路徑已設定完成。你將被傳送至共享房屋，以重新派遣僱員。\n房屋地址: {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault((uint)sharedData.ResidentialDistrict)?.Territory.Value.PlaceNameRegion.Value.Name}, ward {sharedData.Ward + 1}, plot {sharedData.Plot + 1}";
-                }
-            }
-            else
-            {
-                error = "僅能在玩家登錄時顯示共享房屋資訊";
-                black = true;
-            }
-            ImGui.PushFont(UiBuilder.IconFont);
-            ImGuiEx.Text(error == null ? null : black?ImGuiColors.DalamudGrey2:ImGuiColors.DalamudGrey3, black ? "" : "");
-            ImGui.PopFont();
-            ImGuiEx.Tooltip(error ?? message);
+            ImGuiEx.Tooltip(error ?? $"個人房屋已在 Lifestream 中註冊且路徑已設定完成。你將被傳送至個人房屋，以重新派遣僱員。\\n房屋地址: {Svc.Data.GetExcelSheet<Aetheryte>().GetRowOrDefault((uint)data.Private.ResidentialDistrict)?.Territory.Value.PlaceNameRegion.Value.Name}, ward {data.Private.Ward + 1}, plot {data.Private.Plot + 1}");
             ImGui.SameLine(0, 3);
         }
     }

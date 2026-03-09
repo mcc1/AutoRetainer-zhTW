@@ -33,7 +33,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "bailoutTitleRestart.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -45,7 +45,7 @@ internal class MultiModeOverlay : Window
                     {
                         BailoutManager.IsLogOnTitleEnabled = false;
                     }
-                    ImGui.SetTooltip($"AutoRetainer 已請求在登入畫面暫時等待有效角色\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 中止。");
+                    ImGui.SetTooltip($"AutoRetainer 已請求在登入畫面暫時等待有效角色\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 中止。");
                 }
             }
             else
@@ -59,7 +59,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "timer.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -72,7 +72,7 @@ internal class MultiModeOverlay : Window
                         Shutdown.ForceShutdownAt = 0;
                         Shutdown.ShutdownAt = 0;
                     }
-                    ImGui.SetTooltip($"已設定關機計時器。\n將於 {TimeSpan.FromMilliseconds(Shutdown.ShutdownAt - Environment.TickCount64)} 後關機\n將於 {TimeSpan.FromMilliseconds(Shutdown.ForceShutdownAt - Environment.TickCount64)} 後強制關機\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 清除計時器");
+                    ImGui.SetTooltip($"已設定關機計時器。\\n將於 {TimeSpan.FromMilliseconds(Shutdown.ShutdownAt - Environment.TickCount64)} 後關機\\n將於 {TimeSpan.FromMilliseconds(Shutdown.ForceShutdownAt - Environment.TickCount64)} 後強制關機\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 清除計時器");
                 }
             }
             else
@@ -86,7 +86,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "processing.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -112,7 +112,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "processing.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -138,7 +138,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "bellalert.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -162,7 +162,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "multi.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -188,7 +188,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "Night.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -201,7 +201,7 @@ internal class MultiModeOverlay : Window
                         C.NightMode = false;
                         MultiMode.BailoutNightMode();
                     }
-                    ImGui.SetTooltip($"夜間模式已啟用\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 停用");
+                    ImGui.SetTooltip($"夜間模式已啟用\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 停用");
                 }
             }
             else
@@ -215,7 +215,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "submarine.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -241,7 +241,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", Utils.GetReachableRetainerBell(false) == null ? "bellcrossed.png" : "bell.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -267,7 +267,7 @@ internal class MultiModeOverlay : Window
             displayed = true;
             if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "notify.png"), out var t))
             {
-                ImGui.Image(t.Handle, StatusPanelSize);
+                ImGui.Image(t.ImGuiHandle, StatusPanelSize);
                 if(ImGui.IsItemHovered())
                 {
                     ImGui.SetMouseCursor(ImGuiMouseCursor.Hand);
@@ -298,7 +298,7 @@ internal class MultiModeOverlay : Window
                 {
                     if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "wait.png"), out var t))
                     {
-                        ImGui.Image(t.Handle, StatusPanelSize / 2);
+                        ImGui.Image(t.ImGuiHandle, StatusPanelSize / 2);
                         ImGuiEx.Tooltip("已全域啟用等待所有遠航探索功能");
                     }
                     else
@@ -311,7 +311,7 @@ internal class MultiModeOverlay : Window
                 {
                     if(ThreadLoadImageHandler.TryGetTextureWrap(Path.Combine(Svc.PluginInterface.AssemblyLocation.DirectoryName, "res", "wait.png"), out var t))
                     {
-                        ImGui.Image(t.Handle, StatusPanelSize / 2);
+                        ImGui.Image(t.ImGuiHandle, StatusPanelSize / 2);
                         ImGuiEx.Tooltip("已為此角色啟用等待所有遠航探索功能");
                     }
                     else

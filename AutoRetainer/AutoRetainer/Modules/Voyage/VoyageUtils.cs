@@ -184,7 +184,7 @@ internal static unsafe class VoyageUtils
 
         foreach(var x in Unlocks.PointToUnlockPoint.Where(z => z.Value.Point < 9000 && !plan.ExcludedRoutes.Contains(z.Key)))
         {
-            if(ret.Count > 0 && Svc.Data.GetExcelSheet<SubmarineExploration>().GetRowOrDefault(ret.First().point)?.Map.RowId != Svc.Data.GetExcelSheet<SubmarineExploration>().GetRowOrDefault(x.Key)?.Map.RowId) break;
+            if(ret.Count > 0 && Svc.Data.GetExcelSheet<SubmarineExploration>().GetRow(ret.First().point).Map.RowId != Svc.Data.GetExcelSheet<SubmarineExploration>().GetRow(x.Key).Map.RowId) break;
             if(!P.SubmarineUnlockPlanUI.IsMapUnlocked(x.Key, true) && P.SubmarineUnlockPlanUI.IsMapUnlocked(x.Value.Point, true) && !ret.Any(z => z.point == x.Value.Point))
             {
                 ret.Add((x.Value.Point, $"{VoyageUtils.GetSubmarineExplorationName(x.Key)} not unlocked"));
@@ -323,7 +323,7 @@ internal static unsafe class VoyageUtils
 
     internal static void WriteOfflineData()
     {
-        //DebugLog($"WriteOfflineDataSub");
+        //PluginLog.Debug($"WriteOfflineDataSub");
         if(HousingManager.Instance()->WorkshopTerritory != null && C.OfflineData.TryGetFirst(x => x.CID == Player.CID, out var ocd))
         {
             ocd.WriteOfflineInventoryData();
@@ -362,7 +362,7 @@ internal static unsafe class VoyageUtils
                         adata.Level = vessel->RankId;
                         adata.NextLevelExp = vessel->NextLevelExp;
                         adata.CurrentExp = vessel->CurrentExp;
-                        //DebugLog("Write offline sub data");
+                        //PluginLog.Debug("Write offline sub data");
                         adata.Part1 = (int)GetVesselComponent(i, VoyageType.Submersible, 0)->ItemId;
                         adata.Part2 = (int)GetVesselComponent(i, VoyageType.Submersible, 1)->ItemId;
                         adata.Part3 = (int)GetVesselComponent(i, VoyageType.Submersible, 2)->ItemId;

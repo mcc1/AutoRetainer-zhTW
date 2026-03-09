@@ -21,15 +21,6 @@ internal unsafe class LoginOverlay : Window
 
     public override void Draw()
     {
-        this.SizeConstraints = new()
-        {
-            MinimumSize = new(0f, 0f),
-            MaximumSize = new(float.MaxValue, ImGui.GetWindowViewport().Size.Y * C.LoginOverlayPercent / 100f)
-        };
-        if(!Utils.IsLifestreamInstalled())
-        {
-            Utils.DrawLifestreamWarning("多角色模式");
-        }
         var num = 1;
         ref var sacc = ref Ref<int>.Get("ServAcc", -1);
         int[] userServiceAccounts = [-1, .. C.OfflineData.Select(x => x.ServiceAccount).Distinct().Order()];
@@ -49,7 +40,6 @@ internal unsafe class LoginOverlay : Window
         }
         ImGui.SetWindowFontScale(C.LoginOverlayScale);
         //ImGui.PushFont(Svc.PluginInterface.UiBuilder.GetGameFontHandle(new GameFontStyle(GameFontFamilyAndSize.MiedingerMid18)).ImFont);
-        int cnt = 0;
         foreach(var x in C.OfflineData.Where(x => !x.Name.IsNullOrEmpty() && (!x.ExcludeOverlay || (C.LoginOverlayAllSearch && Search != ""))))
         {
             if(sacc > -1 && x.ServiceAccount != sacc) continue;
@@ -65,12 +55,9 @@ internal unsafe class LoginOverlay : Window
                 MultiMode.Relog(x, out _, RelogReason.Overlay);
                 //AutoLogin.Instance.Login(x.CurrentWorld, x.Name, ExcelWorldHelper.GetWorldByName(x.World).RowId, x.ServiceAccount);
             }
-            cnt++;
-            if(cnt % C.NumLoginOverlayCols.ValidateRange(1, 10) != 0) ImGui.SameLine();
         }
-        if(cnt % C.NumLoginOverlayCols.ValidateRange(1, 10) != 0) ImGui.NewLine();
-            //ImGui.PopFont();
-            ImGuiEx.LineCentered("登入中心", delegate
+        //ImGui.PopFont();
+        ImGuiEx.LineCentered("登入中心", delegate
         {
             if(ImGui.Checkbox("多角色模式", ref MultiMode.Enabled))
             {

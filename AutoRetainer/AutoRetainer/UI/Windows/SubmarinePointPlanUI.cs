@@ -25,15 +25,6 @@ internal unsafe class SubmarinePointPlanUI : Window
         return i;
     }
 
-    public static readonly string DrawButtonText = "Open Submarine Point Plan Editor";
-    public static void DrawButton()
-    {
-        if(ImGuiEx.IconButtonWithText((FontAwesomeIcon)Lang.IconPlanner[0], DrawButtonText))
-        {
-            P.SubmarinePointPlanUI.IsOpen = true;
-        }
-    }
-
     public override void Draw()
     {
         C.SubmarinePointPlans.RemoveAll(x => x.Delete);
@@ -130,15 +121,7 @@ internal unsafe class SubmarinePointPlanUI : Window
                 {
                     try
                     {
-                        var plan = JsonConvert.DeserializeObject<SubmarinePointPlan>(Paste());
-                        if(!plan.IsModified())
-                        {
-                            Notify.Error("無法匯入剪貼簿內容。請確認計畫格式是否正確？");
-                        }
-                        else
-                        {
-                            SelectedPlan.CopyFrom(plan);
-                        }
+                        SelectedPlan.CopyFrom(JsonConvert.DeserializeObject<SubmarinePointPlan>(Paste()));
                     }
                     catch(Exception ex)
                     {
@@ -194,12 +177,12 @@ internal unsafe class SubmarinePointPlanUI : Window
                         for (var i = 0; i < SelectedPlan.Points.Count; i++)
                         {
                             ImGui.PushID(i);
-                            if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowUp) && i > 0)
+                            if(ImGui.ArrowButton($"##up", ImGuiDir.Up) && i > 0)
                             {
                                 (SelectedPlan.Points[i-1], SelectedPlan.Points[i]) = (SelectedPlan.Points[i], SelectedPlan.Points[i-1]);
                             }
                             ImGui.SameLine();
-                            if(ImGuiEx.IconButton(FontAwesomeIcon.ArrowDown) && i < SelectedPlan.Points.Count - 1)
+                            if(ImGui.ArrowButton($"##down", ImGuiDir.Down) && i < SelectedPlan.Points.Count - 1)
                             {
                                 (SelectedPlan.Points[i+1], SelectedPlan.Points[i]) = (SelectedPlan.Points[i], SelectedPlan.Points[i+1]);
                             }

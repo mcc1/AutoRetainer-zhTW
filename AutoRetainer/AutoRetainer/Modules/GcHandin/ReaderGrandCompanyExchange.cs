@@ -1,5 +1,4 @@
-﻿using AutoRetainerAPI.Configuration;
-using ECommons.UIHelpers;
+﻿using ECommons.UIHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace AutoRetainer.Modules.GcHandin;

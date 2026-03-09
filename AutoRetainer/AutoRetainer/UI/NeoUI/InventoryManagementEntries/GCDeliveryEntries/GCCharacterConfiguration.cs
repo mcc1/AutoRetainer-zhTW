@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.GCDeliveryEntries;
-public sealed unsafe class GCCharacterConfiguration : InventoryManagementBase
+public sealed unsafe class GCCharacterConfiguration : InventoryManagemenrBase
 {
     public override string Name { get; } = "大國防聯軍 - 籌備設定";
 

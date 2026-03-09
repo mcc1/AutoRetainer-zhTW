@@ -32,10 +32,31 @@ internal static unsafe class Shutdown
                         MultiMode.Enabled = false;
                     }
 
-                    if(!VoyageScheduler.Enabled && !SchedulerMain.PluginEnabled && !P.TaskManager.IsBusy && Utils.CanEnqueueShutdown())
+                    if(!VoyageScheduler.Enabled && !SchedulerMain.PluginEnabled && !P.TaskManager.IsBusy)
                     {
                         ShutdownAt = 0;
-                        Utils.EnqueueShutdown();
+                        P.TaskManager.Enqueue(() =>
+                        {
+                            if(EzThrottler.Throttle("SendChat"))
+                            {
+                                Chat.ExecuteCommand("/shutdown");
+                                return true;
+                            }
+                            return false;
+                        });
+                        P.TaskManager.Enqueue(() =>
+                        {
+                            var yesno = Utils.GetSpecificYesno(Lang.LogOutAndExitGame);
+                            if(yesno != null)
+                            {
+                                if(EzThrottler.Throttle("ClickExit"))
+                                {
+                                    new AddonMaster.SelectYesno((nint)yesno).Yes();
+                                    return true;
+                                }
+                            }
+                            return false;
+                        });
                     }
 
                     if(ForceShutdownAt != 0)

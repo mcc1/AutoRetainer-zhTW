@@ -9,7 +9,6 @@ using Dalamud.Game;
 using Dalamud.Interface.Components;
 using ECommons.MathHelpers;
 using Lumina.Excel.Sheets;
-using MessagePack;
 
 
 namespace AutoRetainer.UI.MainWindow;
@@ -52,7 +51,6 @@ internal static unsafe class WorkshopUI
             ImGuiEx.ButtonCheckbox($"##{data.CID}", ref data.WorkshopEnabled, 0xFF097000);
             ImGui.PopFont();
             ImGuiEx.Tooltip($"在此角色啟用多角色模式下的潛水艇自動化");
-            ImGuiEx.DragDropRepopulate("工作坊資料重整", data.WorkshopEnabled, ref data.WorkshopEnabled);
             ImGui.SameLine(0, 3);
             if(ImGuiEx.IconButton(FontAwesomeIcon.DoorOpen))
             {
@@ -348,41 +346,38 @@ internal static unsafe class WorkshopUI
         ImGuiEx.CollectionCheckbox($"{vessel.Name}##sub", vessel.Name, enabled);
         if(disabled) ImGui.EndDisabled();
         ImGui.SameLine();
+        ImGui.PushFont(UiBuilder.IconFont);
         if(adata.VesselBehavior == VesselBehavior.Finalize)
         {
-            ImGuiEx.IconButton(Lang.IconAnchor);
-            repop();
+            ImGuiEx.Text(Lang.IconAnchor);
         }
         else if(adata.VesselBehavior == VesselBehavior.Redeploy)
         {
-            ImGuiEx.IconButton(Lang.IconResend);
-            repop();
+            ImGuiEx.Text(Lang.IconResend);
         }
         else if(adata.VesselBehavior == VesselBehavior.LevelUp)
         {
-            ImGuiEx.IconButton(Lang.IconLevelup);
-            repop();
+            ImGuiEx.Text(Lang.IconLevelup);
         }
         else if(adata.VesselBehavior == VesselBehavior.Unlock)
         {
-            ImGuiEx.IconButton(Lang.IconUnlock);
-            repop();
+            ImGuiEx.Text(Lang.IconUnlock);
             ImGui.SameLine();
             if(adata.UnlockMode == UnlockMode.WhileLevelling)
             {
-                ImGuiEx.IconButton(Lang.IconLevelup);
+                ImGuiEx.Text(Lang.IconLevelup);
             }
             else if(adata.UnlockMode == UnlockMode.SpamOne)
             {
-                ImGuiEx.IconButton(Lang.IconRepeat);
+                ImGuiEx.Text(Lang.IconRepeat);
             }
             else if(adata.UnlockMode == UnlockMode.MultiSelect)
             {
-                ImGuiEx.IconButton(Lang.IconPath);
+                ImGuiEx.Text(Lang.IconPath);
             }
             else
             {
-                ImGuiEx.IconButton(Lang.IconWarning);
+                ImGuiEx.Text(Lang.IconWarning);
             }
         }
         else if(adata.VesselBehavior == VesselBehavior.Use_plan)
@@ -390,33 +385,16 @@ internal static unsafe class WorkshopUI
             var plan = VoyageUtils.GetSubmarinePointPlanByGuid(adata.SelectedPointPlan);
             var valid = plan != null && plan.Points.Count.InRange(1, 5, true);
             var fast = plan != null && plan.Points.SequenceEqual(adata.Points.Where(x => x != 0).Select(x => (uint)x));
-            Vector4? col = valid ? (fast ? EColor.GreenBright : null) : EColor.RedBright;
-            if(col != null) ImGui.PushStyleColor(ImGuiCol.Text, col.Value);
-            ImGuiEx.IconButton(Lang.IconPlanner);
-            if(col != null) ImGui.PopStyleColor();
+            ImGuiEx.Text(valid ? (fast ? EColor.GreenBright : null) : EColor.RedBright, Lang.IconPlanner);
+            ImGui.PushFont(UiBuilder.DefaultFont);
             if(valid) ImGuiEx.Tooltip(plan.Points.Select(x => $"{VoyageUtils.GetSubmarineExploration(x)?.FancyDestination()}").Print("\n"));
-            repop();
+            ImGui.PopFont();
         }
         else
         {
-            ImGuiEx.IconButton(Lang.IconWarning);
+            ImGuiEx.Text(Lang.IconWarning);
         }
-        void repop()
-        {
-            ImGuiEx.DragDropRepopulateClass("修復潛艇配置", adata, x =>
-            {
-                adata.VesselBehavior = x.VesselBehavior;
-                if(adata.VesselBehavior == VesselBehavior.Use_plan)
-                {
-                    adata.SelectedPointPlan = x.SelectedPointPlan;
-                }
-                if(adata.VesselBehavior == VesselBehavior.Unlock)
-                {
-                    adata.SelectedUnlockPlan = x.SelectedUnlockPlan;
-                    adata.UnlockMode = x.UnlockMode;
-                }
-            });
-        }
+        ImGui.PopFont();
         if(adata.IndexOverride > 0)
         {
             ImGui.SameLine();

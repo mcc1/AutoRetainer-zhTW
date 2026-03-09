@@ -20,6 +20,11 @@ public sealed unsafe class AccountWhitelist : NeoUIEntry
             ImGuiEx.TextWrapped(EColor.YellowBright, "目前白名單狀態：已啟用。要停用，請移除所有帳號。");
         }
 
+        if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.UserPlus, "Add current account", enabled: Player.Available))
+        {
+            C.WhitelistedAccounts.Add(*P.Memory.MyAccountId);
+        }
+
         foreach(var x in C.WhitelistedAccounts)
         {
             ImGui.PushID(x.ToString());

@@ -2,7 +2,6 @@
 using AutoRetainer.Modules.Voyage;
 using AutoRetainer.Modules.Voyage.Tasks;
 using AutoRetainer.Scheduler.Tasks;
-using AutoRetainer.Services.Lifestream;
 using AutoRetainer.UI.MainWindow.MultiModeTab;
 using AutoRetainerAPI.Configuration;
 using Dalamud.Game.Config;
@@ -13,7 +12,6 @@ using ECommons.ExcelServices.TerritoryEnumeration;
 using ECommons.EzSharedDataManager;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using static AutoRetainer.Modules.OfflineDataManager;
@@ -25,7 +23,6 @@ internal static unsafe class MultiMode
     internal static bool Active => Enabled && !IPC.Suppressed;
 
     internal static bool Enabled = false;
-    public static (string Name, string World)? ExpectedCharacter = null;
 
     internal static bool WaitOnLoginScreen => C.MultiWaitOnLoginScreen || BailoutManager.IsLogOnTitleEnabled || C.NightMode;
 
@@ -45,23 +42,20 @@ internal static unsafe class MultiMode
     {
         ProperOnLogin.RegisterInteractable(delegate
         {
-            TaskActivateSealSweetener.LastAttemptAt = 0;
             if(Data != null)
             {
                 C.LastLoggedInChara = Data.CID;
-                EzThrottler.Reset($"ExpertDeliver_{Data?.Identity}");
-                EzThrottler.Reset($"GcBusy");
             }
-            if(MultiMode.ExpectedCharacter != null)
+            if(TaskChangeCharacter.Expected != null)
             {
                 if(MultiMode.Enabled)
                 {
-                    if(MultiMode.ExpectedCharacter.Value.Name != Player.Name || MultiMode.ExpectedCharacter.Value.World != Player.HomeWorld)
+                    if(TaskChangeCharacter.Expected.Value.Name != Player.Name || TaskChangeCharacter.Expected.Value.World != Player.HomeWorld)
                     {
-                        DuoLog.Warning($"[ARERRCMM] Character mismatch, expected {MultiMode.ExpectedCharacter}, but logged in on {Player.NameWithWorld}. Please report this to developer unless you have manually interfered with login process");
+                        DuoLog.Warning($"[ARERRCMM] Character mismatch, expected {TaskChangeCharacter.Expected}, but logged in on {Player.NameWithWorld}. Please report this to developer unless you have manually interfered with login process");
                     }
                 }
-                MultiMode.ExpectedCharacter = null;
+                TaskChangeCharacter.Expected = null;
             }
             BailoutManager.IsLogOnTitleEnabled = false;
             WriteOfflineData(true, true);
@@ -111,9 +105,6 @@ internal static unsafe class MultiMode
         {
             return;
         }
-        EzThrottler.Throttle("ForceShutdownForSubs", 10 * 60 * 1000, true);
-        EzThrottler.Reset("GcBusy");
-        EzThrottler.Reset($"ExpertDeliver_{Data?.Identity}");
         LastLogin = 0;
         if(!TaskTeleportToProperty.ShouldVoidHET())
         {
@@ -152,7 +143,6 @@ internal static unsafe class MultiMode
     {
         if(Active)
         {
-            if(EzThrottler.Throttle("MultiNotify", 15000)) Utils.NotifyIfLifestreamIsNotInstalled("Multi Mode");
             ValidateAutoAfkSettings();
             if(!Svc.ClientState.IsLoggedIn && TryGetAddonByName<AtkUnitBase>("Title", out _) && !P.TaskManager.IsBusy)
             {
@@ -162,28 +152,9 @@ internal static unsafe class MultiMode
             {
                 BlockInteraction(1);
             }
-            if(P.TaskManager.IsBusy || S.LifestreamIPC.IsBusy())
+            if(P.TaskManager.IsBusy)
             {
                 return;
-            }
-            if(C.ShutdownOnSubExhaustion)
-            {
-                if(Utils.CanShutdownForSubs())
-                {
-                    if(Utils.CanEnqueueShutdown())
-                    {
-                        Utils.EnqueueShutdown();
-                    }
-                    if(EzThrottler.Check("ForceShutdownForSubs"))
-                    {
-                        PluginLog.Warning($"Could not shutdown the game normally, forcing exit");
-                        Environment.Exit(0);
-                    }
-                }
-                else
-                {
-                    EzThrottler.Throttle("ForceShutdownForSubs", 10 * 60 * 1000, true);
-                }
             }
             if(MultiMode.WaitOnLoginScreen)
             {
@@ -227,21 +198,17 @@ internal static unsafe class MultiMode
             {
                 if(!Utils.IsInventoryFree())
                 {
-                    Data.Enabled = false;
+                    if(C.OfflineData.TryGetFirst(x => x.CID == Svc.ClientState.LocalContentId, out var data))
+                    {
+                        data.Enabled = false;
+                    }
                 }
             }
             if(ProperOnLogin.PlayerPresent && !P.TaskManager.IsBusy && IsInteractionAllowed()
-                && (!Synchronize || C.OfflineData.Where(x => !x.IsLockedOut()).All(x => x.GetEnabledRetainers().All(z => z.GetVentureSecondsRemaining() <= C.UnsyncCompensation)))
-                && EzThrottler.Check("GcBusy"))
+                && (!Synchronize || C.OfflineData.Where(x => !x.IsLockedOut()).All(x => x.GetEnabledRetainers().All(z => z.GetVentureSecondsRemaining() <= C.UnsyncCompensation))))
             {
                 Synchronize = false;
-                if(CanExpertDeliver() && !IsOccupied() && EzThrottler.Check($"ExpertDeliver_{Data.Identity}"))
-                {
-                    TaskDeliverItems.Enqueue();
-                    EzThrottler.Throttle("GcBusy", 60000, true);
-                    EzThrottler.Throttle($"ExpertDeliver_{Data.Identity}", 30 * 60 * 1000, true);
-                }
-                else if(IsCurrentCharacterDone() && !IsOccupied())
+                if(IsCurrentCharacterDone() && !IsOccupied())
                 {
                     var next = GetCurrentTargetCharacter();
                     if(next == null && IsAllRetainersHaveMoreThan15Mins())
@@ -290,7 +257,6 @@ internal static unsafe class MultiMode
                         {
                             if(!TaskTeleportToProperty.EnqueueIfNeededAndPossible(true))
                             {
-                                EzThrottler.Reset($"ExpertDeliver_{Data.Identity}");
                                 DebugLog($"Enqueueing interaction with panel");
                                 BlockInteraction(10);
                                 TaskInteractWithNearestPanel.Enqueue();
@@ -310,7 +276,6 @@ internal static unsafe class MultiMode
                                 EnsureCharacterValidity();
                                 if(data.Enabled)
                                 {
-                                    EzThrottler.Reset($"ExpertDeliver_{Data.Identity}");
                                     DebugLog($"Enqueueing interaction with bell");
                                     TaskInteractWithNearestBell.Enqueue();
                                     P.TaskManager.Enqueue(() => { SchedulerMain.EnablePlugin(PluginEnableReason.MultiMode); return true; });
@@ -324,18 +289,6 @@ internal static unsafe class MultiMode
                 }
             }
         }
-    }
-
-    internal static bool CanExpertDeliver()
-    {
-        if(!C.FullAutoGCDelivery) return false;
-        if(C.FullAutoGCDeliveryOnlyWsUnlocked && S.WorkstationMonitor.Locked) return false;
-        if(!GCContinuation.IsGCRankSufficientForExpertExchange()) return false;
-        if(!GCContinuation.DoesInventoryHaveDeliverableItem()) return false;
-        var canDeliver = false;
-        if(Utils.GetInventoryFreeSlotCount() <= C.FullAutoGCDeliveryInventory) canDeliver = true;
-        if(C.FullAutoGCDeliveryDeliverOnVentureExhaust && InventoryManager.Instance()->GetInventoryItemCount(GCContinuation.VentureItem) <= C.FullAutoGCDeliveryDeliverOnVentureLessThan) canDeliver = true;
-        return canDeliver;
     }
 
     internal static void EnterWorkshopForRetainers()
@@ -397,11 +350,11 @@ internal static unsafe class MultiMode
         return Environment.TickCount64 > NextInteractionAt;
     }
 
-    internal static OfflineRetainerData[] GetEnabledRetainers(this OfflineCharacterData data, bool checkHasVenture = true)
+    internal static OfflineRetainerData[] GetEnabledRetainers(this OfflineCharacterData data)
     {
         if(C.SelectedRetainers.TryGetValue(data.CID, out var enabledRetainers))
         {
-            return data.RetainerData.Where(z => enabledRetainers.Contains(z.Name) && (!checkHasVenture || z.HasVenture)).ToArray();
+            return data.RetainerData.Where(z => enabledRetainers.Contains(z.Name) && z.HasVenture).ToArray();
         }
         return Array.Empty<OfflineRetainerData>();
     }
@@ -462,14 +415,13 @@ internal static unsafe class MultiMode
                     {
                         CharaCnt.Clear();
                     }
-                    P.TaskManager.Enqueue(() => Player.Interactable && IsScreenReady());
                     if(data != null)
                     {
-                        P.TaskManager.Enqueue(() => S.LifestreamIPC.ChangeCharacter(data.Name, data.World));
+                        TaskChangeCharacter.Enqueue(data.CurrentWorld, data.Name, data.World, data.ServiceAccount);
                     }
                     else
                     {
-                        P.TaskManager.Enqueue(() => S.LifestreamIPC.Logout());
+                        TaskChangeCharacter.EnqueueLogout();
                     }
                     return true;
                 }
@@ -478,7 +430,7 @@ internal static unsafe class MultiMode
             {
                 if(Utils.CanAutoLogin() || (allowFromTaskManager && Utils.CanAutoLoginFromTaskManager()))
                 {
-                    P.TaskManager.Enqueue(() => S.LifestreamIPC.ChangeCharacter(data.Name, data.World));
+                    TaskChangeCharacter.EnqueueLogin(data.CurrentWorld, data.Name, data.World, data.ServiceAccount);
                     return true;
                 }
                 else
@@ -728,20 +680,5 @@ internal static unsafe class MultiMode
                 BailoutManager.IsLogOnTitleEnabled = true;
             }
         });
-    }
-
-    public static void RunTeleportLogic()
-    {
-        if(Data.WorkshopEnabled && Data.AnyEnabledVesselsAvailable() && MultiMode.EnabledSubmarines)
-        {
-            if(!Data.ShouldWaitForAllWhenLoggedIn() || Data.AreAnyEnabledVesselsReturnInNext(0, true))
-            {
-                TaskTeleportToProperty.EnqueueIfNeededAndPossible(true);
-            }
-        }
-        else
-        {
-            TaskTeleportToProperty.EnqueueIfNeededAndPossible(false);
-        }
     }
 }

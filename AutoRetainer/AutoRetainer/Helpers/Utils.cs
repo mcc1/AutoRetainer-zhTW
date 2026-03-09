@@ -2,19 +2,13 @@
 using AutoRetainer.Modules.Voyage;
 using AutoRetainer.Scheduler.Handlers;
 using AutoRetainer.Scheduler.Tasks;
-using AutoRetainer.UI.NeoUI.Experiments;
 using AutoRetainerAPI.Configuration;
-using CsvHelper;
-using CsvHelper.Configuration;
-using Dalamud.Bindings.ImPlot;
 using Dalamud.Game;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
-using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Memory;
 using Dalamud.Utility;
-using ECommons.Automation;
 using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.ExcelServices.TerritoryEnumeration;
@@ -30,17 +24,8 @@ using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
 using Lumina.Text.ReadOnly;
-using System;
-using System.Globalization;
-
-using System.IO;
-using System.Reflection;
-
-
-
-//using OtterGui.Text.EndObjects;
+using OtterGui.Text.EndObjects;
 using System.Text.RegularExpressions;
-using TerraFX.Interop.Windows;
 using CharaData = (string Name, ushort World);
 using GrandCompany = ECommons.ExcelServices.GrandCompany;
 
@@ -48,93 +33,10 @@ namespace AutoRetainer.Helpers;
 
 public static unsafe class Utils
 {
-    public static Func<T> CreateGetter<T>(FieldInfo field)
-    {
-        return () => (T)field.GetValue(C);
-    }
     public static int FrameDelay => 10 + C.ExtraFrameDelay;
     public static bool IsCN => Svc.ClientState.ClientLanguage == (ClientLanguage)4;
     public static int FCPoints => *(int*)((nint)AgentModule.Instance()->GetAgentByInternalId(AgentId.FreeCompanyCreditShop) + 256);
     public static float AnimationLock => Player.AnimationLock;
-
-    public static bool CanEnqueueShutdown()
-    {
-        if(TryGetAddonMaster<AddonMaster._TitleMenu>(out var m) && m.IsAddonReady) return true;
-        if(Player.Interactable && !GenericHelpers.IsOccupied()) return true;
-        return false;
-    }
-
-    public static void WriteCsv(string filePath, string[] columnNames, List<string[]> rows)
-    {
-        var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-        {
-            HasHeaderRecord = true
-        };
-
-        using var writer = new StreamWriter(filePath);
-        using var csv = new CsvWriter(writer, config);
-        foreach(var col in columnNames)
-        {
-            csv.WriteField(col);
-        }
-        csv.NextRecord();
-
-        foreach(var row in rows)
-        {
-            foreach(var field in row)
-            {
-                csv.WriteField(field);
-            }
-            csv.NextRecord();
-        }
-    }
-
-    public static void EnqueueShutdown()
-    {
-        if(!Svc.ClientState.IsLoggedIn)
-        {
-            P.TaskManager.Enqueue(() =>
-            {
-                if(TryGetAddonMaster<AddonMaster._TitleMenu>(out var m) && m.IsAddonReady)
-                {
-                    if(EzThrottler.Throttle("ShutdownGame", 5000))
-                    {
-                        m.Exit();
-                    }
-                }
-            });
-            P.TaskManager.EnqueueDelay(30000);
-        }
-        else
-        {
-            P.TaskManager.Enqueue(() =>
-            {
-                if(Player.Interactable && !IsOccupied())
-                {
-                    if(EzThrottler.Throttle("SendChat"))
-                    {
-                        Chat.ExecuteCommand("/shutdown");
-                        return true;
-                    }
-                }
-                return false;
-            });
-            P.TaskManager.Enqueue(() =>
-            {
-                var yesno = Utils.GetSpecificYesno(Lang.LogOutAndExitGame);
-                if(yesno != null)
-                {
-                    if(EzThrottler.Throttle("ClickExit"))
-                    {
-                        new AddonMaster.SelectYesno((nint)yesno).Yes();
-                        return true;
-                    }
-                }
-                return false;
-            });
-            P.TaskManager.EnqueueDelay(30000);
-        }
-    }
 
     public static uint[] WeaponsUICategories
     {
@@ -150,74 +52,6 @@ public static unsafe class Utils
         }
     } = null;
 
-    public static bool IsLifestreamInstalled()
-    {
-        return Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "Lifestream" && x.IsLoaded && x.Version >= new Version("2.5.3.0"));
-    }
-
-    public static bool CanShutdownForSubs()
-    {
-        return C.OfflineData.Where(x => x.WorkshopEnabled && !x.ExcludeWorkshop).All(x => !x.AreAnyEnabledVesselsReturnInNext((int)(C.HoursForShutdown * 60f * 60f)));
-    }
-
-    public static void DrawLifestreamWarning(string function)
-    {
-        if(!Utils.IsLifestreamInstalled())
-        {
-            ImGuiEx.TextWrapped(EColor.RedBright, $"Lifestream plugin is not installed or not enabled. You have to install and enable it in order for {function} to work. Click here if you would like to open an instruction on how to do so.");
-            if(ImGuiEx.HoveredAndClicked())
-            {
-                ShellStart("https://github.com/NightmareXIV/Lifestream/?tab=readme-ov-file#installation");
-            }
-        }
-    }
-
-    public static void NotifyIfLifestreamIsNotInstalled(string function = "this function")
-    {
-        ref var notification = ref Ref<IActiveNotification>.Get("Notification");
-        if(!Utils.IsLifestreamInstalled())
-        {
-            if(notification != null)
-            {
-                try
-                {
-                    notification.DismissNow();
-                }
-                catch(Exception e)
-                {
-                    e.LogVerbose();
-                }
-            }
-            notification = Svc.NotificationManager.AddNotification(new()
-            {
-                Title = "Lifestream is not installed",
-                Content = $"Lifestream plugin is required to use {function}. Click here for a guide on how to install it.",
-                InitialDuration = TimeSpan.FromSeconds(60),
-                Type = NotificationType.Error,
-                Minimized = false,
-            });
-            notification.Click += delegate
-            {
-                ShellStart("https://github.com/NightmareXIV/Lifestream/?tab=readme-ov-file#installation");
-                Ref<IActiveNotification>.Get("Notification")?.DismissNow();
-            };
-        }
-    }
-
-    public static void DrawLifestreamAvailabilityIndicator()
-    {
-        ImGuiEx.PluginAvailabilityIndicator([new("Lifestream", new Version("2.5.3.0"))]);
-    }
-
-    public static long GetDaysSinceUtcStart()
-    {
-        DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        DateTime now = DateTime.UtcNow;
-
-        long days = (long)(now - epoch).TotalDays;
-        return days;
-    }
-
     public static uint[] ArmorsUICategories
     {
         get
@@ -231,174 +65,24 @@ public static unsafe class Utils
         }
     } = null;
 
-    extension(InventoryManagementSettings thisRef)
+    extension(OfflineCharacterData data)
     {
-        public bool AddItemToList(IMListKind kind, uint item, out string error)
-        {
-            error = null;
-            var data = ExcelItemHelper.Get(item);
-            if(data == null)
-            {
-                error = $"Item with identifier {item} is invalid";
-                return false;
-            }
-            else if(kind == IMListKind.Protect)
-            {
-                thisRef.IMAutoVendorHard.Remove(item);
-                thisRef.IMAutoVendorSoft.Remove(item);
-                thisRef.IMAutoVendorHardIgnoreStack.Remove(item);
-                thisRef.IMDiscardList.Remove(item);
-                thisRef.IMDiscardIgnoreStack.Remove(item);
-                thisRef.IMDesynth.Remove(item);
-                if(!thisRef.IMProtectList.Contains(item))
-                {
-                    thisRef.IMProtectList.Add(item);
-                    return true;
-                }
-                else
-                {
-                    error = $"Item {data.GetName()} is already present in protection list";
-                    return false;
-                }
-            }
-            else if(kind == IMListKind.SoftSell)
-            {
-                if(thisRef.IMProtectList.Contains(item))
-                {
-                    error = $"Item {data.GetName()} is protected";
-                    return false;
-                }
-                else
-                {
-                    //thisRef.IMAutoVendorHard.Remove(item);
-                    //thisRef.IMAutoVendorHardIgnoreStack.Remove(item);
-                    //thisRef.IMDiscardList.Remove(item);
-                    //thisRef.IMDiscardIgnoreStack.Remove(item);
-                    //thisRef.IMDesynth.Remove(item);
-                    if(!thisRef.IMAutoVendorSoft.Contains(item))
-                    {
-                        thisRef.IMAutoVendorSoft.Add(item);
-                        return true;
-                    }
-                    else
-                    {
-                        error = $"Item {data.GetName()} is already present in quick venture sell list";
-                        return false;
-                    }
-                }
-            }
-            else if(kind == IMListKind.HardSell)
-            {
-                if(thisRef.IMProtectList.Contains(item))
-                {
-                    error = $"Item {data.GetName()} is protected";
-                    return false;
-                }
-                else
-                {
-                    thisRef.IMAutoVendorSoft.Remove(item);
-                    thisRef.IMDiscardList.Remove(item);
-                    thisRef.IMDiscardIgnoreStack.Remove(item);
-                    thisRef.IMDesynth.Remove(item);
-                    if(!thisRef.IMAutoVendorHard.Contains(item))
-                    {
-                        thisRef.IMAutoVendorHard.Add(item);
-                        return true;
-                    }
-                    else
-                    {
-                        error = $"Item {data.GetName()} is already present in unconditional sell list";
-                        return false;
-                    }
-                }
-            }
-            else if(kind == IMListKind.Discard)
-            {
-                if(thisRef.IMProtectList.Contains(item))
-                {
-                    error = $"Item {data.GetName()} is protected";
-                    return false;
-                }
-                else
-                {
-                    thisRef.IMAutoVendorSoft.Remove(item);
-                    thisRef.IMAutoVendorHard.Remove(item);
-                    thisRef.IMAutoVendorHardIgnoreStack.Remove(item);
-                    thisRef.IMDesynth.Remove(item);
-                    if(!thisRef.IMDiscardList.Contains(item))
-                    {
-                        thisRef.IMDiscardList.Add(item);
-                        return true;
-                    }
-                    else
-                    {
-                        error = $"Item {data.GetName()} is already present in discard list";
-                        return false;
-                    }
-                }
-            }
-            else if(kind == IMListKind.Desynth)
-            {
-                if(thisRef.IMProtectList.Contains(item))
-                {
-                    error = $"Item {data.GetName()} is protected";
-                    return false;
-                }
-                else
-                {
-                    thisRef.IMAutoVendorSoft.Remove(item);
-                    thisRef.IMAutoVendorHard.Remove(item);
-                    thisRef.IMAutoVendorHardIgnoreStack.Remove(item);
-                    thisRef.IMDiscardList.Remove(item);
-                    thisRef.IMDiscardIgnoreStack.Remove(item);
-                    if(!thisRef.IMDiscardList.Contains(item))
-                    {
-                        thisRef.IMDiscardList.Add(item);
-                        return true;
-                    }
-                    else
-                    {
-                        error = $"Item {data.GetName()} is already present in desynthesis list";
-                        return false;
-                    }
-                }
-            }
-            else
-            {
-                error = $"Invalid command {kind}";
-                return false;
-            }
-        }
-    } 
-
-    extension(OfflineCharacterData thisRef)
-    {
-        public string NameWithWorld => $"{thisRef.Name}@{thisRef.World}";
-        public string NameWithWorldCensored => Censor.Character(thisRef.NameWithWorld);
-
-        public void ClearFCData()
-        {
-            thisRef.OfflineAirshipData.Clear();
-            thisRef.OfflineSubmarineData.Clear();
-            thisRef.AdditionalAirshipData.Clear();
-            thisRef.AdditionalSubmarineData.Clear();
-            thisRef.FCID = 0;
-            C.FCData.Where(x => x.Value.HolderChara == thisRef.CID).Each(x => x.Value.HolderChara = 0);
-        }
+        public string NameWithWorld => $"{data.Name}@{data.World}";
+        public string NameWithWorldCensored => Censor.Character(data.NameWithWorld);
 
         public object? GetOrderValue(RetainersVisualOrder order)
         {
             return order switch
             {
-                RetainersVisualOrder.Region_JP => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.JP,
-                RetainersVisualOrder.Region_NA => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.NA,
-                RetainersVisualOrder.Region_EU => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.EU,
-                RetainersVisualOrder.Region_OC => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.OC,
-                RetainersVisualOrder.DataCenter => ExcelWorldHelper.Get(thisRef.World)?.DataCenter.RowId ?? 0,
-                RetainersVisualOrder.Inventory_Slots => (int)thisRef.InventorySpace,
-                RetainersVisualOrder.Ventures => (int)thisRef.Ventures,
-                RetainersVisualOrder.World => thisRef.World,
-                RetainersVisualOrder.Name => thisRef.Name,
+                RetainersVisualOrder.Region_JP => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.JP,
+                RetainersVisualOrder.Region_NA => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.NA,
+                RetainersVisualOrder.Region_EU => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.EU,
+                RetainersVisualOrder.Region_OC => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.OC,
+                RetainersVisualOrder.DataCenter => ExcelWorldHelper.Get(data.World)?.DataCenter.RowId ?? 0,
+                RetainersVisualOrder.Inventory_Slots => (int)data.InventorySpace,
+                RetainersVisualOrder.Ventures => (int)data.Ventures,
+                RetainersVisualOrder.World => data.World,
+                RetainersVisualOrder.Name => data.Name,
                 _ => null
             };
         }
@@ -407,23 +91,23 @@ public static unsafe class Utils
         {
             return order switch
             {
-                DeployablesVisualOrder.Region_JP => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.JP,
-                DeployablesVisualOrder.Region_NA => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.NA,
-                DeployablesVisualOrder.Region_EU => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.EU,
-                DeployablesVisualOrder.Region_OC => ExcelWorldHelper.Get(thisRef.World)?.GetRegion() != ExcelWorldHelper.Region.OC,
-                DeployablesVisualOrder.DataCenter => ExcelWorldHelper.Get(thisRef.World)?.DataCenter.RowId ?? 0,
-                DeployablesVisualOrder.Inventory_Slots => (int)thisRef.InventorySpace,
-                DeployablesVisualOrder.Ceruleum => (int)thisRef.Ceruleum,
-                DeployablesVisualOrder.Repair_Kits => (int)thisRef.RepairKits,
-                DeployablesVisualOrder.World => thisRef.World,
-                DeployablesVisualOrder.Name => thisRef.Name,
+                DeployablesVisualOrder.Region_JP => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.JP,
+                DeployablesVisualOrder.Region_NA => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.NA,
+                DeployablesVisualOrder.Region_EU => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.EU,
+                DeployablesVisualOrder.Region_OC => ExcelWorldHelper.Get(data.World)?.GetRegion() != ExcelWorldHelper.Region.OC,
+                DeployablesVisualOrder.DataCenter => ExcelWorldHelper.Get(data.World)?.DataCenter.RowId ?? 0,
+                DeployablesVisualOrder.Inventory_Slots => (int)data.InventorySpace,
+                DeployablesVisualOrder.Ceruleum => (int)data.Ceruleum,
+                DeployablesVisualOrder.Repair_Kits => (int)data.RepairKits,
+                DeployablesVisualOrder.World => data.World,
+                DeployablesVisualOrder.Name => data.Name,
                 _ => null
             };
         }
 
         public bool IsLockedOut()
         {
-            var world = ExcelWorldHelper.Get(thisRef.WorldOverride ?? thisRef.World);
+            var world = ExcelWorldHelper.Get(data.WorldOverride ?? data.World);
             if(world != null)
             {
                 return DateTimeOffset.Now.ToUnixTimeSeconds() < C.LockoutTime.SafeSelect(world.Value.GetRegion(), 0);
@@ -433,57 +117,52 @@ public static unsafe class Utils
 
         public bool ShouldWaitForAllWhenLoggedIn()
         {
-            return C.MultiModeWorkshopConfiguration.WaitForAllLoggedIn && (C.MultiModeWorkshopConfiguration.MultiWaitForAll || thisRef.MultiWaitForAllDeployables);
+            return C.MultiModeWorkshopConfiguration.WaitForAllLoggedIn && (C.MultiModeWorkshopConfiguration.MultiWaitForAll || data.MultiWaitForAllDeployables);
         }
 
         public bool GetAllowFcTeleportForRetainers()
         {
-            return thisRef.IsTeleportEnabled() && thisRef.GetIsTeleportEnabledForRetainers() && (thisRef.TeleportOptionsOverride.RetainersFC ?? C.GlobalTeleportOptions.RetainersFC);
+            return data.IsTeleportEnabled() && data.GetIsTeleportEnabledForRetainers() && (data.TeleportOptionsOverride.RetainersFC ?? C.GlobalTeleportOptions.RetainersFC);
         }
 
         public bool GetAllowPrivateTeleportForRetainers()
         {
-            return thisRef.IsTeleportEnabled() && thisRef.GetIsTeleportEnabledForRetainers() && (thisRef.TeleportOptionsOverride.RetainersPrivate ?? C.GlobalTeleportOptions.RetainersPrivate);
-        }
-
-        public bool GetAllowSharedTeleportForRetainers()
-        {
-            return thisRef.IsTeleportEnabled() && thisRef.GetIsTeleportEnabledForRetainers() && (thisRef.TeleportOptionsOverride.RetainersShared ?? C.GlobalTeleportOptions.RetainersShared);
+            return data.IsTeleportEnabled() && data.GetIsTeleportEnabledForRetainers() && (data.TeleportOptionsOverride.RetainersPrivate ?? C.GlobalTeleportOptions.RetainersPrivate);
         }
 
         public bool GetAllowApartmentTeleportForRetainers()
         {
-            return thisRef.IsTeleportEnabled() && thisRef.GetIsTeleportEnabledForRetainers() && (thisRef.TeleportOptionsOverride.RetainersApartment ?? C.GlobalTeleportOptions.RetainersApartment);
+            return data.IsTeleportEnabled() && data.GetIsTeleportEnabledForRetainers() && (data.TeleportOptionsOverride.RetainersApartment ?? C.GlobalTeleportOptions.RetainersApartment);
         }
 
         public bool GetAllowFcTeleportForSubs()
         {
-            return thisRef.IsTeleportEnabled() && (thisRef.TeleportOptionsOverride.Deployables ?? C.GlobalTeleportOptions.Deployables);
+            return data.IsTeleportEnabled() && (data.TeleportOptionsOverride.Deployables ?? C.GlobalTeleportOptions.Deployables);
         }
 
         public bool IsTeleportEnabled()
         {
-            return thisRef.TeleportOptionsOverride.Enabled ?? C.GlobalTeleportOptions.Enabled;
+            return data.TeleportOptionsOverride.Enabled ?? C.GlobalTeleportOptions.Enabled;
         }
 
         public bool GetIsTeleportEnabledForRetainers()
         {
-            return thisRef.TeleportOptionsOverride.Retainers ?? C.GlobalTeleportOptions.Retainers;
+            return data.TeleportOptionsOverride.Retainers ?? C.GlobalTeleportOptions.Retainers;
         }
 
         public bool GetAreTeleportSettingsOverriden()
         {
-            return thisRef.TeleportOptionsOverride.Deployables != null
-                || thisRef.TeleportOptionsOverride.Enabled != null
-                || thisRef.TeleportOptionsOverride.Retainers != null
-                || thisRef.TeleportOptionsOverride.RetainersApartment != null
-                || thisRef.TeleportOptionsOverride.RetainersFC != null
-                || thisRef.TeleportOptionsOverride.RetainersPrivate != null;
+            return data.TeleportOptionsOverride.Deployables != null
+                || data.TeleportOptionsOverride.Enabled != null
+                || data.TeleportOptionsOverride.Retainers != null
+                || data.TeleportOptionsOverride.RetainersApartment != null
+                || data.TeleportOptionsOverride.RetainersFC != null
+                || data.TeleportOptionsOverride.RetainersPrivate != null;
         }
 
         public InventoryManagementSettings GetIMSettings(bool raw = false)
         {
-            if(C.AdditionalIMSettings.TryGetFirst(x => x.GUID == thisRef.InventoryCleanupPlan, out var plan))
+            if(C.AdditionalIMSettings.TryGetFirst(x => x.GUID == data.InventoryCleanupPlan, out var plan))
             {
                 if(!raw && (plan.AdditionModeProtectList || plan.AdditionModeSoftSellList || plan.AdditionModeHardSellList))
                 {
@@ -508,16 +187,6 @@ public static unsafe class Utils
                             }
                         }
                     }
-                    if(plan.AdditionModeDesynthList)
-                    {
-                        foreach(var x in C.DefaultIMSettings.IMDesynth)
-                        {
-                            if(!newPlan.IMDesynth.Contains(x))
-                            {
-                                newPlan.IMDesynth.Add(x);
-                            }
-                        }
-                    }
                     if(plan.AdditionModeHardSellList)
                     {
                         foreach(var x in C.DefaultIMSettings.IMAutoVendorHard)
@@ -528,20 +197,6 @@ public static unsafe class Utils
                                 if(C.DefaultIMSettings.IMAutoVendorHardIgnoreStack.Contains(x))
                                 {
                                     newPlan.IMAutoVendorHardIgnoreStack.Add(x);
-                                }
-                            }
-                        }
-                    }
-                    if(plan.AdditionModeDiscardList)
-                    {
-                        foreach(var x in C.DefaultIMSettings.IMDiscardList)
-                        {
-                            if(!newPlan.IMDiscardList.Contains(x))
-                            {
-                                newPlan.IMDiscardList.Add(x);
-                                if(C.DefaultIMSettings.IMDiscardIgnoreStack.Contains(x))
-                                {
-                                    newPlan.IMDiscardIgnoreStack.Add(x);
                                 }
                             }
                         }
@@ -558,67 +213,9 @@ public static unsafe class Utils
                 return C.DefaultIMSettings;
             }
         }
-
-        public IEnumerable<InventoryType> GetDiscardableInventories()
-        {
-            return [.. PlayerInvetoriesWithCrystals, .. (Data.GetIMSettings().AllowSellFromArmory ? PlayerArmory : [])];
-        }
     }
 
-    public static bool InventoryContainsDiscardableItems()
-    {
-        var imPlan = Data.GetIMSettings();
-        if(imPlan == null)
-        {
-            return false;
-        }
-        foreach(var item in imPlan.IMDiscardList)
-        {
-            var cnt = CountItemsInInventory(item, null, Data.GetDiscardableInventories(), slot => imPlan.IMDiscardIgnoreStack.Contains(slot.ItemId) || slot.Quantity < imPlan.IMDiscardStackLimit);
-            if(cnt > 0) return true;
-        }
-        return false;
-    }
-
-    public static void ExecuteDiscardSafely(InventoryType type, int slotIndex, uint expectedItem, bool simulate = false)
-    {
-        var imPlan = Data.GetIMSettings() ?? throw new NullReferenceException();
-        var inventory = InventoryManager.Instance();
-        var cont = inventory->GetInventoryContainer(type);
-        if(cont->IsLoaded)
-        {
-            var slot = &cont->Items[slotIndex];
-            if(slot->ItemId == expectedItem)
-            {
-                if(imPlan.IMProtectList.Contains(slot->ItemId))
-                {
-                    DuoLog.Warning($"Requested discard of slot {type}[{slotIndex}], item {ExcelItemHelper.GetName(expectedItem)}, is protected, can not discard");
-                }
-                else
-                {
-                    if(imPlan.IMDry)
-                    {
-                        DuoLog.Warning($"Would discard {(nint)slot:X} {ExcelItemHelper.GetName(slot->ItemId, true)} x{slot->Quantity}, {type}[{slotIndex}]");
-                    }
-                    else
-                    {
-                        ExecuteDiscardUnsafe(slot, type, slotIndex);
-                    }
-                }
-            }
-            else
-            {
-                DuoLog.Warning($"Requested discard of slot {type}[{slotIndex}], expected item {ExcelItemHelper.GetName(expectedItem)}, contained {slotIndex}, can not discard");
-            }
-        }
-    }
-
-    private static void ExecuteDiscardUnsafe(InventoryItem* ptr, InventoryType type, int slotIndex)
-    {
-        AgentInventoryContext.Instance()->DiscardItem(ptr, type, slotIndex, 0);
-    }
-
-    public static int CountItemsInInventory(uint id, bool? hq, IEnumerable<InventoryType> inventories, Predicate<InventoryItem> itemPredicate = null)
+    public static int CountItemsInInventory(uint id, bool? hq, IEnumerable<InventoryType> inventories)
     {
         var ret = 0;
         foreach(var inventory in inventories)
@@ -627,14 +224,11 @@ public static unsafe class Utils
             for(var i = 0; i < inv->Size; i++)
             {
                 var slot = inv->Items[i];
-                if(itemPredicate == null || itemPredicate(slot))
+                var itemId = slot.ItemId;
+                var itemHq = slot.Flags.HasFlag(InventoryItem.ItemFlags.HighQuality);
+                if((hq == null || itemHq == hq) && itemId == id)
                 {
-                    var itemId = slot.ItemId;
-                    var itemHq = slot.Flags.HasFlag(InventoryItem.ItemFlags.HighQuality);
-                    if((hq == null || itemHq == hq) && itemId == id)
-                    {
-                        ret += (int)slot.Quantity;
-                    }
+                    ret += (int)slot.Quantity;
                 }
             }
         }
@@ -694,7 +288,9 @@ public static unsafe class Utils
             get
             {
                 if(plan.Name != "") return plan.Name;
-                return $"Unnamed Plan {plan.GUID.GetDisplayTag()}";
+                var index = C.AdditionalGCExchangePlans.IndexOf(plan);
+                if(index != -1) return $"Plan {index + 1}";
+                return $"Plan {plan.GUID.ToString().Split("-")[0]}";
             }
         }
 
@@ -718,7 +314,9 @@ public static unsafe class Utils
             get
             {
                 if(plan.Name != "") return plan.Name;
-                return $"Unnamed Plan {plan.GUID.GetDisplayTag()}";
+                var index = C.AdditionalIMSettings.IndexOf(plan);
+                if(index != -1) return $"Plan {index + 1}";
+                return $"Plan {plan.GUID.ToString().Split("-")[0]}";
             }
         }
     }
@@ -1083,7 +681,7 @@ public static unsafe class Utils
 
     internal static void ExtraLog(string s)
     {
-        if(C.ExtraDebug) DebugLog(s);
+        if(C.ExtraDebug) PluginLog.Debug(s);
     }
 
     internal static bool ContainsAllItems<T>(this IEnumerable<T> a, IEnumerable<T> b)
@@ -1349,7 +947,7 @@ public static unsafe class Utils
         {
             if((x.ObjectKind == ObjectKind.Housing || x.ObjectKind == ObjectKind.EventObj) && x.Name.ToString().EqualsIgnoreCaseAny(Lang.BellName))
             {
-                var distance = extend && (VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType) || Player.TerritoryIntendedUse == TerritoryIntendedUseEnum.Inn) ? 20f : GetValidInteractionDistance(x) ;
+                var distance = extend && VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType) ? 20f : GetValidInteractionDistance(x);
                 if(Vector3.Distance(x.Position, Svc.ClientState.LocalPlayer.Position) < distance && x.IsTargetable)
                 {
                     return x;
@@ -1452,14 +1050,12 @@ public static unsafe class Utils
     {
         if(TryGetAddonByName<AddonSelectString>("SelectString", out var addon) && IsAddonReady(&addon->AtkUnitBase))
         {
-            InternalLog.Debug($"Entries: {new AddonMaster.SelectString(addon).Entries.Select(x => x.Text).Print("\n")}");
             if(new AddonMaster.SelectString(addon).Entries.TryGetFirst(x => inputTextTest(x.Text), out var entry))
             {
-                InternalLog.Debug($"Entry found: {entry}");
                 if((Throttler?.Invoke() ?? GenericThrottle))
                 {
                     entry.Select();
-                    InternalLog.Debug($"TrySelectSpecificEntry: selecting {entry}");
+                    DebugLog($"TrySelectSpecificEntry: selecting {entry}");
                     return true;
                 }
             }
@@ -1489,24 +1085,6 @@ public static unsafe class Utils
             {
                 instance.GetType().Assembly.GetType("NotificationMaster.TrayIconManager", true).GetMethod("ShowToast").Invoke(null, new object[] { s, P.Name });
             }, true);
-        }
-    }
-
-    public static int GenerateRandomDelay()
-    {
-        var roll = System.Random.Shared.NextSingle();
-
-        if(roll < 0.6f)
-        {
-            return System.Random.Shared.Next(300, 350);
-        }
-        else if(roll < 0.9f)
-        {
-            return System.Random.Shared.Next(350, 400);
-        }
-        else
-        {
-            return System.Random.Shared.Next(400, 500);
         }
     }
 
@@ -1580,19 +1158,16 @@ public static unsafe class Utils
         {
             try
             {
-                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i).Address;
+                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i);
                 if(addon == null) return null;
                 if(IsAddonReady(addon))
                 {
-                    var textNode = addon->GetTextNodeById(2);
-                    if(textNode != null)
+                    var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
+                    var text = GenericHelpers.ReadSeString(&textNode->NodeText).GetText();
+                    if(compare(text))
                     {
-                        var text = GenericHelpers.ReadSeString(&textNode->NodeText).GetText();
-                        if(compare(text))
-                        {
-                            PluginLog.Verbose($"SelectYesno {text} addon {i} by predicate");
-                            return addon;
-                        }
+                        PluginLog.Verbose($"SelectYesno {text} addon {i} by predicate");
+                        return addon;
                     }
                 }
             }
@@ -1611,19 +1186,16 @@ public static unsafe class Utils
         {
             try
             {
-                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i).Address;
+                var addon = (AtkUnitBase*)Svc.GameGui.GetAddonByName("SelectYesno", i);
                 if(addon == null) return null;
                 if(IsAddonReady(addon))
                 {
-                    var textNode = addon->GetTextNodeById(2);
-                    if(textNode != null)
+                    var textNode = addon->UldManager.NodeList[15]->GetAsAtkTextNode();
+                    var text = textNode->NodeText.GetText().Cleanup();
+                    if(text.ContainsAny(s.Select(x => x.Cleanup())))
                     {
-                        var text = textNode->NodeText.GetText().Cleanup();
-                        if(text.ContainsAny(s.Select(x => x.Cleanup())))
-                        {
-                            PluginLog.Verbose($"SelectYesno {s.Print()} addon {i}");
-                            return addon;
-                        }
+                        PluginLog.Verbose($"SelectYesno {s.Print()} addon {i}");
+                        return addon;
                     }
                 }
             }
@@ -1738,14 +1310,9 @@ public static unsafe class Utils
         return false;
     }
 
-    /// <summary>
-    /// Default check in: Utils.PlayerInvetories
-    /// </summary>
-    /// <param name="types"></param>
-    /// <returns></returns>
-    internal static int GetInventoryFreeSlotCount(InventoryType[] types = null)
+    internal static int GetInventoryFreeSlotCount()
     {
-        types ??= PlayerInvetories;
+        InventoryType[] types = [InventoryType.Inventory1, InventoryType.Inventory2, InventoryType.Inventory3, InventoryType.Inventory4];
         var c = InventoryManager.Instance();
         var slots = 0;
         foreach(var x in types)

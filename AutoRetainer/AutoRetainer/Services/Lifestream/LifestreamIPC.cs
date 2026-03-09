@@ -21,7 +21,6 @@ public class LifestreamIPC
     /// content id
     /// </summary>
     [EzIPC] public Func<ulong, (HousePathData Private, HousePathData FC)> GetHousePathData;
-    [EzIPC] public Func<HousePathData> GetSharedHousePathData;
     /// <summary>
     /// territory, plot
     /// </summary>
@@ -31,12 +30,6 @@ public class LifestreamIPC
     /// </summary>
     [EzIPC] public Action<int, int?> EnqueuePropertyShortcut;
     [EzIPC] public Func<(int Kind, int Ward, int Plot)?> GetCurrentPlotInfo;
-
-    /// <summary>
-    /// name, world
-    /// </summary>
-    [EzIPC] public Func<string, string, ErrorCode> ChangeCharacter;
-    [EzIPC] public Func<ErrorCode> Logout;
 
     [EzIPCEvent]
     public void OnHouseEnterError()
@@ -53,7 +46,6 @@ public class LifestreamIPC
     [EzIPC] public Func<bool?> HasApartment;
     [EzIPC] public Action<bool> EnterApartment;
     [EzIPC] public Func<bool?> HasPrivateHouse;
-    [EzIPC] public Func<bool?> HasSharedEstate;
     [EzIPC] public Func<bool?> HasFreeCompanyHouse;
     [EzIPC] public Func<bool> CanMoveToWorkshop;
     [EzIPC] public Action MoveToWorkshop;
