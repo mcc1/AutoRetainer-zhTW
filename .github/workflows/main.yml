@@ -11,7 +11,11 @@ jobs:
     permissions:
       contents: write 
     env:
-      DALAMUD_VERSION: 25-12-08-01
+      # AutoRetainer 4.5.1.13 (from package metadata)
+      AUTORETAINER_REF: "4f658f35a89341f78d5de412482dd7183824cb90"
+      # Pin the asset for reproducible builds. Update only when you intentionally upgrade.
+      DALAMUD_ASSET_URL: "https://github.com/yanmucorp/Dalamud/releases/download/25-12-26-01/latest.7z"
+      DALAMUD_ASSETS_JSON_URL: "https://raw.githubusercontent.com/yanmucorp/DalamudAssets/master/assetCN.json"
 
     steps:
       - name: Checkout Localizer
@@ -29,8 +33,13 @@ jobs:
       - name: Clone Original Repo
         run: |
           rm -rf AutoRetainer
-          git clone --recurse-submodules https://github.com/PunishXIV/AutoRetainer.git AutoRetainer
-          rm -rf AutoRetainer/.git
+          git clone https://github.com/PunishXIV/AutoRetainer.git AutoRetainer
+          if ! git -C AutoRetainer rev-parse --verify "$AUTORETAINER_REF^{commit}" >/dev/null 2>&1; then
+            git -C AutoRetainer fetch origin "$AUTORETAINER_REF"
+          fi
+          git -C AutoRetainer checkout --detach "$AUTORETAINER_REF"
+          git -C AutoRetainer submodule sync --recursive
+          git -C AutoRetainer submodule update --init --recursive
 
       - name: Run Translation
         env:
@@ -40,38 +49,106 @@ jobs:
 
       - name: Prepare Dalamud Dependencies
         run: |
-          mkdir -p "$RUNNER_TEMP/dalamud"
-          api_url="https://api.github.com/repos/yanmucorp/Dalamud/releases/tags/${DALAMUD_VERSION}"
-          if ! release_json="$(curl -fsSL -H "Accept: application/vnd.github+json" "$api_url")"; then
-            api_url="https://api.github.com/repos/yanmucorp/Dalamud/releases/tags/v${DALAMUD_VERSION}"
-            release_json="$(curl -fsSL -H "Accept: application/vnd.github+json" "$api_url")"
-          fi
-
-          asset_url="$(
-            printf '%s' "$release_json" \
-              | grep -oE '"browser_download_url":[[:space:]]*"[^"]+\.zip"' \
-              | cut -d '"' -f 4 \
-              | grep -Ei 'latest|dalamud' \
-              | head -n 1
-          )"
-
+          runner_tmp="${RUNNER_TEMP:-/tmp}"
+          mkdir -p "$runner_tmp/dalamud"
+          asset_url="${DALAMUD_ASSET_URL}"
           if [ -z "$asset_url" ]; then
+            api_url="https://api.github.com/repos/yanmucorp/Dalamud/releases/latest"
+            release_json="$(curl -fsSL -H "Accept: application/vnd.github+json" "$api_url")"
+
+            echo "Available assets for latest yanmucorp/Dalamud release:"
+            printf '%s' "$release_json" \
+              | grep -oiE '"browser_download_url":[[:space:]]*"[^"]+"' \
+              | cut -d '"' -f 4 || true
+
             asset_url="$(
               printf '%s' "$release_json" \
-                | grep -oE '"browser_download_url":[[:space:]]*"[^"]+\.zip"' \
+                | grep -oiE '"browser_download_url":[[:space:]]*"[^"]+\.(zip|7z|tar\.gz|tgz)"' \
                 | cut -d '"' -f 4 \
+                | grep -Ei 'latest|dalamud' \
                 | head -n 1
             )"
+
+            if [ -z "$asset_url" ]; then
+              asset_url="$(
+                printf '%s' "$release_json" \
+                  | grep -oiE '"browser_download_url":[[:space:]]*"[^"]+\.(zip|7z|tar\.gz|tgz)"' \
+                  | cut -d '"' -f 4 \
+                  | head -n 1
+              )"
+            fi
           fi
 
           if [ -z "$asset_url" ]; then
-            echo "No .zip asset found for yanmucorp/Dalamud tag: ${DALAMUD_VERSION}"
+            echo "No archive asset found. Set DALAMUD_ASSET_URL to an exact asset URL."
+            exit 1
+          fi
+          echo "Using Dalamud asset: $asset_url"
+
+          case "$asset_url" in
+            *.zip|*.ZIP)
+              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.zip"
+              unzip -q -o "$runner_tmp/dalamud/dalamud.zip" -d "$runner_tmp/dalamud"
+              ;;
+            *.7z|*.7Z)
+              if ! command -v bsdtar >/dev/null 2>&1; then
+                echo "bsdtar is required to extract .7z assets"
+                exit 1
+              fi
+              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.7z"
+              bsdtar -xf "$runner_tmp/dalamud/dalamud.7z" -C "$runner_tmp/dalamud"
+              ;;
+            *.tar.gz|*.tgz|*.TAR.GZ|*.TGZ)
+              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.tar.gz"
+              tar -xzf "$runner_tmp/dalamud/dalamud.tar.gz" -C "$runner_tmp/dalamud"
+              ;;
+            *)
+              echo "Unsupported asset format: $asset_url"
+              echo "Please set DALAMUD_ASSET_URL to a .zip, .7z, or .tar.gz asset."
+              exit 1
+              ;;
+          esac
+
+          echo "Downloading yanmucorp/DalamudAssets assetCN list..."
+          assets_json_path="$runner_tmp/dalamud/assetCN.json"
+          curl -fL --retry 3 "$DALAMUD_ASSETS_JSON_URL" -o "$assets_json_path"
+
+          echo "Downloading DalamudAssets files..."
+          jq -r '.Assets[] | [.Url, .FileName] | @tsv' "$assets_json_path" | while IFS=$'\t' read -r url file_name; do
+            if [ -z "$url" ] || [ -z "$file_name" ]; then
+              continue
+            fi
+            out_path="$runner_tmp/dalamud/$file_name"
+            mkdir -p "$(dirname "$out_path")"
+            curl -fL --retry 3 "$url" -o "$out_path"
+          done
+
+          required_files=(
+            "Dalamud.dll"
+            "Dalamud.Common.dll"
+            "ImGui.NET.dll"
+            "Lumina.dll"
+            "Lumina.Excel.dll"
+            "ImGuiScene.dll"
+            "InteropGenerator.Runtime.dll"
+            "FFXIVClientStructs.dll"
+          )
+
+          missing_required=0
+          for file in "${required_files[@]}"; do
+            if [ ! -f "$runner_tmp/dalamud/$file" ]; then
+              echo "Missing required dependency: $file"
+              missing_required=1
+            fi
+          done
+
+          if [ "$missing_required" -eq 1 ]; then
+            echo "Current yanmucorp package is incomplete for plugin compilation."
+            echo "Check missing files above or pin DALAMUD_ASSET_URL to a compatible package."
             exit 1
           fi
 
-          curl -fL --retry 3 "$asset_url" -o "$RUNNER_TEMP/dalamud/dalamud.zip"
-          unzip -q -o "$RUNNER_TEMP/dalamud/dalamud.zip" -d "$RUNNER_TEMP/dalamud"
-          echo "DALAMUD_HOME=$RUNNER_TEMP/dalamud/" >> "$GITHUB_ENV"
+          echo "DALAMUD_HOME=$runner_tmp/dalamud/" >> "$GITHUB_ENV"
 
       - name: Build AutoRetainer (Release)
         env:
@@ -79,11 +156,21 @@ jobs:
         run: |
           dotnet build AutoRetainer/AutoRetainer/AutoRetainer.csproj -c Release -p:CustomCS=true -p:EnableWindowsTargeting=true
 
+      - name: Package AutoRetainer Zip
+        run: |
+          runner_tmp="${RUNNER_TEMP:-/tmp}"
+          build_dir="AutoRetainer/AutoRetainer/bin/Release"
+          package_path="$runner_tmp/AutoRetainer-${GITHUB_RUN_NUMBER}.zip"
+          cd "$build_dir"
+          zip -r "$package_path" . -i "*.dll" "*.json" "*.pdb" "res/*.png"
+          echo "PACKAGED_ZIP=$package_path" >> "$GITHUB_ENV"
+
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
           name: AutoRetainer-build-${{ github.run_number }}
           path: |
+            ${{ env.PACKAGED_ZIP }}
             AutoRetainer/AutoRetainer/bin/Release/**/*.dll
             AutoRetainer/AutoRetainer/bin/Release/**/*.json
             AutoRetainer/AutoRetainer/bin/Release/**/*.pdb
