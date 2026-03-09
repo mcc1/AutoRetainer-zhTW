@@ -10,6 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write 
+    env:
+      DALAMUD_VERSION: 25-12-08-01
 
     steps:
       - name: Checkout Localizer
@@ -35,6 +37,13 @@ jobs:
           TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
         run: |
           dotnet run --project AutoRetainerLocalizer.csproj
+
+      - name: Prepare Dalamud Dependencies
+        run: |
+          mkdir -p "$RUNNER_TEMP/dalamud"
+          curl -fL --retry 3 "https://github.com/yanmucorp/Dalamud/releases/download/${DALAMUD_VERSION}/latest.zip" -o "$RUNNER_TEMP/dalamud/latest.zip"
+          unzip -q -o "$RUNNER_TEMP/dalamud/latest.zip" -d "$RUNNER_TEMP/dalamud"
+          echo "DALAMUD_HOME=$RUNNER_TEMP/dalamud/" >> "$GITHUB_ENV"
 
       - name: Build AutoRetainer (Release)
         env:
