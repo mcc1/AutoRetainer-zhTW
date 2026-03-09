@@ -41,8 +41,36 @@ jobs:
       - name: Prepare Dalamud Dependencies
         run: |
           mkdir -p "$RUNNER_TEMP/dalamud"
-          curl -fL --retry 3 "https://github.com/yanmucorp/Dalamud/releases/download/${DALAMUD_VERSION}/latest.zip" -o "$RUNNER_TEMP/dalamud/latest.zip"
-          unzip -q -o "$RUNNER_TEMP/dalamud/latest.zip" -d "$RUNNER_TEMP/dalamud"
+          api_url="https://api.github.com/repos/yanmucorp/Dalamud/releases/tags/${DALAMUD_VERSION}"
+          if ! release_json="$(curl -fsSL -H "Accept: application/vnd.github+json" "$api_url")"; then
+            api_url="https://api.github.com/repos/yanmucorp/Dalamud/releases/tags/v${DALAMUD_VERSION}"
+            release_json="$(curl -fsSL -H "Accept: application/vnd.github+json" "$api_url")"
+          fi
+
+          asset_url="$(
+            printf '%s' "$release_json" \
+              | grep -oE '"browser_download_url":[[:space:]]*"[^"]+\.zip"' \
+              | cut -d '"' -f 4 \
+              | grep -Ei 'latest|dalamud' \
+              | head -n 1
+          )"
+
+          if [ -z "$asset_url" ]; then
+            asset_url="$(
+              printf '%s' "$release_json" \
+                | grep -oE '"browser_download_url":[[:space:]]*"[^"]+\.zip"' \
+                | cut -d '"' -f 4 \
+                | head -n 1
+            )"
+          fi
+
+          if [ -z "$asset_url" ]; then
+            echo "No .zip asset found for yanmucorp/Dalamud tag: ${DALAMUD_VERSION}"
+            exit 1
+          fi
+
+          curl -fL --retry 3 "$asset_url" -o "$RUNNER_TEMP/dalamud/dalamud.zip"
+          unzip -q -o "$RUNNER_TEMP/dalamud/dalamud.zip" -d "$RUNNER_TEMP/dalamud"
           echo "DALAMUD_HOME=$RUNNER_TEMP/dalamud/" >> "$GITHUB_ENV"
 
       - name: Build AutoRetainer (Release)
