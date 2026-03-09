@@ -164,7 +164,7 @@ jobs:
         run: |
           runner_tmp="${RUNNER_TEMP:-/tmp}"
           build_dir="AutoRetainer/AutoRetainer/bin/Release"
-          package_path="$runner_tmp/AutoRetainer-${GITHUB_RUN_NUMBER}.zip"
+          package_path="$runner_tmp/AutoRetainer.zip"
           cd "$build_dir"
           zip -r "$package_path" . -i "*.dll" "*.json" "*.pdb" "res/*.png"
           echo "PACKAGED_ZIP=$package_path" >> "$GITHUB_ENV"
@@ -175,10 +175,6 @@ jobs:
           name: AutoRetainer-build-${{ github.run_number }}
           path: |
             ${{ env.PACKAGED_ZIP }}
-            AutoRetainer/AutoRetainer/bin/Release/**/*.dll
-            AutoRetainer/AutoRetainer/bin/Release/**/*.json
-            AutoRetainer/AutoRetainer/bin/Release/**/*.pdb
-            AutoRetainer/AutoRetainer/bin/Release/**/*.png
           if-no-files-found: error
 
       - name: Commit and Push
