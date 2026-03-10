@@ -134,7 +134,7 @@ jobs:
         with:
           dotnet-version: |
             8.0.x
-            10.0.x
+            9.0.x
 
       - name: Clone Mod
         run: |
