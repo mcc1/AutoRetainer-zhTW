@@ -1,0 +1,240 @@
+name: Reusable Dalamud Mod Build
+
+on:
+  workflow_call:
+    inputs:
+      mod_name:
+        required: true
+        type: string
+      mod_version:
+        required: true
+        type: string
+      mod_repo_url:
+        required: true
+        type: string
+      mod_ref:
+        required: true
+        type: string
+      mod_repo_dir:
+        required: false
+        type: string
+        default: AutoRetainer
+      localizer_source_subpaths:
+        required: true
+        type: string
+      localizer_dict_path:
+        required: true
+        type: string
+      build_project_path:
+        required: true
+        type: string
+      package_build_dir:
+        required: true
+        type: string
+      artifact_basename:
+        required: true
+        type: string
+      release_tag_prefix:
+        required: true
+        type: string
+      package_include_patterns:
+        required: true
+        type: string
+      dalamud_asset_url:
+        required: true
+        type: string
+      dalamud_assets_json_url:
+        required: true
+        type: string
+      dalamud_required_files:
+        required: true
+        type: string
+      commit_changes:
+        required: false
+        type: boolean
+        default: true
+      publish_release:
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build-and-translate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Localizer
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            8.0.x
+            10.0.x
+
+      - name: Clone Target Mod Repo
+        env:
+          MOD_REPO_URL: ${{ inputs.mod_repo_url }}
+          MOD_REF: ${{ inputs.mod_ref }}
+          MOD_REPO_DIR: ${{ inputs.mod_repo_dir }}
+        run: |
+          rm -rf "$MOD_REPO_DIR"
+          git clone "$MOD_REPO_URL" "$MOD_REPO_DIR"
+          if ! git -C "$MOD_REPO_DIR" rev-parse --verify "$MOD_REF^{commit}" >/dev/null 2>&1; then
+            git -C "$MOD_REPO_DIR" fetch origin "$MOD_REF"
+          fi
+          git -C "$MOD_REPO_DIR" checkout --detach "$MOD_REF"
+          git -C "$MOD_REPO_DIR" submodule sync --recursive
+          git -C "$MOD_REPO_DIR" submodule update --init --recursive
+          echo "MOD_SHORT_REF=$(git -C "$MOD_REPO_DIR" rev-parse --short=8 HEAD)" >> "$GITHUB_ENV"
+
+      - name: Run Localizer
+        env:
+          TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
+          LOCALIZER_REPO_DIR: ${{ inputs.mod_repo_dir }}
+          LOCALIZER_SOURCE_SUBPATHS: ${{ inputs.localizer_source_subpaths }}
+          LOCALIZER_DICT_PATH: ${{ inputs.localizer_dict_path }}
+        run: |
+          dotnet run --project AutoRetainerLocalizer.csproj
+
+      - name: Prepare Dalamud Dependencies
+        env:
+          DALAMUD_ASSET_URL: ${{ inputs.dalamud_asset_url }}
+          DALAMUD_ASSETS_JSON_URL: ${{ inputs.dalamud_assets_json_url }}
+          DALAMUD_REQUIRED_FILES: ${{ inputs.dalamud_required_files }}
+        run: |
+          runner_tmp="${RUNNER_TEMP:-/tmp}"
+          mkdir -p "$runner_tmp/dalamud"
+          asset_url="${DALAMUD_ASSET_URL}"
+
+          if [ -z "$asset_url" ]; then
+            echo "DALAMUD_ASSET_URL is required"
+            exit 1
+          fi
+
+          echo "Using Dalamud asset: $asset_url"
+
+          case "$asset_url" in
+            *.zip|*.ZIP)
+              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.zip"
+              unzip -q -o "$runner_tmp/dalamud/dalamud.zip" -d "$runner_tmp/dalamud"
+              ;;
+            *.7z|*.7Z)
+              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.7z"
+              if command -v 7z >/dev/null 2>&1; then
+                7z x -y "$runner_tmp/dalamud/dalamud.7z" "-o$runner_tmp/dalamud"
+              elif command -v bsdtar >/dev/null 2>&1; then
+                bsdtar -xf "$runner_tmp/dalamud/dalamud.7z" -C "$runner_tmp/dalamud"
+              else
+                sudo apt-get update
+                sudo apt-get install -y p7zip-full
+                7z x -y "$runner_tmp/dalamud/dalamud.7z" "-o$runner_tmp/dalamud"
+              fi
+              ;;
+            *.tar.gz|*.tgz|*.TAR.GZ|*.TGZ)
+              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.tar.gz"
+              tar -xzf "$runner_tmp/dalamud/dalamud.tar.gz" -C "$runner_tmp/dalamud"
+              ;;
+            *)
+              echo "Unsupported asset format: $asset_url"
+              exit 1
+              ;;
+          esac
+
+          assets_json_path="$runner_tmp/dalamud/assetCN.json"
+          curl -fL --retry 3 "$DALAMUD_ASSETS_JSON_URL" -o "$assets_json_path"
+
+          jq -r '.Assets[] | [.Url, .FileName] | @tsv' "$assets_json_path" | while IFS=$'\t' read -r url file_name; do
+            if [ -z "$url" ] || [ -z "$file_name" ]; then
+              continue
+            fi
+            out_path="$runner_tmp/dalamud/$file_name"
+            mkdir -p "$(dirname "$out_path")"
+            curl -fL --retry 3 "$url" -o "$out_path"
+          done
+
+          missing_required=0
+          while IFS= read -r file; do
+            if [ -z "$file" ]; then
+              continue
+            fi
+            if [ ! -f "$runner_tmp/dalamud/$file" ]; then
+              echo "Missing required dependency: $file"
+              missing_required=1
+            fi
+          done < <(printf '%s\n' "$DALAMUD_REQUIRED_FILES")
+
+          if [ "$missing_required" -eq 1 ]; then
+            echo "Current Dalamud package is incomplete for plugin compilation."
+            exit 1
+          fi
+
+          echo "DALAMUD_HOME=$runner_tmp/dalamud/" >> "$GITHUB_ENV"
+
+      - name: Build Mod
+        env:
+          CI: true
+        run: |
+          dotnet build "${{ inputs.build_project_path }}" -c Release -p:CustomCS=true -p:EnableWindowsTargeting=true
+
+      - name: Package Build
+        env:
+          MOD_VERSION: ${{ inputs.mod_version }}
+          ARTIFACT_BASENAME: ${{ inputs.artifact_basename }}
+          PACKAGE_BUILD_DIR: ${{ inputs.package_build_dir }}
+          PACKAGE_INCLUDE_PATTERNS: ${{ inputs.package_include_patterns }}
+          RELEASE_TAG_PREFIX: ${{ inputs.release_tag_prefix }}
+        run: |
+          runner_tmp="${RUNNER_TEMP:-/tmp}"
+          package_name="${ARTIFACT_BASENAME}-${MOD_VERSION}-${MOD_SHORT_REF}.zip"
+          package_path="$runner_tmp/$package_name"
+          cd "$PACKAGE_BUILD_DIR"
+          mapfile -t include_patterns < <(printf '%s\n' "$PACKAGE_INCLUDE_PATTERNS")
+          cmd=(zip -r "$package_path" .)
+          for pattern in "${include_patterns[@]}"; do
+            if [ -n "$pattern" ]; then
+              cmd+=(-i "$pattern")
+            fi
+          done
+          "${cmd[@]}"
+          echo "PACKAGED_ZIP=$package_path" >> "$GITHUB_ENV"
+          echo "PACKAGED_NAME=$package_name" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=${RELEASE_TAG_PREFIX}${MOD_VERSION}-${MOD_SHORT_REF}" >> "$GITHUB_ENV"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ inputs.artifact_basename }}-${{ inputs.mod_version }}-${{ env.MOD_SHORT_REF }}
+          path: ${{ env.PACKAGED_ZIP }}
+          if-no-files-found: error
+
+      - name: Publish Release Asset
+        if: ${{ inputs.publish_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: ${{ inputs.mod_name }} ${{ inputs.mod_version }} (${{ env.MOD_SHORT_REF }})
+          files: ${{ env.PACKAGED_ZIP }}
+          generate_release_notes: true
+
+      - name: Commit and Push
+        if: ${{ inputs.commit_changes }}
+        env:
+          MOD_REPO_DIR: ${{ inputs.mod_repo_dir }}
+        run: |
+          git rm -r --cached "$MOD_REPO_DIR" || true
+          rm -rf "$MOD_REPO_DIR/.git"
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if [ -n "$(git status --porcelain)" ]; then
+            git commit -m "Auto-translate: Sync and processed source code"
+            git push
+          else
+            echo "No changes to commit"
+          fi

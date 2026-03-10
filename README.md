@@ -25,3 +25,5 @@ GitHub Actions
 <h2>📘 可重用指南</h2>
 
 [Mod 翻譯與建置可重用手冊](docs/MOD_TRANSLATION_BUILD_PLAYBOOK.md)
+
+[Template 抽取說明](docs/TEMPLATE_EXTRACTION_NOTES.md)
