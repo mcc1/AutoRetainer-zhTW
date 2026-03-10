@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Internal.InventoryManagement;
 using AutoRetainer.Modules.Statistics;
 using AutoRetainer.Modules.Voyage;
@@ -152,23 +152,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
         };
         Svc.ClientState.Logout += Logout;
         Svc.Condition.ConditionChange += ConditionChange;
-        EzCmd.Add("/autoretainer", CommandHandler, """
-            Open plugin interface
-            /ays - alias for /autoretainer
-            /autoretainer e|enable → Enable plugin
-            /autoretainer d|disable - Disable plugin
-            /autoretainer t|toggle - toggle plugin
-            /autoretainer m|multi - toggle MultiMode
-            /autoretainer relog Character Name@WorldName - relog to the targeted character if configured
-            /autoretainer b|browser - open venture browser
-            /autoretainer expert - toggle expert settings
-            /autoretainer debug - toggle debug menu and verbose output
-            /autoretainer shutdown <hours> [minutes] [seconds] - schedule a game shutdown in this amount of time
-            /autoretainer itemsell - begin selling items to NPC or retainer if possible
-            /autoretainer het - enter nearby own house or apartment if possible
-            /autoretainer reset - reset all pending tasks
-            /autoretainer deliver - deliver expert delivery items
-            """);
+        EzCmd.Add("/autoretainer", CommandHandler, "Open plugin interface\n/ays - alias for /autoretainer\n/autoretainer e|enable → Enable plugin\n/autoretainer d|disable - Disable plugin\n/autoretainer t|toggle - toggle plugin\n/autoretainer m|multi - toggle MultiMode\n/autoretainer relog Character Name@WorldName - relog to the targeted character if configured\n/autoretainer b|browser - open venture browser\n/autoretainer expert - toggle expert settings\n/autoretainer debug - toggle debug menu and verbose output\n/autoretainer shutdown <hours> [minutes] [seconds] - schedule a game shutdown in this amount of time\n/autoretainer itemsell - begin selling items to NPC or retainer if possible\n/autoretainer het - enter nearby own house or apartment if possible\n/autoretainer reset - reset all pending tasks\n/autoretainer deliver - deliver expert delivery items");
         EzCmd.Add("/ays", CommandHandler);
         Svc.Toasts.ErrorToast += Toasts_ErrorToast;
         Svc.Toasts.Toast += Toasts_Toast;

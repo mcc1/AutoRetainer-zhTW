@@ -1,4 +1,4 @@
-﻿using ECommons.UIHelpers;
+using ECommons.UIHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace AutoRetainer.Modules.Voyage.Readers;

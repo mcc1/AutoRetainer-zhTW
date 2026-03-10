@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Conditions;
 using ECommons.ExcelServices;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;

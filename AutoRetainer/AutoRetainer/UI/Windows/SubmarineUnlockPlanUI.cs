@@ -207,7 +207,7 @@ internal unsafe class SubmarineUnlockPlanUI : Window
                 {
                     ImGuiEx.TextWrapped($"請訪問潛水艇名單以獲取數據");
                 }
-                ImGui.Checkbox($"解鎖潛水艇欄位。當前欄位： {GetNumUnlockedSubs()?.ToString() ?? "未知"}/4", ref SelectedPlan.UnlockSubs);
+                ImGui.Checkbox($"解鎖潛水艇欄位。當前欄位： {GetNumUnlockedSubs()?.ToString() ?? "Unknown"}/4", ref SelectedPlan.UnlockSubs);
                 ImGuiEx.TextWrapped($"解鎖欄位的優先級總是高於解鎖航線");
                 ImGui.Checkbox("在沉船區（翠浪海）強制執行「重複刷單一目的地」模式", ref SelectedPlan.EnforceDSSSinglePoint);
                 ImGui.Checkbox("將此計畫設為強制執行", ref SelectedPlan.EnforcePlan);

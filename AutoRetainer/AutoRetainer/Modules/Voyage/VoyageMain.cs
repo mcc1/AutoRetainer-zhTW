@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage.PartSwapper;
 using AutoRetainer.Modules.Voyage.Tasks;
 using AutoRetainer.Modules.Voyage.VoyageCalculator;
