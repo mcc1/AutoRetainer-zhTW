@@ -16,6 +16,7 @@ namespace Localizer
     public class TranslationRewriter : CSharpSyntaxRewriter
     {
         private readonly Dictionary<string, string> _dictionary;
+        private readonly HashSet<string> _knownTexts;
         private readonly string _jsonPath;
         // 使用 HashSet 確保單次運行中，同一個新字串只會被記錄一次
         public HashSet<string> MissingTranslations { get; } = new HashSet<string>();
@@ -27,6 +28,7 @@ namespace Localizer
         {
             _dictionary = dictionary;
             _jsonPath = jsonPath;
+            _knownTexts = BuildKnownTexts(dictionary);
         }
 
         // --- 核心翻譯與記錄邏輯 ---
@@ -44,7 +46,17 @@ namespace Localizer
                 _dictionary.TryGetValue(original.Trim(), out translated) ||
                 _dictionary.TryGetValue(NormalizeKey(original), out translated))
             {
+                translated = DecodeTranslationEscapes(translated);
                 return true;
+            }
+
+            // If the current source already contains a translated string, do not re-add it as a new key.
+            if (_knownTexts.Contains(original) ||
+                _knownTexts.Contains(original.Trim()) ||
+                _knownTexts.Contains(NormalizeKey(original)))
+            {
+                translated = original;
+                return false;
             }
 
             // 若找不到翻譯，記錄到缺失清單
@@ -201,6 +213,40 @@ namespace Localizer
         {
             if (string.IsNullOrEmpty(text)) return text;
             return Regex.Replace(text, @"\s+", " ").Trim();
+        }
+
+        private string DecodeTranslationEscapes(string text)
+        {
+            if (string.IsNullOrEmpty(text)) return text;
+
+            return text
+                .Replace("\\r\\n", "\r\n")
+                .Replace("\\n", "\n")
+                .Replace("\\r", "\r")
+                .Replace("\\t", "\t");
+        }
+
+        private HashSet<string> BuildKnownTexts(Dictionary<string, string> dictionary)
+        {
+            var knownTexts = new HashSet<string>();
+            foreach (var pair in dictionary)
+            {
+                AddKnownText(knownTexts, pair.Key);
+                AddKnownText(knownTexts, pair.Value);
+            }
+            return knownTexts;
+        }
+
+        private void AddKnownText(HashSet<string> knownTexts, string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return;
+            }
+
+            knownTexts.Add(text);
+            knownTexts.Add(text.Trim());
+            knownTexts.Add(NormalizeKey(text));
         }
 
         private string GetMethodName(InvocationExpressionSyntax invocation)

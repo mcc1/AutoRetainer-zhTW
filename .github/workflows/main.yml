@@ -3,7 +3,13 @@ name: Auto Localize AutoRetainer
 on:
   schedule:
     - cron: '0 0 * * *' 
-  workflow_dispatch:    
+  workflow_dispatch:
+    inputs:
+      publish_release:
+        description: 'Publish a GitHub Release asset'
+        required: true
+        default: false
+        type: boolean
 
 jobs:
   build-and-translate:
@@ -11,6 +17,7 @@ jobs:
     permissions:
       contents: write 
     env:
+      AUTORETAINER_VERSION: "4.5.1.13"
       # AutoRetainer 4.5.1.13 (from package metadata)
       AUTORETAINER_REF: "4f658f35a89341f78d5de412482dd7183824cb90"
       # Pin the asset for reproducible builds. Update only when you intentionally upgrade.
@@ -40,6 +47,7 @@ jobs:
           git -C AutoRetainer checkout --detach "$AUTORETAINER_REF"
           git -C AutoRetainer submodule sync --recursive
           git -C AutoRetainer submodule update --init --recursive
+          echo "AUTORETAINER_SHORT_REF=$(git -C AutoRetainer rev-parse --short=8 HEAD)" >> "$GITHUB_ENV"
 
       - name: Run Translation
         env:
@@ -164,18 +172,30 @@ jobs:
         run: |
           runner_tmp="${RUNNER_TEMP:-/tmp}"
           build_dir="AutoRetainer/AutoRetainer/bin/Release"
-          package_path="$runner_tmp/AutoRetainer.zip"
+          package_name="AutoRetainer-${AUTORETAINER_VERSION}-${AUTORETAINER_SHORT_REF}.zip"
+          package_path="$runner_tmp/$package_name"
           cd "$build_dir"
           zip -r "$package_path" . -i "*.dll" "*.json" "*.pdb" "res/*.png"
           echo "PACKAGED_ZIP=$package_path" >> "$GITHUB_ENV"
+          echo "PACKAGED_NAME=$package_name" >> "$GITHUB_ENV"
+          echo "RELEASE_TAG=autoretainer-v${AUTORETAINER_VERSION}-${AUTORETAINER_SHORT_REF}" >> "$GITHUB_ENV"
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: AutoRetainer-build-${{ github.run_number }}
+          name: AutoRetainer-${{ env.AUTORETAINER_VERSION }}-${{ env.AUTORETAINER_SHORT_REF }}
           path: |
             ${{ env.PACKAGED_ZIP }}
           if-no-files-found: error
+
+      - name: Publish Release Asset
+        if: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.RELEASE_TAG }}
+          name: AutoRetainer ${{ env.AUTORETAINER_VERSION }} (${{ env.AUTORETAINER_SHORT_REF }})
+          files: ${{ env.PACKAGED_ZIP }}
+          generate_release_notes: true
 
       - name: Commit and Push
         run: |
