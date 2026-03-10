@@ -72,7 +72,7 @@ internal static unsafe class MultiModeUI
             {
                 Copy($"/ays relog {data.Name}@{data.World}");
             }
-            ImGuiEx.Tooltip($"左鍵 - 重新登入此角色\\n右鍵 - 複製重新登入指令到剪貼簿");
+            ImGuiEx.Tooltip($"左鍵 - 重新登入此角色\n右鍵 - 複製重新登入指令到剪貼簿");
             ImGui.SameLine(0, 3);
             if(ImGuiEx.IconButton(FontAwesomeIcon.UserCog))
             {
@@ -179,7 +179,7 @@ internal static unsafe class MultiModeUI
             ImGuiEx.Text($"是否有選中僱員在 5 分鐘內完成: {MultiMode.IsAnySelectedRetainerFinishesWithin(5 * 60)}");
             foreach(var data in C.OfflineData)
             {
-                ImGuiEx.Text($"角色 {data}\\n  所需探險幣數量: {data.GetNeededVentureAmount()}");
+                ImGuiEx.Text($"角色 {data}\n  所需探險幣數量: {data.GetNeededVentureAmount()}");
             }
         }
     }

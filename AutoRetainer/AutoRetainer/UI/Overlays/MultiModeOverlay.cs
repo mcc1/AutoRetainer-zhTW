@@ -45,7 +45,7 @@ internal class MultiModeOverlay : Window
                     {
                         BailoutManager.IsLogOnTitleEnabled = false;
                     }
-                    ImGui.SetTooltip($"AutoRetainer 已請求在登入畫面暫時等待有效角色\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 中止。");
+                    ImGui.SetTooltip($"AutoRetainer 已請求在登入畫面暫時等待有效角色\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 中止。");
                 }
             }
             else
@@ -72,7 +72,7 @@ internal class MultiModeOverlay : Window
                         Shutdown.ForceShutdownAt = 0;
                         Shutdown.ShutdownAt = 0;
                     }
-                    ImGui.SetTooltip($"已設定關機計時器。\\n將於 {TimeSpan.FromMilliseconds(Shutdown.ShutdownAt - Environment.TickCount64)} 後關機\\n將於 {TimeSpan.FromMilliseconds(Shutdown.ForceShutdownAt - Environment.TickCount64)} 後強制關機\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 清除計時器");
+                    ImGui.SetTooltip($"已設定關機計時器。\n將於 {TimeSpan.FromMilliseconds(Shutdown.ShutdownAt - Environment.TickCount64)} 後關機\n將於 {TimeSpan.FromMilliseconds(Shutdown.ForceShutdownAt - Environment.TickCount64)} 後強制關機\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 清除計時器");
                 }
             }
             else
@@ -98,7 +98,7 @@ internal class MultiModeOverlay : Window
                     {
                         SchedulerMain.CharacterPostProcessLocked = false;
                     }
-                    ImGui.SetTooltip("AutoRetainer 正在進行後處理階段\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 中止");
+                    ImGui.SetTooltip("AutoRetainer 正在進行後處理階段\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 中止");
                 }
             }
             else
@@ -124,7 +124,7 @@ internal class MultiModeOverlay : Window
                     {
                         P.TaskManager.Abort();
                     }
-                    ImGui.SetTooltip("AutoRetainer 正在處理任務中\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 中止");
+                    ImGui.SetTooltip("AutoRetainer 正在處理任務中\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 中止");
                 }
             }
             else
@@ -146,7 +146,7 @@ internal class MultiModeOverlay : Window
                     {
                         Svc.Commands.ProcessCommand("/ays");
                     }
-                    ImGui.SetTooltip("傳喚鈴感應已啟用\\n左鍵點擊 - 開啟 AutoRetainer");
+                    ImGui.SetTooltip("傳喚鈴感應已啟用\n左鍵點擊 - 開啟 AutoRetainer");
                 }
                 var f = (float)(Environment.TickCount64 - P.LastMovementAt) / (float)C.RetainerSenseThreshold;
                 ImGui.ProgressBar(f, new(128, 10), "");
@@ -174,7 +174,7 @@ internal class MultiModeOverlay : Window
                     {
                         MultiMode.Enabled = false;
                     }
-                    ImGui.SetTooltip("多角色模式已啟用\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 停用多角色模式。");
+                    ImGui.SetTooltip("多角色模式已啟用\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 停用多角色模式。");
                 }
             }
             else
@@ -201,7 +201,7 @@ internal class MultiModeOverlay : Window
                         C.NightMode = false;
                         MultiMode.BailoutNightMode();
                     }
-                    ImGui.SetTooltip($"夜間模式已啟用\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 停用");
+                    ImGui.SetTooltip($"夜間模式已啟用\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 停用");
                 }
             }
             else
@@ -227,7 +227,7 @@ internal class MultiModeOverlay : Window
                     {
                         VoyageScheduler.Enabled = false;
                     }
-                    ImGui.SetTooltip("潛水艇模組已啟用\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 停用潛水艇模組");
+                    ImGui.SetTooltip("潛水艇模組已啟用\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 停用潛水艇模組");
                 }
             }
             else
@@ -253,7 +253,7 @@ internal class MultiModeOverlay : Window
                     {
                         SchedulerMain.DisablePlugin();
                     }
-                    ImGui.SetTooltip("AutoRetainer 已啟用\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 停用 AutoRetainer");
+                    ImGui.SetTooltip("AutoRetainer 已啟用\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 停用 AutoRetainer");
                 }
             }
             else
@@ -280,7 +280,7 @@ internal class MultiModeOverlay : Window
                     {
                         NotificationHandler.IsHidden = true;
                     }
-                    ImGui.SetTooltip("部分僱員已完成探險任務。\\n左鍵點擊 - 開啟 AutoRetainer\\n右鍵點擊 - 關閉提示");
+                    ImGui.SetTooltip("部分僱員已完成探險任務。\n左鍵點擊 - 開啟 AutoRetainer\n右鍵點擊 - 關閉提示");
                 }
             }
             else
