@@ -41,6 +41,9 @@ When the separate template repo is created, move these files first:
 
 - `Program.cs`
 - `TranslationRewriter.cs`
+- `scripts/clone_mod.sh`
+- `scripts/prepare_dalamud.sh`
+- `scripts/package_build.sh`
 - `.github/workflows/reusable-build-mod.yml`
 - `docs/MOD_TRANSLATION_BUILD_PLAYBOOK.md`
 - `docs/TEMPLATE_EXTRACTION_NOTES.md`

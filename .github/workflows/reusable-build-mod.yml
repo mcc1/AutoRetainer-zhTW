@@ -83,15 +83,7 @@ jobs:
           MOD_REF: ${{ inputs.mod_ref }}
           MOD_REPO_DIR: ${{ inputs.mod_repo_dir }}
         run: |
-          rm -rf "$MOD_REPO_DIR"
-          git clone "$MOD_REPO_URL" "$MOD_REPO_DIR"
-          if ! git -C "$MOD_REPO_DIR" rev-parse --verify "$MOD_REF^{commit}" >/dev/null 2>&1; then
-            git -C "$MOD_REPO_DIR" fetch origin "$MOD_REF"
-          fi
-          git -C "$MOD_REPO_DIR" checkout --detach "$MOD_REF"
-          git -C "$MOD_REPO_DIR" submodule sync --recursive
-          git -C "$MOD_REPO_DIR" submodule update --init --recursive
-          echo "MOD_SHORT_REF=$(git -C "$MOD_REPO_DIR" rev-parse --short=8 HEAD)" >> "$GITHUB_ENV"
+          ./scripts/clone_mod.sh
 
       - name: Run Localizer
         env:
@@ -108,73 +100,7 @@ jobs:
           DALAMUD_ASSETS_JSON_URL: ${{ inputs.dalamud_assets_json_url }}
           DALAMUD_REQUIRED_FILES: ${{ inputs.dalamud_required_files }}
         run: |
-          runner_tmp="${RUNNER_TEMP:-/tmp}"
-          mkdir -p "$runner_tmp/dalamud"
-          asset_url="${DALAMUD_ASSET_URL}"
-
-          if [ -z "$asset_url" ]; then
-            echo "DALAMUD_ASSET_URL is required"
-            exit 1
-          fi
-
-          echo "Using Dalamud asset: $asset_url"
-
-          case "$asset_url" in
-            *.zip|*.ZIP)
-              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.zip"
-              unzip -q -o "$runner_tmp/dalamud/dalamud.zip" -d "$runner_tmp/dalamud"
-              ;;
-            *.7z|*.7Z)
-              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.7z"
-              if command -v 7z >/dev/null 2>&1; then
-                7z x -y "$runner_tmp/dalamud/dalamud.7z" "-o$runner_tmp/dalamud"
-              elif command -v bsdtar >/dev/null 2>&1; then
-                bsdtar -xf "$runner_tmp/dalamud/dalamud.7z" -C "$runner_tmp/dalamud"
-              else
-                sudo apt-get update
-                sudo apt-get install -y p7zip-full
-                7z x -y "$runner_tmp/dalamud/dalamud.7z" "-o$runner_tmp/dalamud"
-              fi
-              ;;
-            *.tar.gz|*.tgz|*.TAR.GZ|*.TGZ)
-              curl -fL --retry 3 "$asset_url" -o "$runner_tmp/dalamud/dalamud.tar.gz"
-              tar -xzf "$runner_tmp/dalamud/dalamud.tar.gz" -C "$runner_tmp/dalamud"
-              ;;
-            *)
-              echo "Unsupported asset format: $asset_url"
-              exit 1
-              ;;
-          esac
-
-          assets_json_path="$runner_tmp/dalamud/assetCN.json"
-          curl -fL --retry 3 "$DALAMUD_ASSETS_JSON_URL" -o "$assets_json_path"
-
-          jq -r '.Assets[] | [.Url, .FileName] | @tsv' "$assets_json_path" | while IFS=$'\t' read -r url file_name; do
-            if [ -z "$url" ] || [ -z "$file_name" ]; then
-              continue
-            fi
-            out_path="$runner_tmp/dalamud/$file_name"
-            mkdir -p "$(dirname "$out_path")"
-            curl -fL --retry 3 "$url" -o "$out_path"
-          done
-
-          missing_required=0
-          while IFS= read -r file; do
-            if [ -z "$file" ]; then
-              continue
-            fi
-            if [ ! -f "$runner_tmp/dalamud/$file" ]; then
-              echo "Missing required dependency: $file"
-              missing_required=1
-            fi
-          done < <(printf '%s\n' "$DALAMUD_REQUIRED_FILES")
-
-          if [ "$missing_required" -eq 1 ]; then
-            echo "Current Dalamud package is incomplete for plugin compilation."
-            exit 1
-          fi
-
-          echo "DALAMUD_HOME=$runner_tmp/dalamud/" >> "$GITHUB_ENV"
+          ./scripts/prepare_dalamud.sh
 
       - name: Build Mod
         env:
@@ -190,21 +116,7 @@ jobs:
           PACKAGE_INCLUDE_PATTERNS: ${{ inputs.package_include_patterns }}
           RELEASE_TAG_PREFIX: ${{ inputs.release_tag_prefix }}
         run: |
-          runner_tmp="${RUNNER_TEMP:-/tmp}"
-          package_name="${ARTIFACT_BASENAME}-${MOD_VERSION}-${MOD_SHORT_REF}.zip"
-          package_path="$runner_tmp/$package_name"
-          cd "$PACKAGE_BUILD_DIR"
-          mapfile -t include_patterns < <(printf '%s\n' "$PACKAGE_INCLUDE_PATTERNS")
-          cmd=(zip -r "$package_path" .)
-          for pattern in "${include_patterns[@]}"; do
-            if [ -n "$pattern" ]; then
-              cmd+=(-i "$pattern")
-            fi
-          done
-          "${cmd[@]}"
-          echo "PACKAGED_ZIP=$package_path" >> "$GITHUB_ENV"
-          echo "PACKAGED_NAME=$package_name" >> "$GITHUB_ENV"
-          echo "RELEASE_TAG=${RELEASE_TAG_PREFIX}${MOD_VERSION}-${MOD_SHORT_REF}" >> "$GITHUB_ENV"
+          ./scripts/package_build.sh
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
