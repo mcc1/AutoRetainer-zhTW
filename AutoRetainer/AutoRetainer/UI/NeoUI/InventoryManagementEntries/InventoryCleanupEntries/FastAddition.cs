@@ -27,7 +27,7 @@ public class FastAddition : InventoryManagemenrBase
                     if(!selectedSettings.IMProtectList.Contains(id) && !selectedSettings.IMAutoVendorSoft.Contains(id) && !selectedSettings.IMAutoVendorHard.Contains(id))
                     {
                         selectedSettings.IMAutoVendorSoft.Add(id);
-                        Notify.Success($"Added {ExcelItemHelper.GetName(id)} to Quick Venture Sell List");
+                        Notify.Success($"已將 {ExcelItemHelper.GetName(id)} 添加至快速僱員販售清單");
                         selectedSettings.IMAutoVendorHard.Remove(id);
                     }
                 }
@@ -36,7 +36,7 @@ public class FastAddition : InventoryManagemenrBase
                     if(!selectedSettings.IMProtectList.Contains(id) && !selectedSettings.IMAutoVendorHard.Contains(id) && !selectedSettings.IMAutoVendorSoft.Contains(id))
                     {
                         selectedSettings.IMAutoVendorHard.Add(id);
-                        Notify.Success($"Added {ExcelItemHelper.GetName(id)} to Unconditional Sell List");
+                        Notify.Success($"已將 {ExcelItemHelper.GetName(id)} 添加至無條件出售清單");
                         selectedSettings.IMAutoVendorSoft.Remove(id);
                     }
                 }

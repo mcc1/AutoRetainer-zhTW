@@ -14,7 +14,7 @@ public class MultiModeFPSLimiter : NeoUIEntry
         .Widget("空閒時的目標幀率", (x) =>
         {
             ImGui.SetNextItemWidth(100f);
-            UIUtils.SliderIntFrameTimeAsFPS("Target frame rate when operating", ref C.TargetMSPTRunning, C.ExtraFPSLockRange ? 1 : 20);
+            UIUtils.SliderIntFrameTimeAsFPS("操作時的目標幀率", ref C.TargetMSPTRunning, C.ExtraFPSLockRange ? 1 : 20);
         })
         .Checkbox("當遊戲處於活動狀態時釋放FPS限制", () => ref C.NoFPSLockWhenActive)
         .Checkbox($"允許額外的低FPS限制值", () => ref C.ExtraFPSLockRange, "如果啟用此選項並在多角色模式下遇到任何錯誤，將不提供支持")

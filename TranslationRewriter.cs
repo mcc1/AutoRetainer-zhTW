@@ -21,7 +21,7 @@ namespace Localizer
         // 使用 HashSet 確保單次運行中，同一個新字串只會被記錄一次
         public HashSet<string> MissingTranslations { get; } = new HashSet<string>();
 
-        private readonly string[] _uiKeywords = { "Text", "Button", "Label", "Combo", "Header", "Section", "Tooltip", "MenuItem", "Checkbox", "Help", "Notify", "Info", "FormatToken", "InputInt", "Widget", "EnumCombo" };
+        private readonly string[] _uiKeywords = { "Text", "Button", "Label", "Combo", "Header", "Section", "Tooltip", "MenuItem", "Checkbox", "Help", "Notify", "Info", "FormatToken", "InputInt", "Widget", "EnumCombo", "Selectable", "CollapsingHeader" };
         private readonly string[] _blackList = { "PushID", "GetConfig", "Log", "Debug", "Print", "ExecuteCommand", "ToString", "GetField", "GetProperty", "SetFilter", "Tag", "GetTag", "InternalName", "Database", "HasTag", "AddTag", "Find" };
 
         public TranslationRewriter(Dictionary<string, string> dictionary, string jsonPath)
@@ -147,7 +147,7 @@ namespace Localizer
         {
             if (node.IsKind(SyntaxKind.StringLiteralExpression))
             {
-                string originalText = node.Token.ValueText;
+                string originalText = NormalizeLiteralText(node.Token.ValueText);
                 if (ShouldTranslate(node, originalText))
                 {
                     if (TryGetTranslation(originalText, out var translated))
@@ -167,13 +167,27 @@ namespace Localizer
         {
             if (string.IsNullOrWhiteSpace(text)) return false;
 
-            var invocation = node.Ancestors().OfType<InvocationExpressionSyntax>().FirstOrDefault();
             if (text.StartsWith("##") || text.StartsWith("Component") || text.StartsWith("\\u")) return false;
-            if (invocation != null)
+            if (LooksLikeNonTranslatableText(text)) return false;
+            var invocations = node.Ancestors().OfType<InvocationExpressionSyntax>().ToList();
+
+            foreach (var invocation in invocations)
             {
                 string methodName = GetMethodName(invocation);
                 if (_blackList.Any(b => methodName.Equals(b, StringComparison.OrdinalIgnoreCase))) return false;
-                if (_uiKeywords.Any(k => methodName.Contains(k))) return true;
+            }
+
+            if (IsCommandHelpArgument(node)) return true;
+            if (IsHelpMessageAssignment(node)) return true;
+            if (IsMenuItemText(node)) return true;
+
+            foreach (var invocation in invocations)
+            {
+                string methodName = GetMethodName(invocation);
+                if (_uiKeywords.Any(k => methodName.Contains(k, StringComparison.OrdinalIgnoreCase))) return true;
+                if (methodName.Equals("SetTooltip", StringComparison.OrdinalIgnoreCase)) return true;
+                if (methodName.Equals("BeginCombo", StringComparison.OrdinalIgnoreCase)) return true;
+                if (methodName.Equals("SmallButton", StringComparison.OrdinalIgnoreCase)) return true;
             }
 
             // 檢查方法定義名稱
@@ -182,7 +196,8 @@ namespace Localizer
             {
                 string methodName = methodDecl.Identifier.Text;
                 if (methodName.Contains("Format") || methodName.Contains("Get") ||
-                    methodName.Contains("Draw") || methodName.Contains("Tooltip"))
+                    methodName.Contains("Draw") || methodName.Contains("Tooltip") ||
+                    methodName.Contains("ToString"))
                 {
                     return IsHumanText(text);
                 }
@@ -199,8 +214,81 @@ namespace Localizer
             return false;
         }
 
+        private bool IsCommandHelpArgument(SyntaxNode node)
+        {
+            var argument = node.AncestorsAndSelf().OfType<ArgumentSyntax>().FirstOrDefault();
+            if (argument?.Parent is not ArgumentListSyntax argumentList)
+            {
+                return false;
+            }
+
+            if (argumentList.Parent is not InvocationExpressionSyntax invocation)
+            {
+                return false;
+            }
+
+            if (invocation.Expression is not MemberAccessExpressionSyntax memberAccess)
+            {
+                return false;
+            }
+
+            if (!memberAccess.Expression.ToString().EndsWith("EzCmd", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            if (!memberAccess.Name.Identifier.Text.Equals("Add", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            var index = argumentList.Arguments.IndexOf(argument);
+            return index >= 2;
+        }
+
+        private bool IsHelpMessageAssignment(SyntaxNode node)
+        {
+            var assignment = node.AncestorsAndSelf().OfType<AssignmentExpressionSyntax>().FirstOrDefault();
+            if (assignment?.Left is IdentifierNameSyntax identifier)
+            {
+                return identifier.Identifier.Text.Equals("HelpMessage", StringComparison.Ordinal);
+            }
+
+            var initializer = node.AncestorsAndSelf().OfType<InitializerExpressionSyntax>().FirstOrDefault();
+            if (initializer == null)
+            {
+                return false;
+            }
+
+            return initializer.Expressions
+                .OfType<AssignmentExpressionSyntax>()
+                .Any(x => x.Right == node && x.Left is IdentifierNameSyntax name &&
+                          name.Identifier.Text.Equals("HelpMessage", StringComparison.Ordinal));
+        }
+
+        private bool IsMenuItemText(SyntaxNode node)
+        {
+            var invocations = node.Ancestors().OfType<InvocationExpressionSyntax>();
+            var usesMenuTextBuilder = invocations.Any(x =>
+            {
+                var methodName = GetMethodName(x);
+                return methodName.Equals("AddText", StringComparison.Ordinal) ||
+                       methodName.Equals("AddUiForeground", StringComparison.Ordinal);
+            });
+
+            if (!usesMenuTextBuilder)
+            {
+                return false;
+            }
+
+            return node.Ancestors().OfType<ObjectCreationExpressionSyntax>().Any(x =>
+                x.Type.ToString().EndsWith("MenuItem", StringComparison.Ordinal));
+        }
+
         private bool IsHumanText(string text)
         {
+            if (LooksLikeNonTranslatableText(text)) return false;
+
             string clean = text.Trim(' ', '\n', '\r', '\"', '\\', 't', '#', '_'); // 增加過濾符號
             if (clean.Length <= 1) return false; // 太短的通常是代號或符號        
             if (char.IsLower(clean[0])) return false; // 過濾字首小寫
@@ -215,6 +303,72 @@ namespace Localizer
             return Regex.Replace(text, @"\s+", " ").Trim();
         }
 
+        private bool LooksLikeNonTranslatableText(string text)
+        {
+            if (string.IsNullOrWhiteSpace(text))
+            {
+                return true;
+            }
+
+            var normalized = text.Trim();
+            if (normalized.StartsWith("http://", StringComparison.OrdinalIgnoreCase) ||
+                normalized.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+
+            return Regex.IsMatch(normalized, @"(^|[\s""'`])[\w./\\-]+\.(png|jpg|jpeg|svg|webp|dds|tex)\b", RegexOptions.IgnoreCase);
+        }
+
+        private string NormalizeLiteralText(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return text;
+            }
+
+            var normalized = text.Replace("\r\n", "\n").Replace('\r', '\n');
+            if (!normalized.Contains('\n'))
+            {
+                return normalized;
+            }
+
+            var lines = normalized.Split('\n');
+            var firstNonEmpty = 0;
+            while (firstNonEmpty < lines.Length && string.IsNullOrWhiteSpace(lines[firstNonEmpty]))
+            {
+                firstNonEmpty++;
+            }
+
+            var lastNonEmpty = lines.Length - 1;
+            while (lastNonEmpty >= firstNonEmpty && string.IsNullOrWhiteSpace(lines[lastNonEmpty]))
+            {
+                lastNonEmpty--;
+            }
+
+            if (firstNonEmpty > lastNonEmpty)
+            {
+                return string.Empty;
+            }
+
+            var contentLines = lines[firstNonEmpty..(lastNonEmpty + 1)];
+            var minIndent = contentLines
+                .Where(line => !string.IsNullOrWhiteSpace(line))
+                .Select(GetLeadingWhitespaceCount)
+                .DefaultIfEmpty(0)
+                .Min();
+
+            for (var i = 0; i < contentLines.Length; i++)
+            {
+                if (!string.IsNullOrWhiteSpace(contentLines[i]) && contentLines[i].Length >= minIndent)
+                {
+                    contentLines[i] = contentLines[i][minIndent..];
+                }
+            }
+
+            return string.Join("\n", contentLines);
+        }
+
         private string DecodeTranslationEscapes(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
@@ -224,6 +378,16 @@ namespace Localizer
                 .Replace("\\n", "\n")
                 .Replace("\\r", "\r")
                 .Replace("\\t", "\t");
+        }
+
+        private int GetLeadingWhitespaceCount(string text)
+        {
+            var count = 0;
+            while (count < text.Length && char.IsWhiteSpace(text[count]))
+            {
+                count++;
+            }
+            return count;
         }
 
         private HashSet<string> BuildKnownTexts(Dictionary<string, string> dictionary)

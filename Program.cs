@@ -112,7 +112,7 @@ class Program
 
     static List<string> GetSourceDirectories(string rootPath, string repoDir)
     {
-        var setting = GetSetting("LOCALIZER_SOURCE_SUBPATHS", "AutoRetainer/UI");
+        var setting = GetSetting("LOCALIZER_SOURCE_SUBPATHS", "AutoRetainer");
         var separators = new[] { ';', '\n' };
         return setting
             .Split(separators, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)

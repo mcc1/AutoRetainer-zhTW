@@ -19,7 +19,7 @@ public class MultiModeCommon : NeoUIEntry
             ImGui.SetNextItemWidth(150f);
             var names = C.OfflineData.Where(s => !s.Name.IsNullOrEmpty()).Select(s => $"{s.Name}@{s.World}");
             var dict = names.ToDictionary(s => s, s => Censor.Character(s));
-            dict.Add("", "Disabled");
+            dict.Add("", "禁用");
             dict.Add("~", "Last logged in character");
             ImGuiEx.Combo(x, ref C.AutoLogin, ["", "~", .. names], names: dict);
         })

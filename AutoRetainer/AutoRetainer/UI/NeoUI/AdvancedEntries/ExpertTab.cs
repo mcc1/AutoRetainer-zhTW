@@ -25,7 +25,7 @@ public class ExpertTab : NeoUIEntry
         .Section("設定")
         .Checkbox($"禁用排序和折疊/展開功能", () => ref C.NoCurrentCharaOnTop)
         .Checkbox($"在插件UI欄顯示多角色模式複選框", () => ref C.MultiModeUIBar)
-        .SliderIntAsFloat(100f, "Retainer menu delay, seconds", () => ref C.RetainerMenuDelay.ValidateRange(0, 2000), 0, 2000)
+        .SliderIntAsFloat(100f, "僱員選單延遲(秒)", () => ref C.RetainerMenuDelay.ValidateRange(0, 2000), 0, 2000)
         .Checkbox($"允許探險計時器顯示負值", () => ref C.TimerAllowNegative)
         .Checkbox($"不檢查派遣計劃錯誤", () => ref C.NoErrorCheckPlanner2)
         .Checkbox("啟用手動重新登入後的角色後處理", () => ref C.AllowManualPostprocess, "當 AutoRetainer 鎖定在後處理狀態時，允許手動調用指令。")

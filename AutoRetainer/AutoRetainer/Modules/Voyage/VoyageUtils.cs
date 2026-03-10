@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage.Readers;
 using AutoRetainer.Modules.Voyage.VoyageCalculator;
 using AutoRetainerAPI.Configuration;
@@ -211,9 +211,9 @@ internal static unsafe class VoyageUtils
 
     internal static string GetPointPlanName(this SubmarinePointPlan plan)
     {
-        if(plan == null) return "No or unknown plan selected";
+        if(plan == null) return "未選擇計畫或計畫未知";
         if(plan.Name.Length > 0) return plan.Name;
-        if(plan.Points.Count == 0) return $"Plan {plan.GUID}";
+        if(plan.Points.Count == 0) return $"計畫 {plan.GUID}";
         return $"{plan.GetMap()?.Name}: {plan.Points.Select(x => Svc.Data.GetExcelSheet<SubmarineExploration>(ClientLanguage.Japanese).GetRow(x).Location.ToString()).Join("→")}";
     }
 

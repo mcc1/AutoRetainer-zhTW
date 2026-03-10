@@ -20,7 +20,7 @@ public sealed unsafe class UserInterface : NeoUIEntry
             if(ImGui.Checkbox(x, ref C.IgnoreEsc)) Utils.ResetEscIgnoreByWindows();
         })
         .Checkbox("在狀態列僅顯示最高優先級圖標", () => ref C.StatusBarMSI)
-        .SliderInt(120f, "Status bar icon size", () => ref C.StatusBarIconWidth, 32, 128)
+        .SliderInt(120f, "狀態列圖示大小", () => ref C.StatusBarIconWidth, 32, 128)
         .Checkbox("遊戲啟動時開啟 AutoRetainer 視窗", () => ref C.DisplayOnStart)
         .Checkbox("Skip item sell/trade confirmation while plugin is active", () => ref C.SkipItemConfirmations)
         .Checkbox("啟用標題介面按鈕（需重啟插件）", () => ref C.UseTitleScreenButton)

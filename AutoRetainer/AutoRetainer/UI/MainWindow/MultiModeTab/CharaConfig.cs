@@ -37,7 +37,7 @@ public class CharaConfig
         {
             b = b.Section("遠航探索").Widget(() =>
             {
-                ImGui.Checkbox($"等待航程完成", ref data.MultiWaitForAllDeployables);
+                ImGui.Checkbox($"等待航行完成", ref data.MultiWaitForAllDeployables);
                 ImGuiComponents.HelpMarker("此設定類似於全域選項，但應用於單一角色。啟用後，AutoRetainer 將在登入角色之前等待所有遠航探索返回。如果您因其他原因已經登錄，它仍然會重新派遣已完成的潛水艇/飛艇，除非全域設定「即使已登錄也等待」也同時開啟。");
             });
         }

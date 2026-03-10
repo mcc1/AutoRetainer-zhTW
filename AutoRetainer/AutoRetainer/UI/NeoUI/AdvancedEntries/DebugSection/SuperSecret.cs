@@ -18,6 +18,6 @@ internal class SuperSecret : DebugSectionBase
             Safety.Set(C.UnsafeProtection);
         }
         var g = Safety.Get();
-        ImGuiEx.Text(g ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, $"安全標記: {(g ? "Present" : "Absent")}");
+        ImGuiEx.Text(g ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, $"安全標記: {(g ? "存在" : "缺失")}");
     }
 }
