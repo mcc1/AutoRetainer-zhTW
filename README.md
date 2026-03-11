@@ -18,11 +18,11 @@
 
 此 repo 的 GitHub Actions wrapper 會呼叫外部 reusable workflow：
 
-- [main.yml](/h:/project/dalamud-mod-translater/.github/workflows/main.yml)
+- [main.yml](.github/workflows/main.yml)
 
 <h2>Docs</h2>
 
-- [AutoRetainer baseline](/h:/project/dalamud-mod-translater/docs/AUTORETAINER_BASELINE.md)
+- [AutoRetainer baseline](docs/AUTORETAINER_BASELINE.md)
 
 <h2>Credits</h2>
 
