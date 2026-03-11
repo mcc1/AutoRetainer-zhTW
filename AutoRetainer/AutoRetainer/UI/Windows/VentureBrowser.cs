@@ -1,4 +1,4 @@
-using AutoRetainerAPI.Configuration;
+﻿using AutoRetainerAPI.Configuration;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 
@@ -47,7 +47,7 @@ internal class VentureBrowser : Window
     public override void Draw()
     {
         ImGuiEx.SetNextItemFullWidth();
-        if(ImGui.BeginCombo("##selectRet", SelectedCharacter != null ? $"{Censor.Character(SelectedCharacter.Name, SelectedCharacter.World)} - {Censor.Retainer(SelectedRetainer.Name)} - {SelectedRetainer.Level} {ExcelJobHelper.GetJobNameById(SelectedRetainer.Job)}" : "選擇僱員...", ImGuiComboFlags.HeightLarge))
+        if(ImGui.BeginCombo("##selectRet", SelectedCharacter != null ? $"{Censor.Character(SelectedCharacter.Name, SelectedCharacter.World)} - {Censor.Retainer(SelectedRetainer.Name)} - {SelectedRetainer.Level} {ExcelJobHelper.GetJobNameById(SelectedRetainer.Job)}" : "Select a retainer...", ImGuiComboFlags.HeightLarge))
         {
             foreach(var x in C.OfflineData.OrderBy(x => !C.NoCurrentCharaOnTop && x.CID == Player.CID ? 0 : 1))
             {
@@ -75,9 +75,9 @@ internal class VentureBrowser : Window
             {
                 ImGuiEx.TextCentered($"{Lang.CharLevel}{SelectedRetainer.Level} {ExcelJobHelper.GetJobNameById(SelectedRetainer.Job)} | Item Level: {adata.Ilvl} ({adata.Ilvl / (float)MaxPerception:P0})");
             }
-            ImGuiEx.InputWithRightButtonsArea("潛艇瀏覽器", delegate
+            ImGuiEx.InputWithRightButtonsArea("VBrowser", delegate
             {
-                ImGui.InputTextWithHint("##search", "篩選...", ref search, 100);
+                ImGui.InputTextWithHint("##search", "Filter...", ref search, 100);
             }, delegate
             {
                 ImGuiEx.TextV($"{Lang.CharLevel}:");
@@ -92,7 +92,7 @@ internal class VentureBrowser : Window
             });
             if(adata.Gathering == -1 || adata.Perception == -1 || adata.Ilvl == -1 || SelectedRetainer.Level == 0)
             {
-                ImGuiEx.TextWrapped($"缺少此僱員的數據。請與僱員鈴互動並點選該僱員以填入數據。");
+                ImGuiEx.TextWrapped($"Data is absent for this retainer. Access retainer bell and select that retainer to populate data.");
             }
             else
             {
@@ -125,14 +125,14 @@ internal class VentureBrowser : Window
                 {
                     ImGui.TableSetupScrollFreeze(0, 1);
                     ImGui.TableSetupColumn(Lang.CharLevel);
-                    ImGui.TableSetupColumn("名稱", ImGuiTableColumnFlags.WidthStretch);
+                    ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthStretch);
                     ImGui.TableSetupColumn(Data.FirstOrDefault()?.IsDol == true ? Lang.CharPlant : Lang.CharItemLevel);
                     ImGui.TableSetupColumn("☆☆☆☆");
                     ImGui.TableSetupColumn("★☆☆☆");
                     ImGui.TableSetupColumn("★★☆☆");
                     ImGui.TableSetupColumn("★★★☆");
                     ImGui.TableSetupColumn("★★★★");
-                    ImGui.TableSetupColumn("已解鎖");
+                    ImGui.TableSetupColumn("Unlocked");
                     ImGui.TableHeadersRow();
 
                     foreach(var x in Data.Where(x => x.VentureName.Contains(search, StringComparison.OrdinalIgnoreCase) && x.VentureLevel >= minLevel && x.VentureLevel <= maxLevel))
@@ -183,7 +183,7 @@ internal class VentureBrowser : Window
 
                         if(x.IsDol)
                         {
-                            ImGuiEx.Text(x.Gathered ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, x.Gathered ? "是" : "否");
+                            ImGuiEx.Text(x.Gathered ? ImGuiColors.ParsedGreen : ImGuiColors.DalamudRed, x.Gathered ? "Yes" : "No");
                             if(!x.Gathered && GatherBuddyPresent)
                             {
                                 if(ImGui.SmallButton($"Gather##{x.ID}"))
@@ -194,7 +194,7 @@ internal class VentureBrowser : Window
                         }
                         else
                         {
-                            ImGuiEx.Text($"常駐");
+                            ImGuiEx.Text($"Always");
                         }
                     }
 

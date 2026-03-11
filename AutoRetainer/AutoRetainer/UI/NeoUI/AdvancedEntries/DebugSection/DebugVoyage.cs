@@ -1,4 +1,4 @@
-using AutoRetainer.Internal;
+﻿using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage;
 using AutoRetainer.Modules.Voyage.Tasks;
 using AutoRetainer.Modules.Voyage.VoyageCalculator;
@@ -27,16 +27,16 @@ internal unsafe class DebugVoyage : DebugSectionBase
                         ImGuiEx.Text($"{x.Name.Read()}/{x.ReturnTime}/{x.CurrentExplorationPoints.ToArray().Print()}");
                     }
                 }
-                if(ImGui.Button("清除離線數據"))
+                if(ImGui.Button("Erase offline data"))
                 {
                     Data.OfflineAirshipData.Clear();
                     Data.OfflineSubmarineData.Clear();
                 }
-                if(ImGui.Button("修理 1")) VoyageScheduler.TryRepair(0);
-                if(ImGui.Button("修理 2")) VoyageScheduler.TryRepair(1);
-                if(ImGui.Button("修理 3")) VoyageScheduler.TryRepair(2);
-                if(ImGui.Button("修理 4")) VoyageScheduler.TryRepair(3);
-                if(ImGui.Button("關閉維修介面")) VoyageScheduler.CloseRepair();
+                if(ImGui.Button("Repair 1")) VoyageScheduler.TryRepair(0);
+                if(ImGui.Button("Repair 2")) VoyageScheduler.TryRepair(1);
+                if(ImGui.Button("Repair 3")) VoyageScheduler.TryRepair(2);
+                if(ImGui.Button("Repair 4")) VoyageScheduler.TryRepair(3);
+                if(ImGui.Button("Close repair")) VoyageScheduler.CloseRepair();
                 //if (ImGui.Button("Trigger auto repair")) TaskRepairAll.EnqueueImmediate();
                 ImGui.InputText("data1", ref data1, 50);
                 ImGuiEx.EnumCombo("data2", ref data2);
@@ -44,7 +44,7 @@ internal unsafe class DebugVoyage : DebugSectionBase
                 {
                     ImGuiEx.Text($"{CurrentSubmarine.Get()->CurrentExp}/{CurrentSubmarine.Get()->NextLevelExp}");
                 }
-                ImGuiEx.Text($"是否為航行面板: {VoyageUtils.IsInVoyagePanel()}, {Lang.PanelName}");
+                ImGuiEx.Text($"Is voyage panel: {VoyageUtils.IsInVoyagePanel()}, {Lang.PanelName}");
                 if(ImGui.Button("IsVesselNeedsRepair"))
                 {
                     try
@@ -105,7 +105,7 @@ internal unsafe class DebugVoyage : DebugSectionBase
                     {
                         CurrentSubmarine.GetBestExps();
                     }
-                    if(ImGui.Button("選擇最佳航線"))
+                    if(ImGui.Button("Select best path"))
                     {
                         TaskCalculateAndPickBestExpRoute.Enqueue();
                     }

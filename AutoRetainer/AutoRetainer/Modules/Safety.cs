@@ -1,4 +1,4 @@
-using AutoRetainerAPI.Configuration;
+﻿using AutoRetainerAPI.Configuration;
 using Microsoft.Win32;
 
 namespace AutoRetainer.Modules;

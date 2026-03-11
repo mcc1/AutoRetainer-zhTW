@@ -1,4 +1,4 @@
-using ECommons.Configuration;
+﻿using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.MathHelpers;

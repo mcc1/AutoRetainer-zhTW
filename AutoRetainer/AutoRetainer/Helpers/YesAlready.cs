@@ -1,4 +1,4 @@
-using AutoRetainer.Modules.Voyage;
+﻿using AutoRetainer.Modules.Voyage;
 using ECommons.Reflection;
 
 namespace AutoRetainer.Helpers;

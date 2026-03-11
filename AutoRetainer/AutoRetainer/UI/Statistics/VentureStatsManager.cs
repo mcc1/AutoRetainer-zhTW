@@ -1,4 +1,4 @@
-using AutoRetainer.Modules.Statistics;
+﻿using AutoRetainer.Modules.Statistics;
 using ECommons.Configuration;
 using Lumina.Excel.Sheets;
 using System.IO;
@@ -21,15 +21,15 @@ public sealed class VentureStatsManager
         {
             Load();
         }
-        if(ImGui.Button("重新載入"))
+        if(ImGui.Button("Reload"))
         {
             Load();
         }
         ImGui.SameLine();
-        ImGui.Checkbox("合併顯示HQ與NQ物品", ref C.StatsUnifyHQ);
+        ImGui.Checkbox("Show HQ and non-HQ together", ref C.StatsUnifyHQ);
         ImGui.SameLine();
         ImGuiEx.SetNextItemFullWidth();
-        ImGui.InputTextWithHint("##search", "篩選物品...", ref Filter, 100);
+        ImGui.InputTextWithHint("##search", "Filter items...", ref Filter, 100);
         var cindex = 0;
         foreach(var cData in Data)
         {

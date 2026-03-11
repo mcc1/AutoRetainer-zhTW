@@ -1,4 +1,4 @@
-using AutoRetainer.Scheduler.Handlers;
+﻿using AutoRetainer.Scheduler.Handlers;
 using AutoRetainer.Scheduler.Tasks;
 using Dalamud.Memory;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -50,7 +50,7 @@ internal unsafe class DebugVenture : DebugSectionBase
         {
             RetainerHandlers.SelectSpecificVenture((uint)VentureID);
         }
-        if(ImGui.CollapsingHeader("僱員派遣"))
+        if(ImGui.CollapsingHeader("Ventures"))
         {
             var data = CSFramework.Instance()->UIModule->GetRaptureAtkModule()->AtkModule.GetStringArrayData(95);
             if(data != null)

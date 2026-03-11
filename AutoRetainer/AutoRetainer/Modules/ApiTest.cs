@@ -1,4 +1,4 @@
-using ECommons.Automation.LegacyTaskManager;
+﻿using ECommons.Automation.LegacyTaskManager;
 using ECommons.WindowsFormsReflector;
 
 namespace AutoRetainer.Modules;

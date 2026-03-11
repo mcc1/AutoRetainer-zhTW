@@ -1,4 +1,4 @@
-using AutoRetainer.Internal;
+﻿using AutoRetainer.Internal;
 using AutoRetainer.Scheduler.Tasks;
 using Dalamud.Utility;
 using ECommons.Automation.NeoTaskManager.Tasks;
@@ -39,7 +39,7 @@ internal unsafe class DebugMulti : DebugSectionBase
             }
         }
         ImGui.Checkbox("Don't logout", ref C.DontLogout);
-        ImGui.Checkbox("啟用", ref MultiMode.Enabled);
+        ImGui.Checkbox("Enabled", ref MultiMode.Enabled);
         ImGuiEx.Text($"Expected: {TaskChangeCharacter.Expected}");
         if(ImGui.Button("Force mismatch")) TaskChangeCharacter.Expected = ("AAAAAAAA", "BBBBBBB");
         if(ImGui.Button("Simulate nothing left"))

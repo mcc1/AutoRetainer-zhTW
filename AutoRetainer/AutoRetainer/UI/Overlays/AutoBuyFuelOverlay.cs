@@ -1,4 +1,4 @@
-using AutoRetainer.Modules.Voyage;
+﻿using AutoRetainer.Modules.Voyage;
 using AutoRetainer.Scheduler.Tasks;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
@@ -15,19 +15,19 @@ public unsafe class AutoBuyFuelOverlay : Window
 
     public override void Draw()
     {
-        if(TryGetAddonByName<AtkUnitBase>("部隊軍票商店", out var a) && IsAddonReady(a))
+        if(TryGetAddonByName<AtkUnitBase>("FreeCompanyCreditShop", out var a) && IsAddonReady(a))
         {
             if(a->X != 0 || a->Y != 0)
             {
                 Position = new(a->X, a->Y - Height);
             }
-            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.GasPump, "循環購買青磷水桶", !Utils.IsBusy)) TaskRecursivelyBuyFuel.Enqueue();
+            if(ImGuiEx.IconButtonWithText(FontAwesomeIcon.GasPump, "Recursively purchase Ceruleum Tanks", !Utils.IsBusy)) TaskRecursivelyBuyFuel.Enqueue();
         }
         Height = ImGui.GetWindowSize().Y;
     }
 
     public override bool DrawConditions()
     {
-        return VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType) && TryGetAddonByName<AtkUnitBase>("部隊軍票商店", out var a) && IsAddonReady(a);
+        return VoyageUtils.Workshops.Contains(Svc.ClientState.TerritoryType) && TryGetAddonByName<AtkUnitBase>("FreeCompanyCreditShop", out var a) && IsAddonReady(a);
     }
 }

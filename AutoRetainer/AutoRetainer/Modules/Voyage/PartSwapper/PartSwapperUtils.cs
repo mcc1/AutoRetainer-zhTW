@@ -1,4 +1,4 @@
-using AutoRetainer.Internal;
+﻿using AutoRetainer.Internal;
 using AutoRetainerAPI.Configuration;
 using FFXIVClientStructs.FFXIV.Client.Game;
 

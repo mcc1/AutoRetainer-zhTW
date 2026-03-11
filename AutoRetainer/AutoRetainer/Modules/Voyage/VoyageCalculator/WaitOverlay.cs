@@ -1,4 +1,4 @@
-namespace AutoRetainer.Modules.Voyage.VoyageCalculator;
+﻿namespace AutoRetainer.Modules.Voyage.VoyageCalculator;
 
 internal class WaitOverlay : Window
 {

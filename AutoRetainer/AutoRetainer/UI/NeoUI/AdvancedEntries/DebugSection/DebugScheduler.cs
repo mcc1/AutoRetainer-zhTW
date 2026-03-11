@@ -1,4 +1,4 @@
-using AutoRetainer.Scheduler.Handlers;
+﻿using AutoRetainer.Scheduler.Handlers;
 using AutoRetainer.Scheduler.Tasks;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -15,7 +15,7 @@ internal unsafe class DebugScheduler : DebugSectionBase
         ImGuiEx.Text($"Gil: {TaskDepositGil.Gil}");
         ImGui.Checkbox($"TaskWithdrawGil.forceCheck", ref TaskWithdrawGil.forceCheck);
         ImGuiEx.Text($"{Svc.Data.GetExcelSheet<LogMessage>().GetRow(4578).Text.ToDalamudString().GetText(true)}");
-        if(ImGui.Button("關閉僱員選單"))
+        if(ImGui.Button("Close retainer"))
         {
             DuoLog.Information($"{RetainerHandlers.CloseAgentRetainer()}");
         }
@@ -165,7 +165,7 @@ internal unsafe class DebugScheduler : DebugSectionBase
             }
         }
         {
-            if(ImGui.Button("Try close") && TryGetAddonByName<AtkUnitBase>("僱員名單", out var addon))
+            if(ImGui.Button("Try close") && TryGetAddonByName<AtkUnitBase>("RetainerList", out var addon))
             {
                 var v = stackalloc AtkValue[1]
                 {
@@ -176,7 +176,7 @@ internal unsafe class DebugScheduler : DebugSectionBase
                                         }
                                 };
                 addon->FireCallback(1, v);
-                Notify.Info("已完成");
+                Notify.Info("Done");
             }
         }
         {

@@ -1,4 +1,4 @@
-using AutoRetainer.Internal.InventoryManagement;
+﻿using AutoRetainer.Internal.InventoryManagement;
 using AutoRetainer.Scheduler.Handlers;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;

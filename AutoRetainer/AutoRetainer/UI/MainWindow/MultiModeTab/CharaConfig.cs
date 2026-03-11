@@ -1,4 +1,4 @@
-using AutoRetainerAPI.Configuration;
+﻿using AutoRetainerAPI.Configuration;
 using Dalamud.Interface.Components;
 using PunishLib.ImGuiMethods;
 
@@ -11,7 +11,7 @@ public class CharaConfig
         SharedUI.DrawMultiModeHeader(data);
         var b = new NuiBuilder()
 
-        .Section("通用角色特定設定")
+        .Section("General Character Specific Settings")
         .Widget(() =>
         {
             SharedUI.DrawServiceAccSelector(data);
@@ -19,9 +19,9 @@ public class CharaConfig
         });
         if(isRetainer)
         {
-            b = b.Section("僱員管理").Widget(() =>
+            b = b.Section("Retainers").Widget(() =>
             {
-                ImGuiEx.Text($"自動籌備稀有品:");
+                ImGuiEx.Text($"Automatic Grand Company Expert Delivery:");
                 if(!AutoGCHandin.Operation)
                 {
                     ImGuiEx.SetNextItemWidthScaled(200f);
@@ -29,34 +29,34 @@ public class CharaConfig
                 }
                 else
                 {
-                    ImGuiEx.Text($"目前無法更改此設定");
+                    ImGuiEx.Text($"Can't change this now");
                 }
             });
         }
         else
         {
-            b = b.Section("遠航探索").Widget(() =>
+            b = b.Section("Deployables").Widget(() =>
             {
-                ImGui.Checkbox($"等待航程完成", ref data.MultiWaitForAllDeployables);
-                ImGuiComponents.HelpMarker("此設定類似於全域選項，但應用於單一角色。啟用後，AutoRetainer 將在登入角色之前等待所有遠航探索返回。如果您因其他原因已經登錄，它仍然會重新派遣已完成的潛水艇/飛艇，除非全域設定「即使已登錄也等待」也同時開啟。");
+                ImGui.Checkbox($"Wait For Voyage Completion", ref data.MultiWaitForAllDeployables);
+                ImGuiComponents.HelpMarker("""This setting works like the global option but applies to individual characters. When enabled, AutoRetainer will wait for all deployables to return before logging into the character. If you're already logged in for another reason, it will still resend completed submarines—unless the global setting "Wait even when already logged in" is also turned on.""");
             });
         }
-        b = b.Section("傳送覆蓋設定", data.GetAreTeleportSettingsOverriden() ? ImGui.GetStyle().Colors[(int)ImGuiCol.FrameBg] with { X = 1f } : null, true)
+        b = b.Section("Teleport overrides", data.GetAreTeleportSettingsOverriden() ? ImGui.GetStyle().Colors[(int)ImGuiCol.FrameBg] with { X = 1f } : null, true)
         .Widget(() =>
         {
-            ImGuiEx.Text($"您可以為每個角色覆蓋傳送設置");
+            ImGuiEx.Text($"You can override teleport settings per character.");
             bool? demo = null;
-            ImGuiEx.Checkbox("標記此圖示的選項將使用全域配置中的值", ref demo);
-            ImGuiEx.Checkbox("啟用", ref data.TeleportOptionsOverride.Enabled);
+            ImGuiEx.Checkbox("Options marked with this marker will use values from global configuration", ref demo);
+            ImGuiEx.Checkbox("Enabled", ref data.TeleportOptionsOverride.Enabled);
             ImGui.Indent();
-            ImGuiEx.Checkbox("為傳喚鈴傳送...", ref data.TeleportOptionsOverride.Retainers);
+            ImGuiEx.Checkbox("Teleport for retainers...", ref data.TeleportOptionsOverride.Retainers);
             ImGui.Indent();
-            ImGuiEx.Checkbox("...到私人房屋", ref data.TeleportOptionsOverride.RetainersPrivate);
-            ImGuiEx.Checkbox("...到部隊房屋", ref data.TeleportOptionsOverride.RetainersFC);
-            ImGuiEx.Checkbox("...到公寓", ref data.TeleportOptionsOverride.RetainersApartment);
-            ImGui.Text("如果以上所有選項都停用或失敗，將會傳送到旅館");
+            ImGuiEx.Checkbox("...to private house", ref data.TeleportOptionsOverride.RetainersPrivate);
+            ImGuiEx.Checkbox("...to free company house", ref data.TeleportOptionsOverride.RetainersFC);
+            ImGuiEx.Checkbox("...to apartment", ref data.TeleportOptionsOverride.RetainersApartment);
+            ImGui.Text("If all above are disabled or fail, will be teleported to inn.");
             ImGui.Unindent();
-            ImGuiEx.Checkbox("為潛水艇/飛艇傳送至部隊房屋", ref data.TeleportOptionsOverride.Deployables);
+            ImGuiEx.Checkbox("Teleport to free company house for deployables", ref data.TeleportOptionsOverride.Deployables);
             ImGui.Unindent();
             ImGuiGroup.EndGroupBox();
         }).Draw();

@@ -1,4 +1,4 @@
-using AutoRetainerAPI.Configuration;
+﻿using AutoRetainerAPI.Configuration;
 
 namespace AutoRetainer.UI.NeoUI.MultiModeEntries;
 public class CharaOrder : NeoUIEntry
@@ -14,18 +14,18 @@ public class CharaOrder : NeoUIEntry
     {
         C.OfflineData.RemoveAll(x => C.Blacklist.Any(z => z.CID == x.CID));
         var b = new NuiBuilder()
-        .Section("角色排序")
-        .Widget("在此處可對角色進行排序。這將影響多角色模式處理它們的順序，以及它們在插件介面和登入覆蓋層中的顯示順序。", (x) =>
+        .Section("Character Order")
+        .Widget("Here you can sort your characters. This will affect order in which they will be processed by Multi Mode as well as how they will appear in plugin interface and login overlay.", (x) =>
         {
-            ImGuiEx.TextWrapped($"在此處可對角色進行排序。這將影響多角色模式處理它們的順序，以及它們在插件介面和登入覆蓋層中的顯示順序。");
+            ImGuiEx.TextWrapped($"Here you can sort your characters. This will affect order in which they will be processed by Multi Mode as well as how they will appear in plugin interface and login overlay.");
             ImGui.SetNextItemWidth(150f);
-            ImGui.InputText($"搜索", ref Search, 50);
+            ImGui.InputText($"Search", ref Search, 50);
             DragDrop.Begin();
-            if(ImGui.BeginTable("角色順序表", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+            if(ImGui.BeginTable("CharaOrderTable", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.NoSavedSettings | ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
             {
                 ImGui.TableSetupColumn("##ctrl");
-                ImGui.TableSetupColumn("角色", ImGuiTableColumnFlags.WidthStretch);
-                ImGui.TableSetupColumn("切換開關");
+                ImGui.TableSetupColumn("Character", ImGuiTableColumnFlags.WidthStretch);
+                ImGui.TableSetupColumn("Toggles");
                 ImGui.TableHeadersRow();
 
                 for(var index = 0; index < C.OfflineData.Count; index++)
@@ -45,7 +45,7 @@ public class CharaOrder : NeoUIEntry
                         chr.Enabled = false;
                         C.SelectedRetainers.Remove(chr.CID);
                     }
-                    ImGuiEx.Tooltip("啟用僱員自動化");
+                    ImGuiEx.Tooltip("Enable retainers");
                     ImGui.SameLine();
                     if(ImGuiEx.ButtonCheckbox(FontAwesomeIcon.Ship, ref chr.ExcludeWorkshop, inverted: true))
                     {
@@ -53,25 +53,25 @@ public class CharaOrder : NeoUIEntry
                         chr.EnabledSubs.Clear();
                         chr.EnabledAirships.Clear();
                     }
-                    ImGuiEx.Tooltip("啟用潛艇自動化");
+                    ImGuiEx.Tooltip("Enable deployables");
                     ImGui.SameLine();
                     ImGuiEx.ButtonCheckbox(FontAwesomeIcon.DoorOpen, ref chr.ExcludeOverlay, inverted: true);
-                    ImGuiEx.Tooltip("在登入覆蓋視窗顯示");
+                    ImGuiEx.Tooltip("Display on login overlay");
                     ImGui.SameLine();
                     ImGuiEx.ButtonCheckbox(FontAwesomeIcon.Coins, ref chr.NoGilTrack, inverted: true);
-                    ImGuiEx.Tooltip("將此角色的金幣計入總額");
+                    ImGuiEx.Tooltip("Count gil on this character towards total");
                     ImGui.SameLine();
                     if(ImGuiEx.IconButton(FontAwesomeIcon.Trash, enabled: ImGuiEx.Ctrl))
                     {
                         new TickScheduler(() => C.OfflineData.Remove(chr));
                     }
-                    ImGuiEx.Tooltip($"按住CTRL + 左鍵以刪除儲存的角色資料。重新登入後會自動重建。");
+                    ImGuiEx.Tooltip($"Hold CTRL and click to delete stored character data. It will be recreated once you relog back.");
                     ImGui.SameLine();
-                    if(ImGuiEx.IconButton("", enabled: ImGuiEx.Ctrl))
+                    if(ImGuiEx.IconButton("\uf057", enabled: ImGuiEx.Ctrl))
                     {
                         C.Blacklist.Add((chr.CID, chr.Name));
                     }
-                    ImGuiEx.Tooltip($"按住CTRL + 左鍵以永久刪除角色數據，該角色將完全排除在AutoRetainer的處理範圍之外。");
+                    ImGuiEx.Tooltip($"Hold CTRL and click to delete stored character data and prevent it from being ever created again, effectively excluding it from being processed by AutoRetainer entirely in any ways.");
 
                     ImGui.PopID();
                 }
@@ -84,7 +84,7 @@ public class CharaOrder : NeoUIEntry
 
         if(C.Blacklist.Count != 0)
         {
-            b = b.Section("已排除角色")
+            b = b.Section("Excluded Characters")
                 .Widget(() =>
                 {
                     for(var i = 0; i < C.Blacklist.Count; i++)
@@ -92,7 +92,7 @@ public class CharaOrder : NeoUIEntry
                         var d = C.Blacklist[i];
                         ImGuiEx.TextV($"{d.Name} ({d.CID:X16})");
                         ImGui.SameLine();
-                        if(ImGui.Button($"刪除##bl{i}"))
+                        if(ImGui.Button($"Delete##bl{i}"))
                         {
                             C.Blacklist.RemoveAt(i);
                             C.SelectedRetainers.Remove(d.CID);

@@ -1,4 +1,4 @@
-using Dalamud.Utility;
+﻿using Dalamud.Utility;
 using ECommons.Throttlers;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI;

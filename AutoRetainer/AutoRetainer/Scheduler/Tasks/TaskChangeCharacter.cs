@@ -1,4 +1,4 @@
-using Dalamud.Utility;
+﻿using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;

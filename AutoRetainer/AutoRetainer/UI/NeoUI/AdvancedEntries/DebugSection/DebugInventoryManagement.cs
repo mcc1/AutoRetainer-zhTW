@@ -1,4 +1,4 @@
-using AutoRetainer.Internal.InventoryManagement;
+﻿using AutoRetainer.Internal.InventoryManagement;
 using ECommons.ExcelServices;
 using ECommons.GameFunctions;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -70,7 +70,7 @@ public unsafe class DebugInventoryManagement : DebugSectionBase
                     if(ImGuiEx.Shift) Whitelist.Remove(x);
                 }
             }
-            if(ImGui.Button("複製")) Copy(Whitelist.Print());
+            if(ImGui.Button("Copy")) Copy(Whitelist.Print());
         }
     }
 

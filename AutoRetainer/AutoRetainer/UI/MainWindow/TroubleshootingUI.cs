@@ -1,4 +1,4 @@
-using AutoRetainer.Modules.Voyage;
+﻿using AutoRetainer.Modules.Voyage;
 using Dalamud.Game;
 using ECommons.GameHelpers;
 using ECommons.Reflection;
@@ -9,16 +9,16 @@ public static unsafe class TroubleshootingUI
     private static readonly Config EmptyConfig = new();
     public static void Draw()
     {
-        ImGuiEx.TextWrapped("本分頁將檢查您的配置是否有常見問題，您可以在聯絡技術支援前自行解決這些問題。");
+        ImGuiEx.TextWrapped("This tab checks your configuration for common issues that you can resolve yourself before contacting support.");
 
         if(!Svc.ClientState.ClientLanguage.EqualsAny(ClientLanguage.Japanese, ClientLanguage.German, ClientLanguage.French, ClientLanguage.English))
         {
-            Error($"偵測到非國際服客戶端。 AutoRetainer未在其它最終幻想14客戶端上進行測試。部分或全部功能可能無法正常運作。此外，請注意，ottercorp 的中國 Dalamud 分支會在未經您同意的情況下收集有關您的電腦、角色、所用插件和 Dalamud 配置的遙測數據，並且您無法選擇退出。");
+            Error($"Local publisher client detected. AutoRetainer was not tested to work with local publisher's FFXIV clients. Some or all functions may not work. Additionally, keep in mind that ottercorp's Chinese Dalamud fork collects telemetry about your pc, characters, used plugins and Dalamud configuration without your consent and without a possibility to opt-out.");
         }
 
         if(C.DontLogout)
         {
-            Error("已啟用DontLogout調試選項");
+            Error("DontLogout debug option is enabled");
         }
 
         foreach(var x in C.OfflineData)
@@ -28,21 +28,21 @@ public static unsafe class TroubleshootingUI
                 var a = x.OfflineSubmarineData.Select(x => x.Name);
                 if(a.Count() > a.Distinct().Count())
                 {
-                    Error($"角色 {Censor.Character(x.Name, x.World)} 的潛水艇名稱存在重複。潛水艇名稱必須是唯一的。");
+                    Error($"Character {Censor.Character(x.Name, x.World)} has duplicate submersible names. Submersible names must be unique.");
                 }
             }
         }
 
         if((C.GlobalTeleportOptions.Enabled || C.OfflineData.Any(x => x.TeleportOptionsOverride.Enabled == true)) && !Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "Lifestream" && x.IsLoaded))
         {
-            Error("已啟用傳送功能但未安裝或未加載 Lifestream 插件。在此配置下 AutoRetainer 無法運作。請停用傳送功能或安裝 Lifestream 插件。");
+            Error("\"Teleportation is enabled but Lifestream plugin is not installed/loaded. AutoRetainer can not function in this configuration. Either disable teleportation or install Lifestream plugin.");
         }
 
         foreach(var x in C.SubmarineUnlockPlans)
         {
             if(x.EnforcePlan)
             {
-                Info($"潛水艇解鎖計劃 {x.Name.NullWhenEmpty() ?? x.GUID} 設定為強制執行模式，如有需要解鎖的內容，將覆蓋所有潛水艇設定。");
+                Info($"Submarine unlock plan {x.Name.NullWhenEmpty() ?? x.GUID} is set as enforced and will override any submarine settings if there is anything to unlock.");
             }
         }
 
@@ -50,7 +50,7 @@ public static unsafe class TroubleshootingUI
         {
             if(x.EnforceDSSSinglePoint)
             {
-                Info($"潛水艇解鎖計劃 {x.Name.NullWhenEmpty() ?? x.GUID} 設定為在深海站點單點部署，並將忽略手動設定的解鎖行為。");
+                Info($"Submarine unlock plan {x.Name.NullWhenEmpty() ?? x.GUID} is set to deploy on single point in Deep sea site, and it will ignore unlock behavior that is manually set.");
             }
         }
 
@@ -58,7 +58,7 @@ public static unsafe class TroubleshootingUI
         {
             if(DalamudReflector.IsOnStaging())
             {
-                Error($"偵測到非正式版Dalamud分支。這可能導致問題。請透過輸入/xlbranch開啟分支切換器，切換到 \"release\" 分支並重新啟動遊戲");
+                Error($"Non-release Dalamud branch detected. This may cause issues. If possible, please open branch switcher by typing /xlbranch, change to \"release\" and restart your game.");
             }
         }
         catch(Exception e)
@@ -69,19 +69,19 @@ public static unsafe class TroubleshootingUI
         {
             if(Player.CurrentWorld != Player.HomeWorld)
             {
-                Error("您正在訪問其他伺服器。必須返回原始伺服器後，AutoRetainer才能繼續處理此角色。");
+                Error("You are visiting another world. You must return to your home world before AutoRetainer can continue working on this character.");
             }
             if(C.Blacklist.Any(x => x.CID == Player.CID))
             {
-                Error("目前角色已完全排除在AutoRetainer處理之外。請前往設定→排除項進行變更。");
+                Error("Your current character is excluded from AutoRetainer completely, prevenging it from being processed in any way. Go to settings - exclusions to change it.");
             }
             if(Data.ExcludeRetainer)
             {
-                Error("目前角色已被排除在僱員清單外。請前往設定→排除項進行變更。");
+                Error("Your current character is excluded from retainer list. Go to settings - exclusions to change it.");
             }
             if(Data.ExcludeWorkshop)
             {
-                Error("當前角色已被排除在遠航探索清單外。請前往設定→排除項進行變更。");
+                Error("Your current character is excluded from deployable list. Go to settings - exclusions to change it.");
             }
         }
 
@@ -89,71 +89,71 @@ public static unsafe class TroubleshootingUI
             var list = C.OfflineData.Where(x => x.GetAreTeleportSettingsOverriden());
             if(list.Any())
             {
-                Info("部分角色的傳送選項已自訂。滑鼠懸停查看清單。", list.Select(x => $"{x.Name}@{x.World}").Print("\n"));
+                Info("For some of your characters, teleportation options are customized. Hover to see list.", list.Select(x => $"{x.Name}@{x.World}").Print("\n"));
             }
         }
 
         if(C.NoTeleportHetWhenNextToBell)
         {
-            Warning("當角色靠近傳喚鈴時，傳送或進入房屋/公寓的功能已被停用。請注意房屋拆除計時器。");
+            Warning("Teleporting or entering house/apartment is disabled when character is next to retainer bell. Pay attention to house demolition timer.");
         }
 
 
 
         if(C.AllowSimpleTeleport)
         {
-            Warning("已啟用簡單傳送選項。此選項不如在Lifestream中登記房屋可靠。如遇到傳送問題，請考慮停用此選項並在Lifestream中登記您的房屋。");
+            Warning("Simple Teleport option is enabled. It's less reliable than registering your houses with Lifestream. If you are experiencing issues with teleportation, consider disabling this option and registering your property with Lifestream.");
         }
 
         if(!C.EnableEntrustManager && C.AdditionalData.Any(x => x.Value.EntrustPlan != Guid.Empty))
         {
-            Warning($"託管管理器已全域停用，但部分僱員已指派託管計劃。託管計劃將僅在手動操作時處理。");
+            Warning($"Entrust manager is globally disabled, while some retainers have their entrust plans assigned. Entrust plans will only be processed manually.");
         }
 
         if(C.ExtraDebug)
         {
-            Info("已啟用額外日誌記錄選項。這將導致日誌大量輸出，請僅在收集偵錯資訊時使用。");
+            Info("Extra logging option active. It will spam your log. Only use it when collecting debug information.");
         }
 
         if(C.UnsyncCompensation > -5)
         {
-            Warning("時間不同步補償值設定過高(>-5)，可能導致問題。");
+            Warning("Time Desynchronization Compensation is set too high (>-5). This may cause issues.");
         }
 
         if(UIUtils.GetFPSFromMSPT(C.TargetMSPTIdle) < 10)
         {
-            Warning("空閒時幀率設定過低(<10)，可能導致問題。");
+            Warning("Your target frame rate when idling is set too low (<10). This may cause issues.");
         }
 
         if(UIUtils.GetFPSFromMSPT(C.TargetMSPTRunning) < 20)
         {
-            Warning("運行時的幀率設定過低(<20)，可能導致問題。");
+            Warning("Your target frame rate when operating is set too low (<20). This may cause issues.");
         }
 
         if(Data?.GetIMSettings().AllowSellFromArmory == true)
         {
-            Info("已啟用允許從裝備兵裝庫出售物品選項。請確保將您的零式裝備和絕境武器加入保護清單。");
+            Info("Allow selling items from Armory Chest is enabled. Make sure to add your savage gear and ultimate weapons to protection list.");
         }
 
         {
             var list = C.OfflineData.Where(x => !x.ExcludeRetainer && !x.Enabled && x.RetainerData.Count > 0);
             if(list.Any())
             {
-                Warning($"部分角色未啟用僱員多角色模式，但已登記僱員。滑鼠懸停查看清單。", list.Print("\n"));
+                Warning($"Some of your characters are not enabled for Retainer Multi Mode even though they have retainers. Hover to see list.", list.Print("\n"));
             }
         }
         {
             var list = C.OfflineData.Where(x => !x.ExcludeRetainer && x.Enabled && x.RetainerData.Count > 0 && C.SelectedRetainers.TryGetValue(x.CID, out var rd) && !x.RetainerData.All(r => rd.Contains(r.Name)));
             if(list.Any())
             {
-                Warning($"部分角色未啟用所有僱員進行處理。滑鼠懸停查看清單。", list.Print("\n"));
+                Warning($"Some of your characters have not all retainers enabled for processing. Hover to see list.", list.Print("\n"));
             }
         }
         {
             var list = C.OfflineData.Where(x => !x.ExcludeWorkshop && !x.WorkshopEnabled && (x.OfflineSubmarineData.Count + x.OfflineAirshipData.Count) > 0);
             if(list.Any())
             {
-                Warning($"部分角色未啟用遠航探索多角色模式，但已登記遠航探索。滑鼠懸停查看清單。", list.Print("\n"));
+                Warning($"Some of your characters are not enabled for Deployables Multi Mode even though they have deployables registered. Hover to see list.", list.Print("\n"));
             }
         }
 
@@ -161,50 +161,50 @@ public static unsafe class TroubleshootingUI
             var list = C.OfflineData.Where(x => !x.ExcludeWorkshop && x.WorkshopEnabled && x.GetEnabledVesselsData(Internal.VoyageType.Airship).Count + x.GetEnabledVesselsData(Internal.VoyageType.Submersible).Count < Math.Min(x.OfflineAirshipData.Count + x.OfflineSubmarineData.Count, 4));
             if(list.Any())
             {
-                Warning($"部分角色未啟用所有遠航探索進行處理。滑鼠懸停查看清單。", list.Print("\n"));
+                Warning($"Some of your characters have not all deployables enabled for processing. Hover to see list.", list.Print("\n"));
             }
         }
 
         if(C.MultiModeType != AutoRetainerAPI.Configuration.MultiModeType.Everything)
         {
-            Warning($"您的多角色模式類型設定為 {C.MultiModeType} ；這將限制AutoRetainer執行的功能。");
+            Warning($"Your MultiMode type is set to {C.MultiModeType}. This will limit functions that AutoRetainer will perform.");
         }
 
         if(C.OfflineData.Any(x => x.MultiWaitForAllDeployables))
         {
-            Info("部分角色已啟用了\"等待所有待處理潛艇\"選項。這代表對於這些角色，AutoRetainer 會等到所有潛艇回歸後才開始處理。將游標懸停在此處可查看啟用了此選項的角色清單。", C.OfflineData.Where(x => x.MultiWaitForAllDeployables).Select(x => $"{x.Name}@{x.World}").Print("\n"));
+            Info("Some characters have \"Wait For All Pending Deployables\" option enabled. This means that for these characters AutoRetainer will wait for all deployables to return before processing them. Hover to see complete list of characters with enabled option.", C.OfflineData.Where(x => x.MultiWaitForAllDeployables).Select(x => $"{x.Name}@{x.World}").Print("\n"));
         }
 
         if(C.MultiModeWorkshopConfiguration.MultiWaitForAll)
         {
-            Info("全局選項\"等待探險完成\"已啟用。這代表對於所有角色，AutoRetainer 都會等到所有僱員回歸後才處理，即使該角色的獨立選項已關閉也是如此。");
+            Info("Global option \"Wait For Venture Completion\" is enabled. This means that for all characters AutoRetainer will wait for all deployables to return before processing them, even for these whose per-character option is disabled.");
         }
 
         if(C.MultiModeWorkshopConfiguration.WaitForAllLoggedIn)
         {
-            Info("潛艇已啟用「即使已登入也等待」選項。這代表即使你已在線上，AutoRetainer 仍會等到該角色的所有潛艇任務完成後才進行處理。");
+            Info("Option \"Wait even when already logged in\" is enabled for deployables. This means that AutoRetainer will wait for all deployables on a character to be completed before processing them even when you are logged in.");
         }
 
         if(C.DisableRetainerVesselReturn > 0)
         {
             if(C.DisableRetainerVesselReturn > 10)
             {
-                Warning("\"僱員探險處理截止時間\"被設定為異常高值。當僱員即將可用時，你可能會在重新派遣僱員時遇到明顯延遲。");
+                Warning("Option \"Retainer venture processing cutoff\" is set to abnormally high value. You may experience significant delays with resending retainers when deployables are soon to be available.");
             }
             else
             {
-                Info("\"僱員探險處理截止時間\"已啟用。當僱員即將可用時，你可能會在重新派遣僱員時遇到明顯延遲。");
+                Info("Option \"Retainer venture processing cutoff\" is enabled. You may experience delays with resending retainers when deployables are soon to be available.");
             }
         }
 
         if(C.MultiModeRetainerConfiguration.MultiWaitForAll)
         {
-            Info("\"等待探險完成\"選項已啟用。這代表 AutoRetainer 會等到該角色的所有僱員探險都完成後，才會登入並處理。");
+            Info("Option \"Wait For Venture Completion\" is enabled. This means that AutoRetainer will wait for all ventures from all retainers on a character to be completed before logging in to process them.");
         }
 
         if(C.MultiModeRetainerConfiguration.WaitForAllLoggedIn)
         {
-            Info("僱員已啟用\"即使已登入也等待\"選項。這代表即使你已在線上，AutoRetainer 仍會等到該角色的所有僱員探險完成後才進行處理。");
+            Info("Option \"Wait even when already logged in\" is enabled for retainers. This means that AutoRetainer will wait for all ventures from all retainers on a character to be completed before processing them even when you are logged in.");
         }
 
         {
@@ -222,70 +222,70 @@ public static unsafe class TroubleshootingUI
             }
             if(manualList.Count > 0)
             {
-                Info("你的一些僱員設定了手動存放計畫。這些計畫在重新派遣僱員後不會自動執行，只能透過點擊覆蓋介面上的按鈕來手動觸發。將游標懸停以查看名單。", manualList.Print("\n"));
+                Info("Some of your retainers have manual entrust plans set. These plans won't be processed automatically after resending retainer for venture, but only manually upon clicking button in overlay. Hover to see the list.", manualList.Print("\n"));
             }
             if(deletedList.Count > 0)
             {
-                Warning("你的一些僱員存放計畫先前已被刪除。這些僱員將不會存放任何物品。將游標懸停以查看名單。", deletedList.Print("\n"));
+                Warning("Some of your retainers' entrust plans were deleted before. Retainers with deleted entrust plans will not entrust anything. Hover to see list.", deletedList.Print("\n"));
             }
         }
 
         if(C.No2ndInstanceNotify)
         {
-            Info("你啟用了\"不針對從相同目錄執行的第二個遊戲實例進行警告\"，這會讓 AutoRetainer 在檢測到使用相同 Dalamud 目錄的第二個遊戲視窗時，自動跳過該視窗的加載。");
+            Info("You have \"Do not warn about second game instance running from same directory\" option enabled, which will skip AutoRetainer's loading on 2nd instance of the game running with the same Dalamud directory automatically.");
         }
 
         if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "SimpleTweaksPlugin" && x.IsLoaded))
         {
-            Info("偵測到 Simple Tweaks 插件。任何與僱員或潛水艇相關的微調都可能對 AutoRetainer 的功能造成負面影響。請確保微調設定不會干擾 AutoRetainer 的運作。");
+            Info("Simple Tweaks plugin detected. Any tweaks related to retainers or submarines may affect AutoRetainer functions negatively. Please ensure that tweaks are configured in a way to not interfere with AutoRetainer functions.");
         }
 
         if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "PandorasBox" && x.IsLoaded))
         {
-            Info("偵測到 Pandora's Box 插件。在 AutoRetainer 啟用時自動執行動作可能會造成負面影響。請確保當 AutoRetainer 處於活動狀態時，Pandora's Box 不會自動執行任何動作。");
+            Info("Pandora's Box plugin detected. Automatic use of actions while AutoRetainer is enabled may affect AutoRetainer functions negatively. Please ensure that Pandora's Box is configured in a way to not automatically use actions while AutoRetainer is active.");
         }
 
         if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "Automaton" && x.IsLoaded))
         {
-            Info("偵測到 Automaton 插件。在 AutoRetainer 啟用時自動執行動作或自動輸入數值可能會造成負面影響。請確保在 AutoRetainer 活動期間，Automaton 不會自動執行動作。");
+            Info("Automaton plugin detected. Automatic use of actions and automatic numeric inputs while AutoRetainer is enabled may affect AutoRetainer functions negatively. Please ensure that Automaton is configured in a way to not use automatically actions while AutoRetainer is active.");
         }
 
         if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName == "RotationSolver" && x.IsLoaded))
         {
-            Info("偵測到 RotationSolver 插件。在 AutoRetainer 啟用時自動執行技能可能會造成負面影響。請確保在 AutoRetainer 活動期間，RotationSolver 不會自動執行動作。");
+            Info("RotationSolver plugin detected. Automatic use of actions while AutoRetainer is enabled may affect AutoRetainer functions negatively. Please ensure that RotationSolver is configured in a way to not automatically use actions while AutoRetainer is active.");
         }
 
         if(Svc.PluginInterface.InstalledPlugins.Any(x => x.InternalName.StartsWith("BossMod") && x.IsLoaded))
         {
-            Info("偵測到 BossMod 插件。在 AutoRetainer 啟用時自動執行動作可能會造成負面影響。請確保在 AutoRetainer 活動期間，BossMod 不會自動執行動作。");
+            Info("BossMod plugin detected. Automatic use of actions while AutoRetainer is enabled may affect AutoRetainer functions negatively. Please ensure that BossMod is configured in a way to not automatically use actions while AutoRetainer is active.");
         }
 
         ImGui.Separator();
-        ImGuiEx.TextWrapped("專家設定會修改開發者預期的行為。請檢查你的問題是否與錯誤配置的專家設定有關。");
-        CheckExpertSetting("無可用派遣任務時存取傳喚鈴的操作", nameof(C.OpenBellBehaviorNoVentures));
-        CheckExpertSetting("有可用派遣任務時存取傳喚鈴的操作", nameof(C.OpenBellBehaviorWithVentures));
-        CheckExpertSetting("訪問傳喚鈴後任務完成行為", nameof(C.TaskCompletedBehaviorAccess));
-        CheckExpertSetting("手動啟用後任務完成行為", nameof(C.TaskCompletedBehaviorManual));
-        CheckExpertSetting("如果 5 分鐘內有僱員將完成探險，則停留在僱員選單中", nameof(C.Stay5));
-        CheckExpertSetting("關閉僱員列表時自動停用插件", nameof(C.AutoDisable));
-        CheckExpertSetting("不顯示插件狀態圖標", nameof(C.HideOverlayIcons));
-        CheckExpertSetting("顯示多角色模式類型選擇器", nameof(C.DisplayMMType));
-        CheckExpertSetting("在部隊工房中顯示遠航探險", nameof(C.ShowDeployables));
-        CheckExpertSetting("啟用應急復原模組", nameof(C.EnableBailout));
-        CheckExpertSetting("AutoRetainer嘗試解除卡死前的超時時間(秒)", nameof(C.BailoutTimeout));
-        CheckExpertSetting("禁用排序和折疊/展開功能", nameof(C.NoCurrentCharaOnTop));
-        CheckExpertSetting("在插件UI欄顯示多角色模式複選框", nameof(C.MultiModeUIBar));
-        CheckExpertSetting("僱員選單延遲(秒)", nameof(C.RetainerMenuDelay));
-        CheckExpertSetting("不檢查派遣計劃錯誤", nameof(C.NoErrorCheckPlanner2));
-        CheckExpertSetting("啟用多角色模式時，嘗試進入附近房屋", nameof(C.MultiHETOnEnable));
-        CheckExpertSetting("Artisan 整合功能", nameof(C.ArtisanIntegration));
-        CheckExpertSetting("使用伺服器時間而非本地時間", nameof(C.UseServerTime));
+        ImGuiEx.TextWrapped("Expert settings alter behavior that was intended by developer. Please check that your issue is not related to incorrectly configured expert settings.");
+        CheckExpertSetting("Action on accessing retainer bell if no ventures available", nameof(C.OpenBellBehaviorNoVentures));
+        CheckExpertSetting("Action on accessing retainer bell if any ventures available", nameof(C.OpenBellBehaviorWithVentures));
+        CheckExpertSetting("Task completion behavior after accessing bell", nameof(C.TaskCompletedBehaviorAccess));
+        CheckExpertSetting("Task completion behavior after manual enabling", nameof(C.TaskCompletedBehaviorManual));
+        CheckExpertSetting("Stay in retainer menu if there are retainers to finish ventures within 5 minutes or less", nameof(C.Stay5));
+        CheckExpertSetting("Auto-disable plugin when closing retainer list", nameof(C.AutoDisable));
+        CheckExpertSetting("Do not show plugin status icons", nameof(C.HideOverlayIcons));
+        CheckExpertSetting("Display multi mode type selector", nameof(C.DisplayMMType));
+        CheckExpertSetting("Display deployables checkbox in workshop", nameof(C.ShowDeployables));
+        CheckExpertSetting("Enable bailout module", nameof(C.EnableBailout));
+        CheckExpertSetting("Timeout before AutoRetainer will attempt to unstuck, seconds", nameof(C.BailoutTimeout));
+        CheckExpertSetting("Disable sorting and collapsing/expanding", nameof(C.NoCurrentCharaOnTop));
+        CheckExpertSetting("Show MultiMode checkbox on plugin UI bar", nameof(C.MultiModeUIBar));
+        CheckExpertSetting("Retainer menu delay, seconds", nameof(C.RetainerMenuDelay));
+        CheckExpertSetting("Do not error check venture planner", nameof(C.NoErrorCheckPlanner2));
+        CheckExpertSetting("Upon activating Multi Mode, attempt to enter nearby house", nameof(C.MultiHETOnEnable));
+        CheckExpertSetting("Artisan integration", nameof(C.ArtisanIntegration));
+        CheckExpertSetting("Use server time instead of PC time", nameof(C.UseServerTime));
     }
 
     private static void Error(string message, string tooltip = null)
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        ImGuiEx.Text(EColor.RedBright, "");
+        ImGuiEx.Text(EColor.RedBright, "\uf057");
         ImGui.PopFont();
         if(tooltip != null) ImGuiEx.Tooltip(tooltip);
         ImGui.SameLine();
@@ -296,7 +296,7 @@ public static unsafe class TroubleshootingUI
     private static void Warning(string message, string tooltip = null)
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        ImGuiEx.Text(EColor.OrangeBright, "");
+        ImGuiEx.Text(EColor.OrangeBright, "\uf071");
         ImGui.PopFont();
         if(tooltip != null) ImGuiEx.Tooltip(tooltip);
         ImGui.SameLine();
@@ -307,7 +307,7 @@ public static unsafe class TroubleshootingUI
     private static void Info(string message, string tooltip = null)
     {
         ImGui.PushFont(UiBuilder.IconFont);
-        ImGuiEx.Text(EColor.YellowBright, "");
+        ImGuiEx.Text(EColor.YellowBright, "\uf05a");
         ImGui.PopFont();
         if(tooltip != null) ImGuiEx.Tooltip(tooltip);
         ImGui.SameLine();
@@ -321,7 +321,7 @@ public static unsafe class TroubleshootingUI
         var current = C.GetFoP(nameOfSetting);
         if(!original.Equals(current))
         {
-            Info($"專家設定 \"{setting}\" 與預設值不同", $"預設值為 \"{original}\", 當前值為 \"{current}\".");
+            Info($"Expert setting \"{setting}\" differs from default", $"Default is \"{original}\", current is \"{current}\".");
         }
     }
 }

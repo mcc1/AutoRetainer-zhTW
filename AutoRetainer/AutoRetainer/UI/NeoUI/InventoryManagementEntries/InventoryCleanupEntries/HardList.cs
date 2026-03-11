@@ -1,22 +1,22 @@
-namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.InventoryCleanupEntries;
+﻿namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.InventoryCleanupEntries;
 public class HardList : InventoryManagemenrBase
 {
-    public override string Name => "背包清理/快速出售清單";
+    public override string Name => "Inventory Cleanup/Unconditional Sell List";
 
     private HardList()
     {
         var s = InventoryCleanupCommon.SelectedPlan;
         Builder = InventoryCleanupCommon.CreateCleanupHeaderBuilder()
             .Section(Name)
-            .TextWrapped("這些物品將始終被出售，不論其來源，只要堆疊數量不超過下方設定的數值。此外，僅這些物品會被出售給 NPC。")
-            .InputInt(150f, $"可出售的最大堆疊數量", () => ref s.IMAutoVendorHardStackLimit)
+            .TextWrapped("These items will always be sold, regardless of their source, as long as their stack count does not exceeds specified amount that you can specify below. Additionally, only these items will ever be sold to an NPC.")
+            .InputInt(150f, $"Maximum stack size to be sold", () => ref s.IMAutoVendorHardStackLimit)
             .Widget(() => InventoryManagementCommon.DrawListNew(s.IMAutoVendorHard, (x) =>
             {
                 ImGui.SameLine();
                 ImGui.PushFont(UiBuilder.IconFont);
                 ImGuiEx.CollectionButtonCheckbox(FontAwesomeIcon.Database.ToIconString(), x, s.IMAutoVendorHardIgnoreStack);
                 ImGui.PopFont();
-                ImGuiEx.Tooltip($"忽略此物品的堆疊設定");
+                ImGuiEx.Tooltip($"Ignore stack setting for this item");
             }))
             .Separator()
             .Widget(() =>

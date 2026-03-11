@@ -1,4 +1,4 @@
-using ECommons.UIHelpers.AddonMasterImplementations;
+﻿using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using Lumina.Excel.Sheets;
@@ -10,7 +10,7 @@ public unsafe class DebugAddonMaster : DebugSectionBase
     {
         if(ImGui.CollapsingHeader("RestainerList"))
         {
-            if(TryGetAddonByName<AtkUnitBase>("僱員名單", out var addon) && IsAddonReady(addon))
+            if(TryGetAddonByName<AtkUnitBase>("RetainerList", out var addon) && IsAddonReady(addon))
             {
                 var r = new AddonMaster.RetainerList(addon);
                 foreach(var x in r.Retainers)
