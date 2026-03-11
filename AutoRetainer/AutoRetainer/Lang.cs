@@ -39,9 +39,9 @@ internal static class Lang
 
     internal static readonly ReadOnlyDictionary<UnlockMode, string> UnlockModeNames = new(new Dictionary<UnlockMode, string>()
     {
-        { UnlockMode.MultiSelect, "Pick max amount of destinations" },
-        { UnlockMode.SpamOne, "Spam one destination" },
-        { UnlockMode.WhileLevelling, "Include one unlock destination while levelling" },
+        { UnlockMode.MultiSelect, "選擇最多數量的目的地" },
+        { UnlockMode.SpamOne, "重複刷單一目的地" },
+        { UnlockMode.WhileLevelling, "升級時包含一個解鎖用目的地" },
     });
 
     internal static readonly (string Normal, string GameFont) Digits = ("0123456789", "");

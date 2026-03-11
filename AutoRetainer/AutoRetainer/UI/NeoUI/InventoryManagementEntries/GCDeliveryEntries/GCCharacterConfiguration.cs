@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.GCDeliveryEntries;
 public sealed unsafe class GCCharacterConfiguration : InventoryManagemenrBase
 {
-    public override string Name { get; } = "軍隊籌備/角色設定";
+    public override string Name { get; } = "大國防聯軍籌備/角色設定";
 
     public override int DisplayPriority => -10;
 

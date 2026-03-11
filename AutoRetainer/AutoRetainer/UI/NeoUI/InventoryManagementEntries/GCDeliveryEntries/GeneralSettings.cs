@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.GCDeliveryEntries;
 public sealed unsafe class GeneralSettings : InventoryManagemenrBase
 {
-    public override string Name { get; } = "軍隊籌備/一般設定";
+    public override string Name { get; } = "大國防聯軍籌備/一般設定";
 
     public override void Draw()
     {
