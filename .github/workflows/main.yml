@@ -13,7 +13,7 @@ on:
 
 jobs:
   autoretainer:
-    uses: ./.github/workflows/reusable-build-mod.yml
+    uses: mcc1/dalamud-mod-localizer/.github/workflows/reusable-build-mod.yml@main
     secrets: inherit
     with:
       mod_name: AutoRetainer

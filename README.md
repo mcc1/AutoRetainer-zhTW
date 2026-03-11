@@ -1,29 +1,30 @@
-<h1>🤖 AutoRetainer Localizer</h1>
+<h1>AutoRetainer zh-TW</h1>
 
-可配置的 Dalamud mod C# 源碼翻譯與建置框架，目前以 AutoRetainer 為範例。
+這個 repo 是 AutoRetainer 的繁體中文 consumer repo。
 
-<h2>🌟 功能</h2>
+它保留 AutoRetainer 專屬內容：
 
-自動同步：自動獲取官方最新原始碼。
+- `zh-TW.json`
+- AutoRetainer wrapper workflow
+- AutoRetainer 版本 pin
+- AutoRetainer package 規則
+- 已處理的 AutoRetainer 原始碼快照
 
-一鍵更新：透過 GitHub Actions 自動完成 Clone -> 翻譯 -> 建置 -> 上傳 Artifact。
+共用翻譯與建置框架已移到：
 
-修改字典：編輯 zh-TW.json 加入新的翻譯對照。
+- `mcc1/dalamud-mod-localizer`
 
-可移植：透過環境變數切換 repo 目錄、source 路徑與字典，套用到其他 mod。
+<h2>Workflow</h2>
 
+此 repo 的 GitHub Actions wrapper 會呼叫外部 reusable workflow：
 
-<h2>🛠️ 技術棧</h2>
+- [main.yml](/h:/project/dalamud-mod-translater/.github/workflows/main.yml)
 
-.NET 8.0 / C#
+<h2>Docs</h2>
 
-Microsoft.CodeAnalysis (Roslyn)
+- [AutoRetainer baseline](/h:/project/dalamud-mod-translater/docs/AUTORETAINER_BASELINE.md)
 
-GitHub Actions
+<h2>Credits</h2>
 
-
-<h2>📘 可重用指南</h2>
-
-[Mod 翻譯與建置可重用手冊](docs/MOD_TRANSLATION_BUILD_PLAYBOOK.md)
-
-[Template 抽取說明](docs/TEMPLATE_EXTRACTION_NOTES.md)
+- Original translation/localizer foundation and prior project history: Miaki
+- Reusable workflow extraction, AutoRetainer baseline stabilization, and consumer split work: mcc

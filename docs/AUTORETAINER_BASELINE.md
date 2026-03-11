@@ -17,7 +17,7 @@ This file records the current known-good AutoRetainer inputs before template ext
 ## Localizer Inputs
 
 - Repo directory: `AutoRetainer`
-- Source paths: `AutoRetainer/UI`
+- Source paths: `AutoRetainer`
 - Dictionary file: `zh-TW.json`
 
 ## Build Target
@@ -47,3 +47,8 @@ Verified locally on 2026-03-10:
 - Dalamud dependency preparation: passed
 - Build: passed with warnings only
 - Packaging: workflow packaging logic remains the reference for expected zip structure
+
+Current localizer coverage notes:
+
+- The scanner was widened from `AutoRetainer/UI` to `AutoRetainer`
+- This is required because command help and other translatable strings exist outside the UI folder
