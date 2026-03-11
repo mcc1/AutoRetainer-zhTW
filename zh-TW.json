@@ -325,6 +325,7 @@
   "Display notification in game chat": "在遊戲聊天欄顯示通知",
   "Send desktop notification on retainers available": "當僱員可用時發送桌面通知",
   "Some of the retainers have completed their ventures!": "部分僱員的探險已完成！",
+  "[AutoRetainer] Some of the retainers have completed their ventures!": "[AutoRetainer] 部分僱員的探險已完成！",
   "Flash taskbar": "閃爍工作列",
   "Do not notify if AutoRetainer is enabled or MultiMode is running": "若 AutoRetainer 已啟用或多重模式運行中則不通知",
   "Entrust Manager": "委託管理",
