@@ -47,6 +47,7 @@ These changes live in `mcc1/dalamud-mod-localizer` and affect all consumer repos
 ## Consumer Changes
 
 These changes live in `mcc1/AutoRetainer-zhTW` and are specific to the AutoRetainer consumer repo.
+Source-level customizations that must survive upstream sync are stored under `.consumer-patches/` and are applied by the reusable workflow after localization.
 
 ### `AutoRetainer/AutoRetainer/UI/NeoUI/RetainersTab.cs`
 
@@ -55,6 +56,7 @@ These changes live in `mcc1/AutoRetainer-zhTW` and are specific to the AutoRetai
   - The action path also checks `SelectedEntrustPlan != null` before using `.Guid`.
   - Purpose: fix `NullReferenceException` in `MassConfigurationChangeWidget()`.
   - Related consumer commit: `dd2911c`
+  - Patch file: `.consumer-patches/002-retainers-tab-null-guard.patch`
 
 ### `AutoRetainer/AutoRetainer/UI/NeoUI/AdvancedEntries/ExpertTab.cs`
 
@@ -63,6 +65,7 @@ These changes live in `mcc1/AutoRetainer-zhTW` and are specific to the AutoRetai
   - `TaskCompletedBehavior`
   - Purpose: keep enum identifiers stable in code/config while showing localized labels in UI.
   - Related consumer commit: `5f6f821`
+  - Patch file: `.consumer-patches/001-localize-expert-tab-enums.patch`
 
 ### `zh-TW.json`
 
@@ -84,3 +87,4 @@ When updating to a newer AutoRetainer upstream version:
 4. Re-check `AutoRetainer.json` after localizer runs to confirm `Punchline` and `Description` are still translated.
 5. Re-check chat/notification messages that use `SeStringBuilder`.
 6. Re-check path-like translated labels to ensure halfwidth `/` was preserved.
+7. Re-check that `.consumer-patches/*.patch` still apply cleanly after upstream source changes.

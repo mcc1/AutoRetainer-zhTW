@@ -1,0 +1,58 @@
+From dd2911c692491934255dffb5fc9c96cebb784027 Mon Sep 17 00:00:00 2001
+From: mcc <mcc@mccma.cc>
+Date: Wed, 11 Mar 2026 22:17:16 +0800
+Subject: [PATCH] Guard mass entrust action without selected plan
+
+---
+ .../AutoRetainer/UI/NeoUI/RetainersTab.cs     | 30 ++++++++++---------
+ 1 file changed, 16 insertions(+), 14 deletions(-)
+
+diff --git a/AutoRetainer/AutoRetainer/UI/NeoUI/RetainersTab.cs b/AutoRetainer/AutoRetainer/UI/NeoUI/RetainersTab.cs
+index 5bbedd4..bd8c95a 100644
+--- a/AutoRetainer/AutoRetainer/UI/NeoUI/RetainersTab.cs
++++ b/AutoRetainer/AutoRetainer/UI/NeoUI/RetainersTab.cs
+@@ -133,25 +133,27 @@ public class RetainersTab : NeoUIEntry
+                 {
+                     SelectedEntrustPlan = plan;
+                 }
+-            }
+-            ImGui.EndCombo();
+         }
+-        ImGui.SameLine();
+-        if(ImGuiEx.IconButtonWithText((FontAwesomeIcon)62566, "設定存放計畫"))
++        ImGui.EndCombo();
++    }
++    ImGui.SameLine();
++    ImGui.BeginDisabled(SelectedEntrustPlan == null);
++    if(ImGuiEx.IconButtonWithText((FontAwesomeIcon)62566, "設定存放計畫"))
++    {
++        var num = 0;
++        foreach(var x in SelectedRetainers)
+         {
+-            var num = 0;
+-            foreach(var x in SelectedRetainers)
++            var odata = C.OfflineData.FirstOrDefault(z => z.CID == x.CID);
++            if(odata != null && SelectedEntrustPlan != null)
+             {
+-                var odata = C.OfflineData.FirstOrDefault(z => z.CID == x.CID);
+-                if(odata != null)
+-                {
+-                    var adata = Utils.GetAdditionalData(x.CID, x.RetainerName);
+-                    adata.EntrustPlan = SelectedEntrustPlan.Guid;
+-                    num++;
+-                }
++                var adata = Utils.GetAdditionalData(x.CID, x.RetainerName);
++                adata.EntrustPlan = SelectedEntrustPlan.Guid;
++                num++;
+             }
+-            Notify.Success($"Affected {num} retainers");
+         }
++        Notify.Success($"Affected {num} retainers");
++    }
++    ImGui.EndDisabled();
+ 
+         ImGui.Separator();
+ 
+-- 
+2.53.0.windows.1
+
