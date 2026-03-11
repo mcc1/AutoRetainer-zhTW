@@ -1,36 +1,18 @@
-using AutoRetainerAPI.Configuration;
 using ECommons.Configuration;
 using ECommons.Reflection;
-using System.Collections.Frozen;
 
 namespace AutoRetainer.UI.NeoUI.AdvancedEntries;
 public class ExpertTab : NeoUIEntry
 {
-    private static readonly FrozenDictionary<OpenBellBehavior, string> OpenBellBehaviorNames = new Dictionary<OpenBellBehavior, string>()
-    {
-        [OpenBellBehavior.Do_nothing] = "不執行任何動作",
-        [OpenBellBehavior.Enable_AutoRetainer] = "啟用 AutoRetainer",
-        [OpenBellBehavior.Disable_AutoRetainer] = "停用 AutoRetainer",
-        [OpenBellBehavior.Pause_AutoRetainer] = "暫停 AutoRetainer",
-    }.ToFrozenDictionary();
-
-    private static readonly FrozenDictionary<TaskCompletedBehavior, string> TaskCompletedBehaviorNames = new Dictionary<TaskCompletedBehavior, string>()
-    {
-        [TaskCompletedBehavior.Close_retainer_list_and_disable_plugin] = "關閉僱員列表並停用插件",
-        [TaskCompletedBehavior.Close_retainer_list_and_keep_plugin_enabled] = "關閉僱員列表並保持插件啟用",
-        [TaskCompletedBehavior.Stay_in_retainer_list_and_disable_plugin] = "停留在僱員列表並停用插件",
-        [TaskCompletedBehavior.Stay_in_retainer_list_and_keep_plugin_enabled] = "停留在僱員列表並保持插件啟用",
-    }.ToFrozenDictionary();
-
     public override string Path => "進階設定/專家設定";
 
     public override NuiBuilder Builder { get; init; } = new NuiBuilder()
         .Section("行為設定")
-        .EnumComboFullWidth(null, "存取僱員鈴鐺時若無可用探險任務的動作：", () => ref C.OpenBellBehaviorNoVentures, null, OpenBellBehaviorNames)
-        .EnumComboFullWidth(null, "存取僱員鈴鐺時若有可用探險任務的動作：", () => ref C.OpenBellBehaviorWithVentures, null, OpenBellBehaviorNames)
-        .EnumComboFullWidth(null, "存取鈴鐺後任務完成的行為：", () => ref C.TaskCompletedBehaviorAccess, null, TaskCompletedBehaviorNames)
-        .EnumComboFullWidth(null, "手動啟用後任務完成的行為：", () => ref C.TaskCompletedBehaviorManual, null, TaskCompletedBehaviorNames)
-        .EnumComboFullWidth(null, "插件運作期間任務完成的行為：", () => ref C.TaskCompletedBehaviorAuto, null, TaskCompletedBehaviorNames)
+        .EnumComboFullWidth(null, "存取僱員鈴鐺時若無可用探險任務的動作：", () => ref C.OpenBellBehaviorNoVentures)
+        .EnumComboFullWidth(null, "存取僱員鈴鐺時若有可用探險任務的動作：", () => ref C.OpenBellBehaviorWithVentures)
+        .EnumComboFullWidth(null, "存取鈴鐺後任務完成的行為：", () => ref C.TaskCompletedBehaviorAccess)
+        .EnumComboFullWidth(null, "手動啟用後任務完成的行為：", () => ref C.TaskCompletedBehaviorManual)
+        .EnumComboFullWidth(null, "插件運作期間任務完成的行為：", () => ref C.TaskCompletedBehaviorAuto)
         .TextWrapped(ImGuiColors.DalamudGrey, "多角色模式運作期間，上述3個設定中的\"關閉僱員清單並停用外掛程式\"選項將被強制啟用。")
         .Checkbox("如果 5 分鐘內有僱員將完成探險，則停留在僱員選單中", () => ref C.Stay5, "此選項在多角色模式運行期間強制啟用。")
         .Checkbox($"關閉僱員列表時自動停用插件", () => ref C.AutoDisable, "僅在你手動退出選單時生效；否則將套用上方的設定。")
