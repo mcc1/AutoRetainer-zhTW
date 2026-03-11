@@ -3,7 +3,7 @@ using AutoRetainerAPI.Configuration;
 namespace AutoRetainer.UI.NeoUI.MultiModeEntries;
 public class CharaOrder : NeoUIEntry
 {
-    public override string Path => "多角色模式／排除與順序";
+    public override string Path => "多角色模式/排除與順序";
 
     private static string Search = "";
     private static ImGuiEx.RealtimeDragDrop<OfflineCharacterData> DragDrop = new("CharaOrder", x => x.Identity);
