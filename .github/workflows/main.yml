@@ -46,5 +46,11 @@ jobs:
         ImGuiScene.dll
         InteropGenerator.Runtime.dll
         FFXIVClientStructs.dll
+      translation_smoke_test_patterns: |
+        開啟插件介面
+        雇員名稱
+        飛空艇零件的物品 ID 為 0
+        解鎖方案
+        無法取得飛空艇索引
       commit_changes: true
       publish_release: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
