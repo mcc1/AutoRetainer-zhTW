@@ -1,4 +1,4 @@
-﻿namespace AutoRetainer.UI.Overlays;
+namespace AutoRetainer.UI.Overlays;
 
 internal class MarketCooldownOverlay : Window
 {
