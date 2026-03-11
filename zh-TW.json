@@ -1,4 +1,4 @@
-{
+﻿{
   "Lock window position and size": "鎖定視窗位置和大小",
   "Abort {0} tasks": "中止 {0} 個流程",
   "Retainers": "僱員管理",
@@ -1517,5 +1517,8 @@
   "Retainer venture processing cutoff, minutes": "雇員探險處理截止時間（分鐘）",
   "If set to a value greater than 0, AutoRetainer will stop processing any retainers this number of minutes before any character is scheduled to redeploy submarines, taking all previous settings into account.": "若設為大於 0 的值，AutoRetainer 會在任一角色預計重新派遣潛艇前的指定分鐘數停止處理所有雇員，並會一併考量先前的所有設定。",
   "Check frequency, hours": "檢查頻率（小時）",
-  "cols": "cols"
+  "cols": "cols",
+  "Pick max amount of destinations": "Pick max amount of destinations",
+  "Spam one destination": "Spam one destination",
+  "Include one unlock destination while levelling": "Include one unlock destination while levelling"
 }

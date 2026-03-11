@@ -6,9 +6,9 @@ public class MultiModeContingency : NeoUIEntry
 {
     private static readonly FrozenDictionary<WorkshopFailAction, string> WorkshopFailActionNames = new Dictionary<WorkshopFailAction, string>()
     {
-        [WorkshopFailAction.StopPlugin] = "Halt all plugin operation",
-        [WorkshopFailAction.ExcludeVessel] = "Exclude deployable from operation",
-        [WorkshopFailAction.ExcludeChar] = "Exclude captain from multi mode rotation",
+        [WorkshopFailAction.StopPlugin] = "停止所有插件操作",
+        [WorkshopFailAction.ExcludeVessel] = "將該設備排除在操作之外",
+        [WorkshopFailAction.ExcludeChar] = "將該角色排除在多角色輪換之外",
     }.ToFrozenDictionary();
 
     public override string Path => "多角色模式/應急設定";
