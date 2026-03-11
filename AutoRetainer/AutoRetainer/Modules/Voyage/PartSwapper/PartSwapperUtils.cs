@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainerAPI.Configuration;
 using FFXIVClientStructs.FFXIV.Client.Game;
 
@@ -67,7 +67,7 @@ public static unsafe class PartSwapperUtils
             1 => (uint)partsData.Part2,
             2 => (uint)partsData.Part3,
             3 => (uint)partsData.Part4,
-            _ => throw new ArgumentOutOfRangeException(nameof(slotIndex), "Invalid slot index")
+            _ => throw new ArgumentOutOfRangeException(nameof(slotIndex), "無效的欄位索引")
         };
     }
 
@@ -79,7 +79,7 @@ public static unsafe class PartSwapperUtils
             1 => (uint)Data.AdditionalSubmarineData[name].Part2,
             2 => (uint)Data.AdditionalSubmarineData[name].Part3,
             3 => (uint)Data.AdditionalSubmarineData[name].Part4,
-            _ => throw new ArgumentOutOfRangeException(nameof(slotIndex), "Invalid slot index")
+            _ => throw new ArgumentOutOfRangeException(nameof(slotIndex), "無效的欄位索引")
         };
     }
 

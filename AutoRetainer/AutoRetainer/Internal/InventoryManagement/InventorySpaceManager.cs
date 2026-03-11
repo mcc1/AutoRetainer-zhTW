@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Scheduler.Tasks;
+using AutoRetainer.Scheduler.Tasks;
 using ECommons.ExcelServices;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -100,7 +100,7 @@ public static unsafe class InventorySpaceManager
                     if(Data.GetIMSettings().IMAutoVendorSoft.Contains(item.ItemId))
                     {
                         var task = new SellSlotTask(invType, (uint)i, item.ItemId, item.Quantity);
-                        PluginLog.Information($"Enqueueing {task} for soft sale");
+                        PluginLog.Information($"正在將 {task} 加入一般出售佇列");
                         InventorySpaceManager.SellSlotTasks.Add(task);
                         return;
                     }
@@ -123,7 +123,7 @@ public static unsafe class InventorySpaceManager
                     if((Data.GetIMSettings().IMAutoVendorHard.Contains(item.ItemId) || (softAsHard && Data.GetIMSettings().IMAutoVendorSoft.Contains(item.ItemId))) && !TaskDesynthItems.DesynthEligible(item.ItemId))
                     {
                         var task = new SellSlotTask(invType, (uint)i, item.ItemId, item.Quantity);
-                        PluginLog.Information($"Enqueueing {task} for hard sale");
+                        PluginLog.Information($"正在將 {task} 加入強制出售佇列");
                         InventorySpaceManager.SellSlotTasks.Add(task);
                     }
                 }

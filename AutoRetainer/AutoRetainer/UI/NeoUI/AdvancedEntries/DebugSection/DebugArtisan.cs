@@ -1,4 +1,4 @@
-﻿namespace AutoRetainer.UI.NeoUI.AdvancedEntries.DebugSection;
+namespace AutoRetainer.UI.NeoUI.AdvancedEntries.DebugSection;
 
 internal class DebugArtisan : DebugSectionBase
 {
@@ -8,7 +8,7 @@ internal class DebugArtisan : DebugSectionBase
         {
             foreach(var r in d.RetainerData)
             {
-                ImGuiEx.Text($"Retainer {r.Name}: {r.VentureEndsAt}");
+                ImGuiEx.Text($"雇員 {r.Name}: {r.VentureEndsAt}");
                 ImGui.SameLine();
                 if(ImGui.Button($"1m##{r.Identity}"))
                 {

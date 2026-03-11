@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainerAPI.Configuration;
 
 namespace AutoRetainer.UI.MainWindow.MultiModeTab;
@@ -40,7 +40,7 @@ internal static unsafe class MultiModeUI
         {
             var data = sortedData[index];
             if(data.World.IsNullOrEmpty() || data.ExcludeRetainer) continue;
-            var search = Ref<string>.Get("SearchChara");
+            var search = Ref<string>.Get("搜尋角色");
             if(search != "" && !$"{data.Name}@{data.World}".Contains(search, StringComparison.OrdinalIgnoreCase)) continue;
             ImGui.PushID(data.CID.ToString());
             var rCurPos = ImGui.GetCursorPos();
@@ -55,13 +55,13 @@ internal static unsafe class MultiModeUI
                 data.Enabled = !data.Enabled;
             }
             if(colen) ImGui.PopStyleColor();
-            ImGuiEx.Tooltip($"Enable multi-mode for this character");
+            ImGuiEx.Tooltip($"為此角色啟用多角色模式");
             ImGui.SameLine(0, 3);
             if(ImGuiEx.IconButton(FontAwesomeIcon.DoorOpen))
             {
                 if(MultiMode.Relog(data, out var error, RelogReason.ConfigGUI))
                 {
-                    Notify.Success("Relogging...");
+                    Notify.Success("正在重新登入...");
                 }
                 else
                 {
@@ -72,13 +72,13 @@ internal static unsafe class MultiModeUI
             {
                 Copy($"/ays relog {data.Name}@{data.World}");
             }
-            ImGuiEx.Tooltip($"Left click - relog to this character\nRight click - copy relog command into clipboard");
+            ImGuiEx.Tooltip($"左鍵 - 重新登入此角色\n右鍵 - 複製重新登入指令到剪貼簿");
             ImGui.SameLine(0, 3);
             if(ImGuiEx.IconButton(FontAwesomeIcon.UserCog))
             {
                 ImGui.OpenPopup($"popup{data.CID}");
             }
-            ImGuiEx.Tooltip($"Configure Character");
+            ImGuiEx.Tooltip($"配置角色");
             ImGui.SameLine(0, 3);
 
             if(ImGui.BeginPopup($"popup{data.CID}"))
@@ -148,10 +148,10 @@ internal static unsafe class MultiModeUI
                 }
             }
             ImGui.SameLine(0, 0);
-            List<(bool, string)> texts = [(data.Ventures < C.UIWarningRetVentureNum, $"V: {data.Ventures}"), (data.InventorySpace < C.UIWarningRetSlotNum, $"I: {data.InventorySpace}")];
+            List<(bool, string)> texts = [(data.Ventures < C.UIWarningRetVentureNum, $"探險幣: {data.Ventures}"), (data.InventorySpace < C.UIWarningRetSlotNum, $"空格: {data.InventorySpace}")];
             if(C.CharEqualize && MultiMode.Enabled)
             {
-                texts.Insert(0, (false, $"C: {MultiMode.CharaCnt.GetOrDefault(data.CID)}"));
+                texts.Insert(0, (false, $"青磷水: {MultiMode.CharaCnt.GetOrDefault(data.CID)}"));
             }
             overlayTexts.Add((new Vector2(ImGui.GetContentRegionMax().X - ImGui.GetStyle().FramePadding.X, rCurPos.Y + ImGui.GetStyle().FramePadding.Y), [.. texts]));
             ImGui.NewLine();
@@ -162,24 +162,24 @@ internal static unsafe class MultiModeUI
 
         if(C.Verbose && ImGui.CollapsingHeader("Debug"))
         {
-            ImGuiEx.Text($"GetCurrentTargetCharacter: {MultiMode.GetCurrentTargetCharacter()}");
+            ImGuiEx.Text($"當前目標角色: {MultiMode.GetCurrentTargetCharacter()}");
             //ImGuiEx.Text($"Yes Already: {YesAlready.IsEnabled()}");
-            ImGuiEx.Text($"IsCurrentCharacterDone: {MultiMode.IsCurrentCharacterDone()}");
-            ImGuiEx.Text($"NextInteraction: {Math.Max(0, MultiMode.NextInteractionAt - Environment.TickCount64)}");
-            ImGuiEx.Text($"EnsureCharacterValidity: {MultiMode.EnsureCharacterValidity(true)}");
-            ImGuiEx.Text($"IsInteractionAllowed: {MultiMode.IsInteractionAllowed()}");
-            ImGuiEx.Text($"GetPreferredCharacter: {MultiMode.GetPreferredCharacter()}");
-            ImGuiEx.Text($"IsAllRetainersHaveMoreThan15Mins: {MultiMode.IsAllRetainersHaveMoreThan15Mins()}");
-            ImGuiEx.Text($"Target ?? Preferred: {MultiMode.GetCurrentTargetCharacter() ?? MultiMode.GetPreferredCharacter()}");
+            ImGuiEx.Text($"當前角色是否完成: {MultiMode.IsCurrentCharacterDone()}");
+            ImGuiEx.Text($"下次交互預計在: {Math.Max(0, MultiMode.NextInteractionAt - Environment.TickCount64)}");
+            ImGuiEx.Text($"確保角色有效性: {MultiMode.EnsureCharacterValidity(true)}");
+            ImGuiEx.Text($"是否允許交互: {MultiMode.IsInteractionAllowed()}");
+            ImGuiEx.Text($"獲取首選角色: {MultiMode.GetPreferredCharacter()}");
+            ImGuiEx.Text($"所有僱員是否剩餘 15 分鐘以上: {MultiMode.IsAllRetainersHaveMoreThan15Mins()}");
+            ImGuiEx.Text($"目標 或 首選: {MultiMode.GetCurrentTargetCharacter() ?? MultiMode.GetPreferredCharacter()}");
             //ImGuiEx.Text($"GetAutoAfkOpt: {MultiMode.GetAutoAfkOpt()}");
             //ImGuiEx.Text($"AutoAfkValue: {ConfigModule.Instance()->GetIntValue(145)}");
-            ImGuiEx.Text($"LastLongin: {MultiMode.LastLogin:X16}");
-            ImGuiEx.Text($"AnyRetainersAvailable: {MultiMode.AnyRetainersAvailable()}");
-            ImGuiEx.Text($"IsAnySelectedRetainerFinishesWithin, 60: {MultiMode.IsAnySelectedRetainerFinishesWithin(60)}");
-            ImGuiEx.Text($"IsAnySelectedRetainerFinishesWithin, 5*60: {MultiMode.IsAnySelectedRetainerFinishesWithin(5 * 60)}");
+            ImGuiEx.Text($"最後登入時間: {MultiMode.LastLogin:X16}");
+            ImGuiEx.Text($"是否有可用僱員: {MultiMode.AnyRetainersAvailable()}");
+            ImGuiEx.Text($"是否有選中僱員在 60 秒內完成: {MultiMode.IsAnySelectedRetainerFinishesWithin(60)}");
+            ImGuiEx.Text($"是否有選中僱員在 5 分鐘內完成: {MultiMode.IsAnySelectedRetainerFinishesWithin(5 * 60)}");
             foreach(var data in C.OfflineData)
             {
-                ImGuiEx.Text($"Chatacter {data}\n  GetNeededVentureAmount: {data.GetNeededVentureAmount()}");
+                ImGuiEx.Text($"角色 {data}\n  所需探險幣數量: {data.GetNeededVentureAmount()}");
             }
         }
     }

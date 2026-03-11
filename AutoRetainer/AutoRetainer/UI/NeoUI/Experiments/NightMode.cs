@@ -1,22 +1,22 @@
-﻿namespace AutoRetainer.UI.NeoUI.Experiments;
+namespace AutoRetainer.UI.NeoUI.Experiments;
 
 internal class NightMode : ExperimentUIEntry
 {
-    public override string Name => "Night Mode";
+    public override string Name => "夜間模式";
     public override void Draw()
     {
-        ImGuiEx.TextWrapped($"Night mode:\n" +
-                $"- Wait on login screen option is forcefully enabled\n" +
-                $"- Built-in FPS limiter restrictions forcefully applied\n" +
-                $"- While unfocused and awaiting, game is limited to 0.2 FPS\n" +
-                $"- It may look like game hung up, but let it up to 5 seconds to wake up after you reactivate game window.\n" +
-                $"- By default, only Deployables are enabled in Night mode\n" +
-                $"- After disabling Night mode, Bailout manager will activate to relog you back to the game.");
-        if(ImGui.Checkbox("Activate night mode", ref C.NightMode)) MultiMode.BailoutNightMode();
-        ImGui.Checkbox("Show Night mode checkbox", ref C.ShowNightMode);
-        ImGui.Checkbox("Do retainers in Night mode", ref C.NightModeRetainers);
-        ImGui.Checkbox("Do deployables in Night mode", ref C.NightModeDeployables);
-        ImGui.Checkbox("Make night mode status persistent", ref C.NightModePersistent);
-        ImGui.Checkbox("Make shutdown command activate night mode instead of shutting down the game", ref C.ShutdownMakesNightMode);
+        ImGuiEx.TextWrapped($"夜間模式:\n" +
+                $"- 在登入畫面等待選項將被強制啟用\n" +
+                $"- 將強制執行內建的 FPS 限制器規範\n" +
+                $"- 當視窗未聚焦且在等待時，遊戲將限制在 0.2 FPS\n" +
+                $"- 遊戲看起來可能會像當機，但在你重新激活遊戲視窗後，請給它最多 5 秒的時間恢復運作。\n" +
+                $"- 預設情況下，夜間模式僅啟用潛艇自動化\n" +
+                $"- 停用夜間模式後，救援管理器 (Bailout manager) 會啟動並帶領你重新登入遊戲。");
+        if(ImGui.Checkbox("啟用夜間模式", ref C.NightMode)) MultiMode.BailoutNightMode();
+        ImGui.Checkbox("顯示夜間模式勾選框", ref C.ShowNightMode);
+        ImGui.Checkbox("在夜間模式下處理僱員", ref C.NightModeRetainers);
+        ImGui.Checkbox("在夜間模式下處理派遣", ref C.NightModeDeployables);
+        ImGui.Checkbox("使夜間模式狀態持久化", ref C.NightModePersistent);
+        ImGui.Checkbox("使關機指令改為啟動夜間模式而非關閉遊戲", ref C.ShutdownMakesNightMode);
     }
 }

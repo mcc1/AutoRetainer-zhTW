@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage.PartSwapper;
 using AutoRetainer.Modules.Voyage.Tasks;
 using AutoRetainer.Modules.Voyage.VoyageCalculator;
@@ -219,10 +219,10 @@ internal static unsafe class VoyageMain
                                     {
                                         if(x.EnforcePlan)
                                         {
-                                            PluginLog.Information($"Unlock plan {x.Name} is set as enforced");
+                                            PluginLog.Information($"解鎖方案 {x.Name} 已設為強制執行");
                                             if(TaskDeployOnUnlockRoute.GetUnlockPointsFromPlan(x, UnlockMode.SpamOne).TryGetFirst(out var unlockPoint) && !x.ExcludedRoutes.Any(s => s == unlockPoint.point))
                                             {
-                                                PluginLog.Information($"Enforcing plan {x.Name} on current submarine");
+                                                PluginLog.Information($"正在對目前潛艇強制套用方案 {x.Name}");
                                                 TaskDeployOnUnlockRoute.Enqueue(next, type, x, UnlockMode.SpamOne);
                                                 goto EndTask;
                                             }
@@ -238,7 +238,7 @@ internal static unsafe class VoyageMain
                                         var plan = VoyageUtils.GetSubmarineUnlockPlanByGuid(adata.SelectedUnlockPlan) ?? VoyageUtils.GetDefaultSubmarineUnlockPlan();
                                         if(plan.EnforceDSSSinglePoint && TaskDeployOnUnlockRoute.GetUnlockPointsFromPlan(plan, UnlockMode.SpamOne).TryGetFirst(out var unlockPoint) && VoyageUtils.GetSubmarineExploration(unlockPoint.point).Value.Map.RowId == 1)
                                         {
-                                            PluginLog.Information($"Override unlock mode to {UnlockMode.SpamOne}");
+                                            PluginLog.Information($"將解鎖模式覆寫為 {UnlockMode.SpamOne}");
                                             mode = UnlockMode.SpamOne;
                                         }
                                         if(mode == UnlockMode.WhileLevelling)
@@ -296,7 +296,7 @@ internal static unsafe class VoyageMain
         {
             if(PartSwapperScheduler.EnqueueSubmersibleRegistrationIfPossible())
             {
-                PluginLog.Information($"Enqueued submersible registration");
+                PluginLog.Information($"已加入潛艇註冊佇列");
             }
             else if(!Data.AreAnyEnabledVesselsReturnInNext(type, 1 * 60))
             {

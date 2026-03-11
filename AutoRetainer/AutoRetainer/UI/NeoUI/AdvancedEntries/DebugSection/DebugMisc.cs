@@ -1,4 +1,4 @@
-﻿using ECommons.Configuration;
+using ECommons.Configuration;
 using ECommons.Events;
 using ECommons.ExcelServices;
 using ECommons.MathHelpers;
@@ -14,7 +14,7 @@ internal unsafe class DebugMisc : DebugSectionBase
 {
     public override void Draw()
     {
-        if(ImGui.CollapsingHeader("Retainer item stats"))
+        if(ImGui.CollapsingHeader("雇員物品屬性"))
         {
             var im = InventoryManager.Instance();
             var c = im->GetInventoryContainer(InventoryType.RetainerEquippedItems);
@@ -32,7 +32,7 @@ internal unsafe class DebugMisc : DebugSectionBase
         {
             ExternalWriter.PlaceWriteOrder(new(System.IO.Path.Combine(Svc.PluginInterface.ConfigDirectory.FullName, "WriterTest.json"), EzConfig.DefaultSerializationFactory.Serialize(C, true)));
         }
-        ImGuiEx.Text($"FC points: {Utils.FCPoints}");
+        ImGuiEx.Text($"部隊點數：{Utils.FCPoints}");
         if(ImGui.CollapsingHeader("Housing"))
         {
             var h = HousingManager.Instance();
@@ -53,8 +53,8 @@ internal unsafe class DebugMisc : DebugSectionBase
                 }
             }
         }
-        if(ImGui.Button("Install callback hook")) Callback.InstallHook();
-        if(ImGui.Button("Disable callback hook")) Callback.UninstallHook();
+        if(ImGui.Button("安裝 callback hook")) Callback.InstallHook();
+        if(ImGui.Button("停用 callback hook")) Callback.UninstallHook();
         ImGuiEx.TextCopy($"{(nint)(&TargetSystem.Instance()->Target):X16}");
         ImGui.Checkbox($"Log opcodes", ref P.LogOpcodes);
         ImGuiEx.Text($"CSFramework.Instance()->FrameCounter: {CSFramework.Instance()->FrameCounter}");
@@ -101,21 +101,21 @@ internal unsafe class DebugMisc : DebugSectionBase
         ImGuiEx.Text($"ConditionWasEnabled={P.ConditionWasEnabled}");
         if(ImGui.CollapsingHeader("Task debug"))
         {
-            ImGuiEx.Text($"Busy: {P.TaskManager.IsBusy}, abort in {P.TaskManager.RemainingTimeMS}");
-            if(ImGui.Button($"Generate random numbers 1/500"))
+            ImGuiEx.Text($"忙碌中：{P.TaskManager.IsBusy}，將於 {P.TaskManager.RemainingTimeMS} 後中止");
+            if(ImGui.Button($"產生 1/500 隨機數"))
             {
                 P.TaskManager.Enqueue(() => { var r = new Random().Next(0, 500); InternalLog.Verbose($"Gen 1/500: {r}"); return r == 0; });
             }
-            if(ImGui.Button($"Generate random numbers 1/5000"))
+            if(ImGui.Button($"產生 1/5000 隨機數"))
             {
                 P.TaskManager.Enqueue(() => { var r = new Random().Next(0, 5000); InternalLog.Verbose($"Gen 1/5000: {r}"); return r == 0; });
             }
-            if(ImGui.Button($"Generate random numbers 1/100"))
+            if(ImGui.Button($"產生 1/100 隨機數"))
             {
                 P.TaskManager.Enqueue(() => { var r = new Random().Next(0, 100); InternalLog.Verbose($"Gen 1/100: {r}"); return r == 0; });
             }
         }
-        ImGuiEx.Text($"QSI status: {P.quickSellItems?.openInventoryContextHook?.IsEnabled}");
+        ImGuiEx.Text($"QSI 狀態：{P.quickSellItems?.openInventoryContextHook?.IsEnabled}");
         ImGuiEx.Text($"QuickSellItems.IsReadyToUse: {QuickSellItems.IsReadyToUse()}");
 
         foreach(var x in S.VentureStats.CharTotal)

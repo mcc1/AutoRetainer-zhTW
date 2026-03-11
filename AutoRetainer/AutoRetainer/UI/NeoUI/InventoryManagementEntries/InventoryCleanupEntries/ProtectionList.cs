@@ -1,14 +1,14 @@
-﻿namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.InventoryCleanupEntries;
+namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.InventoryCleanupEntries;
 public class ProtectionList : InventoryManagemenrBase
 {
-    public override string Name { get; } = "Inventory Cleanup/Protection List";
+    public override string Name { get; } = "背包清理/保護名單";
 
     private ProtectionList()
     {
         DisplayPriority = -1;
         Builder = InventoryCleanupCommon.CreateCleanupHeaderBuilder()
             .Section(Name)
-            .TextWrapped("AutoRetainer won't sell, desynthese, discard or hand in to Grand Company these items, even if they are included in any other processing lists.")
+            .TextWrapped("即使這些物品包含在其他任何清單中，AutoRetainer 也不會將其出售、分解、丟棄、或籌備給軍隊")
             .Widget(() => InventoryManagementCommon.DrawListNew(InventoryCleanupCommon.SelectedPlan.IMProtectList))
             .Separator()
             .Widget(() =>

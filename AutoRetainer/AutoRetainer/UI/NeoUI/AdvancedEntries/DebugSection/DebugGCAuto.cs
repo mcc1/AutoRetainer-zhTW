@@ -1,4 +1,4 @@
-﻿using ECommons.ExcelServices;
+using ECommons.ExcelServices;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace AutoRetainer.UI.NeoUI.AdvancedEntries.DebugSection;
@@ -7,7 +7,7 @@ internal unsafe class DebugGCAuto : DebugSectionBase
 {
     public override void Draw()
     {
-        if(ImGui.CollapsingHeader("Expert items"))
+        if(ImGui.CollapsingHeader("專家交付物品"))
         {
             foreach(var x in AutoGCHandin.GetHandinItems())
             {

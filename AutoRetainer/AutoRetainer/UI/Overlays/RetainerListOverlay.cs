@@ -23,7 +23,7 @@ internal unsafe class RetainerListOverlay : Window
     public override bool DrawConditions()
     {
         if(!C.UIBar) return false;
-        if(Svc.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.OccupiedSummoningBell] && TryGetAddonByName<AtkUnitBase>("RetainerList", out var addon) && IsAddonReady(addon))
+        if(Svc.Condition[Dalamud.Game.ClientState.Conditions.ConditionFlag.OccupiedSummoningBell] && TryGetAddonByName<AtkUnitBase>("僱員名單", out var addon) && IsAddonReady(addon))
         {
             Position = new(addon->X, addon->Y - height);
             return true;
@@ -44,7 +44,7 @@ internal unsafe class RetainerListOverlay : Window
         {
             ImGui.BeginDisabled();
         }
-        if(ImGui.Checkbox("Enable AutoRetainer", ref e))
+        if(ImGui.Checkbox("啟用 AutoRetainer", ref e))
         {
             P.WasEnabled = false;
             if(e)
@@ -59,17 +59,17 @@ internal unsafe class RetainerListOverlay : Window
         if(disabled)
         {
             ImGui.EndDisabled();
-            ImGuiComponents.HelpMarker($"MultiMode controls this option. Hold CTRL to override.");
+            ImGuiComponents.HelpMarker($"多角色模式正控制此選項。按住 CTRL 可強制覆蓋。");
         }
         if(P.WasEnabled)
         {
             ImGui.SameLine();
-            ImGuiEx.Text(GradientColor.Get(ImGuiColors.DalamudGrey, ImGuiColors.DalamudGrey3, 500), $"Paused");
+            ImGuiEx.Text(GradientColor.Get(ImGuiColors.DalamudGrey, ImGuiColors.DalamudGrey3, 500), $"已暫停");
         }
         if(C.MultiModeUIBar)
         {
             ImGui.SameLine();
-            if(ImGui.Checkbox("MultiMode", ref MultiMode.Enabled))
+            if(ImGui.Checkbox("多角色模式", ref MultiMode.Enabled))
             {
                 MultiMode.OnMultiModeEnabled();
                 if(MultiMode.Active)
@@ -87,7 +87,7 @@ internal unsafe class RetainerListOverlay : Window
         {
             Svc.Commands.ProcessCommand("/ays");
         }
-        ImGuiEx.Tooltip("Open Plugin Settings");
+        ImGuiEx.Tooltip("開啟插件設定");
         if(!P.TaskManager.IsBusy)
         {
             ImGui.SameLine();
@@ -118,7 +118,7 @@ internal unsafe class RetainerListOverlay : Window
                     }
                 }
             }
-            ImGuiEx.Tooltip("Quick Entrust");
+            ImGuiEx.Tooltip("快速存放");
 
             ImGui.SameLine();
             if(ImGuiEx.IconButton($"{Lang.IconGil}##WithdrawGil"))
@@ -139,7 +139,7 @@ internal unsafe class RetainerListOverlay : Window
                     }
                 }
             }
-            ImGuiEx.Tooltip("Quick Withdraw Gil");
+            ImGuiEx.Tooltip("快速提取金幣");
 
             {
                 ImGui.SameLine();
@@ -149,12 +149,12 @@ internal unsafe class RetainerListOverlay : Window
                 }
                 if(ImGui.IsItemClicked(ImGuiMouseButton.Right))
                 {
-                    ImGui.OpenPopup("QuickVendorPopup");
+                    ImGui.OpenPopup("快速出售視窗");
                 }
-                ImGuiEx.Tooltip("Quick Vendor Items");
-                if(ImGui.BeginPopup("QuickVendorPopup"))
+                ImGuiEx.Tooltip("快速出售物品");
+                if(ImGui.BeginPopup("快速出售視窗"))
                 {
-                    if(ImGui.Selectable("Sell items from Quick Venture List"))
+                    if(ImGui.Selectable("從籌備物資清單中出售物品"))
                     {
                         for(var i = 0; i < GameRetainerManager.Count; i++)
                         {

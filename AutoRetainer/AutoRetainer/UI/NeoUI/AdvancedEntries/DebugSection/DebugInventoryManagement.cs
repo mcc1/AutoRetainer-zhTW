@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal.InventoryManagement;
+using AutoRetainer.Internal.InventoryManagement;
 using ECommons.ExcelServices;
 using ECommons.GameFunctions;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -44,7 +44,7 @@ public unsafe class DebugInventoryManagement : DebugSectionBase
                 NpcSaleManager.EnqueueIfItemsPresent();
             }
             ImGuiEx.Text($"Valid npc: {NpcSaleManager.GetValidNPC()}");
-            if(ImGui.Button("Interact with target")) TargetSystem.Instance()->InteractWithObject(Svc.Targets.Target.Struct(), false);
+            if(ImGui.Button("與目標互動")) TargetSystem.Instance()->InteractWithObject(Svc.Targets.Target.Struct(), false);
             if(TryGetAddonMaster<AddonMaster.SelectIconString>(out var m))
             {
                 foreach(var x in m.Entries)
@@ -56,7 +56,7 @@ public unsafe class DebugInventoryManagement : DebugSectionBase
                 }
             }
         }
-        if(ImGui.CollapsingHeader("Vendor list"))
+        if(ImGui.CollapsingHeader("商店清單"))
         {
             foreach(var x in Vendors)
             {
@@ -70,7 +70,7 @@ public unsafe class DebugInventoryManagement : DebugSectionBase
                     if(ImGuiEx.Shift) Whitelist.Remove(x);
                 }
             }
-            if(ImGui.Button("Copy")) Copy(Whitelist.Print());
+            if(ImGui.Button("複製")) Copy(Whitelist.Print());
         }
     }
 

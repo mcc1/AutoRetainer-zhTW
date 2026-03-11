@@ -1,4 +1,4 @@
-﻿using ECommons.Configuration;
+using ECommons.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,7 +36,7 @@ public static unsafe class InventoryCleanupCommon
 
     public static NuiBuilder CreateCleanupHeaderBuilder()
     {
-        return new NuiBuilder().Section("Inventory Cleanup Plan Selection").Widget(DrawPlanSelector);
+        return new NuiBuilder().Section("背包清理計畫選擇器").Widget(DrawPlanSelector);
     }
 
     public static void DrawPlanSelector()
@@ -44,9 +44,9 @@ public static unsafe class InventoryCleanupCommon
         var selectedPlan = C.AdditionalIMSettings.FirstOrDefault(x => x.GUID == SelectedPlanGuid);
         ImGuiEx.InputWithRightButtonsArea(() =>
         {
-            if(ImGui.BeginCombo("##selimplan", selectedPlan?.DisplayName ?? "Default Plan"))
+            if(ImGui.BeginCombo("##selimplan", selectedPlan?.DisplayName ?? "預設計畫"))
             {
-                if(ImGui.Selectable("Default Plan", selectedPlan == null)) SelectedPlanGuid = Guid.Empty;
+                if(ImGui.Selectable("預設計畫", selectedPlan == null)) SelectedPlanGuid = Guid.Empty;
                 ImGui.Separator();
                 foreach(var x in C.AdditionalIMSettings)
                 {
@@ -72,7 +72,7 @@ public static unsafe class InventoryCleanupCommon
                 C.AdditionalIMSettings.Add(newPlan);
                 SelectedPlanGuid = newPlan.GUID;
             }
-            ImGuiEx.Tooltip("Add new plan");
+            ImGuiEx.Tooltip("添加新的計畫");
             ImGui.SameLine(0, 1);
             if(ImGuiEx.IconButton(FontAwesomeIcon.Copy))
             {
@@ -80,7 +80,7 @@ public static unsafe class InventoryCleanupCommon
                 clone.GUID = Guid.Empty;
                 Copy(EzConfig.DefaultSerializationFactory.Serialize(clone));
             }
-            ImGuiEx.Tooltip("Copy");
+            ImGuiEx.Tooltip("複製");
             ImGui.SameLine(0, 1);
             if(ImGuiEx.IconButton(FontAwesomeIcon.Paste))
             {
@@ -96,7 +96,7 @@ public static unsafe class InventoryCleanupCommon
                     Notify.Error(e.Message);
                 }
             }
-            ImGuiEx.Tooltip("Paste");
+            ImGuiEx.Tooltip("貼上");
             if(selectedPlan != null)
             {
                 ImGui.SameLine(0, 1);
@@ -105,19 +105,19 @@ public static unsafe class InventoryCleanupCommon
                     C.DefaultIMSettings = selectedPlan;
                     new TickScheduler(() => C.AdditionalIMSettings.Remove(selectedPlan));
                 }
-                ImGuiEx.Tooltip("Make this plan default. Current default plan will be overwritten. Hold CTRL and click.");
+                ImGuiEx.Tooltip("將此計畫設為預設計畫，當前預設計畫將會被覆蓋。按住CTRL + 左鍵");
                 ImGui.SameLine(0, 1);
                 if(ImGuiEx.IconButton(FontAwesomeIcon.Trash, enabled: ImGuiEx.Ctrl && selectedPlan != null))
                 {
                     new TickScheduler(() => C.AdditionalIMSettings.Remove(selectedPlan));
                 }
-                ImGuiEx.Tooltip("Delete this plan. Hold CTRL and click.");
+                ImGuiEx.Tooltip("刪除此計畫。按住CTRL + 左鍵");
             }
         });
         if(selectedPlan != null)
         {
             ImGuiEx.SetNextItemFullWidth();
-            ImGui.InputTextWithHint("##name", "Enter plan name", ref selectedPlan.Name, 100);
+            ImGui.InputTextWithHint("##name", "輸入方案名稱", ref selectedPlan.Name, 100);
 
             if(Data != null)
             {
@@ -125,9 +125,9 @@ public static unsafe class InventoryCleanupCommon
                 {
                     ImGuiEx.Text(ImGuiColors.ParsedGreen, UiBuilder.IconFont, FontAwesomeIcon.Check.ToIconString());
                     ImGui.SameLine();
-                    ImGuiEx.Text(ImGuiColors.ParsedGreen, $"Used by current character");
+                    ImGuiEx.Text(ImGuiColors.ParsedGreen, $"當前角色使用");
                     ImGui.SameLine();
-                    if(ImGui.SmallButton("Unassign"))
+                    if(ImGui.SmallButton("取消分配"))
                     {
                         Data.InventoryCleanupPlan = Guid.Empty;
                     }
@@ -136,22 +136,22 @@ public static unsafe class InventoryCleanupCommon
                 {
                     ImGuiEx.Text(ImGuiColors.DalamudOrange, UiBuilder.IconFont, FontAwesomeIcon.ExclamationTriangle.ToIconString());
                     ImGui.SameLine();
-                    ImGuiEx.Text(ImGuiColors.DalamudOrange, $"Not used by current character");
+                    ImGuiEx.Text(ImGuiColors.DalamudOrange, $"非當前角色使用");
                     ImGui.SameLine();
-                    if(ImGui.SmallButton("Assign"))
+                    if(ImGui.SmallButton("分配"))
                     {
                         Data.InventoryCleanupPlan = selectedPlan.GUID;
                     }
                 }
             }
-            ImGuiEx.Text("Combine this plan's lists with default plan:");
+            ImGuiEx.Text("將此方案的清單與預設方案合併:");
             ImGui.Indent();
-            ImGui.Checkbox("Combine Quick Venture sell list", ref selectedPlan.AdditionModeSoftSellList);
-            ImGuiEx.HelpMarker("Items retrieved from quick ventures included into both this plan and default plan will be sold.");
-            ImGui.Checkbox("Combine Unconditional sell list", ref selectedPlan.AdditionModeHardSellList);
-            ImGuiEx.HelpMarker("Items included into both this plan and default plan will be sold. If included into both default and current plan, stack size bypass option from current plan will be honored. \"Maximum stack size to be sold\" option from current plan will override default plan's option. ");
-            ImGui.Checkbox("Combine Protection list", ref selectedPlan.AdditionModeProtectList);
-            ImGuiEx.HelpMarker("Items included into both this plan and default plan will not be sold automatically or exchanged to Grand Company, even if included into any lists.");
+            ImGui.Checkbox("合併僱員快速出售清單", ref selectedPlan.AdditionModeSoftSellList);
+            ImGuiEx.HelpMarker("從快速探索中獲得的物品，若同時包含在此方案與預設方案中，將會被出售。");
+            ImGui.Checkbox("合併無條件出售清單", ref selectedPlan.AdditionModeHardSellList);
+            ImGuiEx.HelpMarker("包含在此方案與預設方案中的物品都將被出售。如果同時包含在兩者中，將優先採用此方案的「忽略堆疊」設定與「最大堆疊數量」限制。");
+            ImGui.Checkbox("合併保護清單", ref selectedPlan.AdditionModeProtectList);
+            ImGuiEx.HelpMarker("包含在此方案與預設方案中的物品將受到保護，不會被自動出售、丟棄或籌備給軍隊。");
             ImGui.Unindent();
         }
     }

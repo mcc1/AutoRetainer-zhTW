@@ -1,4 +1,4 @@
-﻿using ECommons.ExcelServices;
+using ECommons.ExcelServices;
 using ECommons.MathHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 

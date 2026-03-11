@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Hooking;
 using Dalamud.Utility.Signatures;
@@ -67,7 +67,7 @@ public unsafe class QuickSellItems : IDisposable
         if(openInventoryContextHook?.IsEnabled == false)
         {
             openInventoryContextHook?.Enable();
-            PluginLog.Information("QuickSellItems enabled");
+            PluginLog.Information("QuickSellItems 已啟用");
         }
     }
 
@@ -170,7 +170,7 @@ public unsafe class QuickSellItems : IDisposable
         if(openInventoryContextHook?.IsEnabled == true)
         {
             openInventoryContextHook?.Disable();
-            PluginLog.Information("QuickSellItems disabled");
+            PluginLog.Information("QuickSellItems 已停用");
         }
     }
 

@@ -1,21 +1,21 @@
-﻿using AutoRetainer.Internal.InventoryManagement;
+using AutoRetainer.Internal.InventoryManagement;
 using ECommons.GameHelpers;
 
 namespace AutoRetainer.UI.NeoUI.InventoryManagementEntries.InventoryCleanupEntries;
 public class GeneralSettings : InventoryManagemenrBase
 {
-    public override string Name { get; } = "Inventory Cleanup/General Settings";
+    public override string Name { get; } = "背包清理/一般設定";
 
     private GeneralSettings()
     {
         Builder = InventoryCleanupCommon.CreateCleanupHeaderBuilder()
             .Section(Name)
-            .Checkbox($"Auto-open venture coffers", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableCofferAutoOpen, "Multi Mode only. Before logging out, all coffers will be opened unless your inventory space is too low.")
-            .Checkbox($"Enable selling items to retainer", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableAutoVendor, "When AutoRetainer checks resents retainers to ventures, items will be sold according to Inventory Cleanup plan.")
-            .Checkbox($"Enable selling items to housing NPC", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableNpcSell, "When AutoRetainer enters a house, items will be sold according to the Inventory Cleanup plan. A housing vendor that supports item selling must be placed near the house entrance (not the workshop entrance)—you should be able to interact with the NPC immediately after entering.")
+            .Checkbox($"自動打開僱員寶箱", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableCofferAutoOpen, "僅多角色模式。登出前會自動打開所有寶箱，除非背包空間不足。")
+            .Checkbox($"啟用將物品出售給僱員", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableAutoVendor, "當 AutoRetainer 將僱員派往任務時，物品將依照背包清理方案自動出售。")
+            .Checkbox($"啟用將物品出售給房屋NPC", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableNpcSell, "當 AutoRetainer 進入住宅時，物品將依照背包清理方案出售。住宅 NPC 必須放置在住宅入口附近（非工作台入口），進入後可立即互動。")
             .Indent()
-            .Checkbox($"Ignore NPC if retainer is available", () => ref InventoryCleanupCommon.SelectedPlan.IMSkipVendorIfRetainer)
-            .Widget("Sell now", (x) =>
+            .Checkbox($"若僱員可用則忽略 NPC", () => ref InventoryCleanupCommon.SelectedPlan.IMSkipVendorIfRetainer)
+            .Widget("立即出售", (x) =>
             {
                 if(ImGuiEx.Button(x, Player.Interactable && InventoryCleanupCommon.SelectedPlan.IMEnableNpcSell && NpcSaleManager.GetValidNPC() != null && !IsOccupied() && !P.TaskManager.IsBusy))
                 {
@@ -23,10 +23,10 @@ public class GeneralSettings : InventoryManagemenrBase
                 }
             })
             .Unindent()
-            .Checkbox($"Auto-desynth items", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableItemDesynthesis)
-            .Checkbox($"Enable context menu integration", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableContextMenu)
-            .Checkbox($"Allow selling items from Armory Chest", () => ref InventoryCleanupCommon.SelectedPlan.AllowSellFromArmory)
-            .Checkbox($"Demo mode", () => ref InventoryCleanupCommon.SelectedPlan.IMDry, "Do not sell items, instead print in chat what would be sold")
+            .Checkbox($"自動分解物品", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableItemDesynthesis)
+            .Checkbox($"啟用右鍵選單整合", () => ref InventoryCleanupCommon.SelectedPlan.IMEnableContextMenu)
+            .Checkbox($"允許出售兵裝庫中的物品", () => ref InventoryCleanupCommon.SelectedPlan.AllowSellFromArmory)
+            .Checkbox($"演示模式", () => ref InventoryCleanupCommon.SelectedPlan.IMDry, "不要出售物品，改為在聊天視窗列出原本會出售的內容")
             ;
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace AutoRetainer.UI.NeoUI.AdvancedEntries.DebugSection;
+namespace AutoRetainer.UI.NeoUI.AdvancedEntries.DebugSection;
 
 internal class DebugBailout : DebugSectionBase
 {
@@ -7,6 +7,6 @@ internal class DebugBailout : DebugSectionBase
         ImGui.Checkbox(nameof(BailoutManager.SimulateStuckOnQuit), ref BailoutManager.SimulateStuckOnQuit);
         ImGui.Checkbox(nameof(BailoutManager.SimulateStuckOnVoyagePanel), ref BailoutManager.SimulateStuckOnVoyagePanel);
         ImGuiEx.Text($"NoSelectString: {Environment.TickCount64 - BailoutManager.NoSelectString}");
-        ImGuiEx.Text($"LobbyStuck: {Environment.TickCount64 - BailoutManager.CharaSelectStuck}");
+        ImGuiEx.Text($"卡在大廳：{Environment.TickCount64 - BailoutManager.CharaSelectStuck}");
     }
 }

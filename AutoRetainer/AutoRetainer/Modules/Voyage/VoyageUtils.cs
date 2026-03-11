@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage.Readers;
 using AutoRetainer.Modules.Voyage.VoyageCalculator;
 using AutoRetainerAPI.Configuration;
@@ -176,7 +176,7 @@ internal static unsafe class VoyageUtils
                 {
                     if(!ret.Any(z => z.point == x.Item2.Point) && !P.SubmarineUnlockPlanUI.IsMapUnlocked(x.Item1, true))
                     {
-                        ret.Add((x.Item2.Point, $"{GetSubmarineExplorationName(x.Item1)} on the path to {GetSubmarineExplorationName(unlock.Key)} not unlocked"));
+                        ret.Add((x.Item2.Point, $"通往 {GetSubmarineExplorationName(unlock.Key)} 路線上的 {GetSubmarineExplorationName(x.Item1)} 尚未解鎖"));
                     }
                 }
             }
@@ -187,7 +187,7 @@ internal static unsafe class VoyageUtils
             if(ret.Count > 0 && Svc.Data.GetExcelSheet<SubmarineExploration>().GetRow(ret.First().point).Map.RowId != Svc.Data.GetExcelSheet<SubmarineExploration>().GetRow(x.Key).Map.RowId) break;
             if(!P.SubmarineUnlockPlanUI.IsMapUnlocked(x.Key, true) && P.SubmarineUnlockPlanUI.IsMapUnlocked(x.Value.Point, true) && !ret.Any(z => z.point == x.Value.Point))
             {
-                ret.Add((x.Value.Point, $"{VoyageUtils.GetSubmarineExplorationName(x.Key)} not unlocked"));
+                ret.Add((x.Value.Point, $"{VoyageUtils.GetSubmarineExplorationName(x.Key)} 尚未解鎖"));
             }
         }
         return ret;
@@ -211,9 +211,9 @@ internal static unsafe class VoyageUtils
 
     internal static string GetPointPlanName(this SubmarinePointPlan plan)
     {
-        if(plan == null) return "No or unknown plan selected";
+        if(plan == null) return "未選擇計畫或計畫未知";
         if(plan.Name.Length > 0) return plan.Name;
-        if(plan.Points.Count == 0) return $"Plan {plan.GUID}";
+        if(plan.Points.Count == 0) return $"計畫 {plan.GUID}";
         return $"{plan.GetMap()?.Name}: {plan.Points.Select(x => Svc.Data.GetExcelSheet<SubmarineExploration>(ClientLanguage.Japanese).GetRow(x).Location.ToString()).Join("→")}";
     }
 
@@ -456,7 +456,7 @@ internal static unsafe class VoyageUtils
             log.Add($"index: {i}, id: {slot->ItemId}, cond: {slot->Condition}");
             if(slot->ItemId == 0)
             {
-                PluginLog.Warning($"Item id for airship component was 0 ({i})");
+                PluginLog.Warning($"飛空艇零件的物品 ID 為 0 ({i})");
                 continue;
             }
             if(slot->Condition == 0)
@@ -530,7 +530,7 @@ internal static unsafe class VoyageUtils
                 throw new ArgumentOutOfRangeException(nameof(type));
             }
         }
-        throw new Exception($"Could not retrieve airship's index: {name}");
+        throw new Exception($"無法取得飛空艇索引：{name}");
     }
 
     internal static string Seconds2Time(long seconds)

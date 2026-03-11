@@ -1,4 +1,4 @@
-﻿using Dalamud.Game.Gui.ContextMenu;
+using Dalamud.Game.Gui.ContextMenu;
 using Dalamud.Game.Text.SeStringHandling;
 using ECommons.ChatMethods;
 using ECommons.ExcelServices;
@@ -32,19 +32,19 @@ internal unsafe class ContextMenuManager
                 {
                     args.AddMenuItem(new MenuItem()
                     {
-                        Name = new SeStringBuilder().Append(Prefix).AddText("= Item has been protected =").Build(),
+                        Name = new SeStringBuilder().Append(Prefix).AddText("= 物品已受到保護 =").Build(),
                         OnClicked = (a) =>
                         {
                             if(IsKeyPressed([LimitedKeys.LeftControlKey, LimitedKeys.RightControlKey]) && IsKeyPressed([LimitedKeys.RightShiftKey, LimitedKeys.LeftShiftKey]))
                             {
-                                var t = $"Item {ExcelItemHelper.GetName(id)} removed from protection list";
+                                var t = $"物品 {ExcelItemHelper.GetName(id)} 已從保護清單移除";
                                 Notify.Success(t);
                                 ChatPrinter.Red("[AutoRetainer] " + t);
                                 Data.GetIMSettings(true).IMProtectList.Remove(id);
                             }
                             else
                             {
-                                Notify.Error($"Hold both CTRL+SHIFT while clicking to remove protection from item");
+                                Notify.Error($"點擊時按住 CTRL+SHIFT 以移除此物品的保護");
                             }
                         }
                     }.RemovePrefix());
@@ -60,7 +60,7 @@ internal unsafe class ContextMenuManager
                             OnClicked = (a) =>
                             {
                                 Data.GetIMSettings(true).IMAutoVendorSoft.Remove(id);
-                                Notify.Info($"Item {ExcelItemHelper.GetName(id)} removed from Quick Venture sell list");
+                                Notify.Info($"物品 {ExcelItemHelper.GetName(id)} 已從快速探險出售清單移除");
                             }
                         }.RemovePrefix());
                     }
@@ -73,7 +73,7 @@ internal unsafe class ContextMenuManager
                             {
                                 Data.GetIMSettings(true).IMAutoVendorHard.Remove(id);
                                 Data.GetIMSettings(true).IMAutoVendorSoft.Add(id);
-                                Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Quick Venture sell list");
+                                Notify.Success($"物品 {ExcelItemHelper.GetName(id)} 已加入快速探險出售清單");
                             }
                         }.RemovePrefix());
                     }
@@ -86,7 +86,7 @@ internal unsafe class ContextMenuManager
                             OnClicked = (a) =>
                             {
                                 Data.GetIMSettings(true).IMAutoVendorHard.Remove(id);
-                                Notify.Success($"Item {ExcelItemHelper.GetName(id)} removed from Unconditional sell list");
+                                Notify.Success($"物品 {ExcelItemHelper.GetName(id)} 已從無條件出售清單移除");
                             }
                         }.RemovePrefix());
                     }
@@ -99,19 +99,19 @@ internal unsafe class ContextMenuManager
                             {
                                 Data.GetIMSettings(true).IMAutoVendorSoft.Remove(id);
                                 Data.GetIMSettings(true).IMAutoVendorHard.Add(id);
-                                Notify.Success($"Item {ExcelItemHelper.GetName(id)} added to Unconditional sell list");
+                                Notify.Success($"物品 {ExcelItemHelper.GetName(id)} 已加入無條件出售清單");
                             }
                         }.RemovePrefix());
                     }
                     args.AddMenuItem(new MenuItem()
                     {
-                        Name = new SeStringBuilder().Append(Prefix).AddText("Protect item from auto actions").Build(),
+                        Name = new SeStringBuilder().Append(Prefix).AddText("保護物品不受自動操作影響").Build(),
                         OnClicked = (a) =>
                         {
                             Data.GetIMSettings(true).IMAutoVendorHard.Remove(id);
                             Data.GetIMSettings(true).IMAutoVendorSoft.Remove(id);
                             Data.GetIMSettings(true).IMProtectList.Add(id);
-                            Notify.Success($"{ExcelItemHelper.GetName(id)} added to protection list");
+                            Notify.Success($"{ExcelItemHelper.GetName(id)} 已加入保護清單");
                         }
                     }.RemovePrefix());
                 }

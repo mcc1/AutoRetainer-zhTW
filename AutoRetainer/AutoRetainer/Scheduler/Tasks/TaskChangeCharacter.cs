@@ -1,4 +1,4 @@
-﻿using Dalamud.Utility;
+using Dalamud.Utility;
 using ECommons.Automation;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
@@ -110,7 +110,7 @@ public static unsafe class TaskChangeCharacter
     {
         if(TryGetAddonByName<AtkUnitBase>("TitleDCWorldMap", out var addon) && addon->IsVisible)
         {
-            PluginLog.Information($"Visible");
+            PluginLog.Information($"可見");
             Utils.RethrottleGeneric();
             return true;
         }
@@ -133,7 +133,7 @@ public static unsafe class TaskChangeCharacter
     {
         if(TryGetAddonByName<AtkUnitBase>("_CharaSelectListMenu", out var addon) && addon->IsVisible)
         {
-            PluginLog.Information($"Visible");
+            PluginLog.Information($"可見");
             Utils.RethrottleGeneric();
             return true;
         }

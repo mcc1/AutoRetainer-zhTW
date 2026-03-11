@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Modules.Voyage;
+using AutoRetainer.Modules.Voyage;
 using AutoRetainer.Modules.Voyage.VoyageCalculator;
 using AutoRetainerAPI.Configuration;
 using ECommons.GameHelpers;
@@ -28,7 +28,7 @@ internal unsafe class SubmarinePointPlanUI : Window
     public override void Draw()
     {
         C.SubmarinePointPlans.RemoveAll(x => x.Delete);
-        ImGuiEx.InputWithRightButtonsArea("SUPSelector", () =>
+        ImGuiEx.InputWithRightButtonsArea("潛艇計畫選擇器", () =>
         {
             if(ImGui.BeginCombo("##supsel", SelectedPlanName, ImGuiComboFlags.HeightLarge))
             {
@@ -43,7 +43,7 @@ internal unsafe class SubmarinePointPlanUI : Window
             }
         }, () =>
         {
-            if(ImGui.Button("New plan"))
+            if(ImGui.Button("新計畫"))
             {
                 var x = new SubmarinePointPlan
                 {
@@ -56,7 +56,7 @@ internal unsafe class SubmarinePointPlanUI : Window
         ImGui.Separator();
         if(SelectedPlan == null)
         {
-            ImGuiEx.Text($"No or unknown plan is selected");
+            ImGuiEx.Text($"未選擇計畫或計畫未知");
         }
         else
         {
@@ -68,56 +68,56 @@ internal unsafe class SubmarinePointPlanUI : Window
                 {
                     if(!my.Any())
                     {
-                        ImGuiEx.TextWrapped($"This plan is not used by any submersibles.");
+                        ImGuiEx.TextWrapped($"沒有任何潛水艇使用此計畫");
                     }
                     else
                     {
-                        ImGuiEx.TextWrapped($"This plan is used by {my.Select(X => X.Key).Print()}.");
+                        ImGuiEx.TextWrapped($"此計畫正被 {my.Select(X => X.Key).Print()} 使用中");
                     }
                 }
                 else
                 {
                     if(!my.Any())
                     {
-                        ImGuiEx.TextWrapped($"This plan is used by {users} submersibles of your other characters.");
+                        ImGuiEx.TextWrapped($"此計畫正被你其他角色的 {users} 艘潛水艇使用中");
                     }
                     else
                     {
-                        ImGuiEx.TextWrapped($"This plan is used by {my.Select(X => X.Key).Print()} and {users} more submersibles on other characters.");
+                        ImGuiEx.TextWrapped($"此計畫正被 {my.Select(X => X.Key).Print()} 以及其他角色的額外 {users} 艘潛水艇使用中");
                     }
                 }
             }
-            ImGuiEx.TextV("Name: ");
+            ImGuiEx.TextV("名稱: ");
             ImGui.SameLine();
             ImGuiEx.SetNextItemFullWidth();
             ImGui.InputText($"##planname", ref SelectedPlan.Name, 100);
             ImGuiEx.LineCentered($"planbuttons", () =>
             {
-                ImGuiEx.TextV($"Apply this plan to:");
+                ImGuiEx.TextV($"將此計畫套用於：");
                 ImGui.SameLine();
-                if(ImGui.Button("ALL submersibles"))
+                if(ImGui.Button("所有潛水艇"))
                 {
                     C.OfflineData.Each(x => x.AdditionalSubmarineData.Each(s => s.Value.SelectedPointPlan = SelectedPlanGuid));
                 }
                 ImGui.SameLine();
-                if(ImGui.Button("Current character's submersibles"))
+                if(ImGui.Button("當前角色的潛水艇"))
                 {
                     Data.AdditionalSubmarineData.Each(s => s.Value.SelectedPointPlan = SelectedPlanGuid);
                 }
                 ImGui.SameLine();
-                if(ImGui.Button("No submersibles"))
+                if(ImGui.Button("無潛水艇"))
                 {
                     C.OfflineData.Each(x => x.AdditionalSubmarineData.Where(s => s.Value.SelectedPointPlan == SelectedPlanGuid).Each(s => s.Value.SelectedPointPlan = Guid.Empty.ToString()));
                 }
             });
             ImGuiEx.LineCentered($"planbuttons2", () =>
             {
-                if(ImGui.Button($"Copy plan settings"))
+                if(ImGui.Button($"複製計畫設定"))
                 {
                     Copy(JsonConvert.SerializeObject(SelectedPlan));
                 }
                 ImGui.SameLine();
-                if(ImGui.Button($"Paste plan settings"))
+                if(ImGui.Button($"貼上計畫設定"))
                 {
                     try
                     {
@@ -125,12 +125,12 @@ internal unsafe class SubmarinePointPlanUI : Window
                     }
                     catch(Exception ex)
                     {
-                        DuoLog.Error($"Could not import plan: {ex.Message}");
+                        DuoLog.Error($"無法匯入計畫： {ex.Message}");
                         ex.Log();
                     }
                 }
                 ImGui.SameLine();
-                if(ImGuiEx.ButtonCtrl("Delete this plan"))
+                if(ImGuiEx.ButtonCtrl("刪除此方案"))
                 {
                     SelectedPlan.Delete = true;
                 }

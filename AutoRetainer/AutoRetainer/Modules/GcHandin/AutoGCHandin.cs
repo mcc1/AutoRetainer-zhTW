@@ -1,4 +1,4 @@
-﻿using AutoRetainer.UI.Overlays;
+using AutoRetainer.UI.Overlays;
 using AutoRetainerAPI.Configuration;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Utility;

@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Modules.Voyage;
+using AutoRetainer.Modules.Voyage;
 using ECommons.Reflection;
 
 namespace AutoRetainer.Helpers;
@@ -13,7 +13,7 @@ internal static class YesAlready
     {
         if(DalamudReflector.TryGetDalamudPlugin("Yes Already", out var pl, false, true))
         {
-            PluginLog.Information("Disabling Yes Already");
+            PluginLog.Information("正在停用 Yes Already");
             pl.GetStaticFoP("YesAlready.Service", "Configuration").SetFoP("Enabled", false);
             Reenable = true;
         }
@@ -23,7 +23,7 @@ internal static class YesAlready
     {
         if(Reenable && DalamudReflector.TryGetDalamudPlugin("Yes Already", out var pl, false, true))
         {
-            PluginLog.Information("Enabling Yes Already");
+            PluginLog.Information("正在啟用 Yes Already");
             pl.GetStaticFoP("YesAlready.Service", "Configuration").SetFoP("Enabled", true);
             Reenable = false;
         }

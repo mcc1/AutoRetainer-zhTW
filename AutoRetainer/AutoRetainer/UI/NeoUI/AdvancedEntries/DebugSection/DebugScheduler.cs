@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Scheduler.Handlers;
+using AutoRetainer.Scheduler.Handlers;
 using AutoRetainer.Scheduler.Tasks;
 using Dalamud.Utility;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -12,10 +12,10 @@ internal unsafe class DebugScheduler : DebugSectionBase
     private string dbgRetName = string.Empty;
     public override void Draw()
     {
-        ImGuiEx.Text($"Gil: {TaskDepositGil.Gil}");
+        ImGuiEx.Text($"金幣：{TaskDepositGil.Gil}");
         ImGui.Checkbox($"TaskWithdrawGil.forceCheck", ref TaskWithdrawGil.forceCheck);
         ImGuiEx.Text($"{Svc.Data.GetExcelSheet<LogMessage>().GetRow(4578).Text.ToDalamudString().GetText(true)}");
-        if(ImGui.Button("Close retainer"))
+        if(ImGui.Button("關閉僱員選單"))
         {
             DuoLog.Information($"{RetainerHandlers.CloseAgentRetainer()}");
         }
@@ -136,9 +136,9 @@ internal unsafe class DebugScheduler : DebugSectionBase
             TaskWithdrawGil.Enqueue(50);
         }
 
-        ImGuiEx.Text($"Free inventory slots: {Utils.GetInventoryFreeSlotCount()}");
-        ImGui.InputText("Retainer name", ref dbgRetName, 50);
-        if(ImGui.Button("Select retainer by name"))
+        ImGuiEx.Text($"剩餘背包格數：{Utils.GetInventoryFreeSlotCount()}");
+        ImGui.InputText("雇員名稱", ref dbgRetName, 50);
+        if(ImGui.Button("依名稱選擇雇員"))
         {
             DuoLog.Information($"{RetainerListHandlers.SelectRetainerByName(dbgRetName)}");
         }
@@ -165,7 +165,7 @@ internal unsafe class DebugScheduler : DebugSectionBase
             }
         }
         {
-            if(ImGui.Button("Try close") && TryGetAddonByName<AtkUnitBase>("RetainerList", out var addon))
+            if(ImGui.Button("Try close") && TryGetAddonByName<AtkUnitBase>("僱員名單", out var addon))
             {
                 var v = stackalloc AtkValue[1]
                 {
@@ -176,7 +176,7 @@ internal unsafe class DebugScheduler : DebugSectionBase
                                         }
                                 };
                 addon->FireCallback(1, v);
-                Notify.Info("Done");
+                Notify.Info("已完成");
             }
         }
         {

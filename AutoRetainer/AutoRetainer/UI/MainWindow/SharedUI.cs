@@ -1,4 +1,4 @@
-﻿using AutoRetainerAPI.Configuration;
+using AutoRetainerAPI.Configuration;
 using Dalamud.Interface.Components;
 using PunishLib.ImGuiMethods;
 
@@ -11,7 +11,7 @@ internal static class SharedUI
         if(data.IsLockedOut())
         {
             FontAwesome.PrintV(EColor.RedBright, FontAwesomeIcon.Lock);
-            ImGuiEx.Tooltip("This character is located on a data center which you have temporarily disabled. Navigate to configuration to remove it.");
+            ImGuiEx.Tooltip("此角色位於您已暫時停用的資料中心。請前往配置介面取消停用。");
             ImGui.SameLine();
         }
     }
@@ -29,13 +29,13 @@ internal static class SharedUI
 
     internal static void DrawServiceAccSelector(OfflineCharacterData data)
     {
-        ImGuiEx.Text($"Service Account Selection");
+        ImGuiEx.Text($"服務帳戶選擇");
         ImGuiEx.SetNextItemWidthScaled(150);
-        if(ImGui.BeginCombo("##Service Account Selection", $"Service Account {data.ServiceAccount + 1}", ImGuiComboFlags.HeightLarge))
+        if(ImGui.BeginCombo("##Service Account Selection", $"服務帳戶 {data.ServiceAccount + 1}", ImGuiComboFlags.HeightLarge))
         {
             for(var i = 1; i <= 10; i++)
             {
-                if(ImGui.Selectable($"Service Account {i}"))
+                if(ImGui.Selectable($"服務帳戶 {i}"))
                 {
                     data.ServiceAccount = i - 1;
                 }
@@ -46,7 +46,7 @@ internal static class SharedUI
 
     internal static void DrawPreferredCharacterUI(OfflineCharacterData data)
     {
-        if(ImGui.Checkbox("Preferred Character", ref data.Preferred))
+        if(ImGui.Checkbox("首選角色", ref data.Preferred))
         {
             foreach(var z in C.OfflineData)
             {
@@ -56,24 +56,24 @@ internal static class SharedUI
                 }
             }
         }
-        ImGuiComponents.HelpMarker("When operating in multi mode, if there are no other characters with imminent ventures to collect, it will relog back to your preferred character.");
+        ImGuiComponents.HelpMarker("在多角色模式下，當沒有其他角色需要收取僱員時，插件會自動切換回您的首選角色。");
     }
 
     internal static void DrawExcludeReset(OfflineCharacterData data)
     {
-        new NuiBuilder().Section("Character Data Expunge/Reset", collapsible: true)
+        new NuiBuilder().Section("角色資料清除/重置", collapsible: true)
         .Widget(() =>
         {
-            if(ImGuiEx.ButtonCtrl("Exclude Character"))
+            if(ImGuiEx.ButtonCtrl("排除角色"))
             {
                 C.Blacklist.Add((data.CID, data.Name));
             }
-            ImGuiComponents.HelpMarker("Excluding this character will immediately reset it's settings, remove it from this list and exclude all retainers from being processed. You can still run manual tasks on it's retainers. You can cancel this action in settings.");
-            if(ImGuiEx.ButtonCtrl("Reset character data"))
+            ImGuiComponents.HelpMarker("排除此角色將立即重置其設置，將其移出角色列表，並停止處理其所有僱員。您仍可手動操作此角色的僱員。可在設定中取消此操作。");
+            if(ImGuiEx.ButtonCtrl("重置角色數據"))
             {
                 new TickScheduler(() => C.OfflineData.RemoveAll(x => x.CID == data.CID));
             }
-            ImGuiComponents.HelpMarker("Character's saved data will be removed without excluding it. Character data will be regenerated once you log back into this character.");
+            ImGuiComponents.HelpMarker("角色已保存的資料將在不排除角色的情況下被移除。當您重新登入此角色後，角色資料會重新產生。");
             ImGuiGroup.EndGroupBox();
         }).Draw();
     }

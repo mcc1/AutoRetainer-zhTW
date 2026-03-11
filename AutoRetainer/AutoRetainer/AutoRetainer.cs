@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Internal.InventoryManagement;
 using AutoRetainer.Modules.Statistics;
 using AutoRetainer.Modules.Voyage;
@@ -152,23 +152,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
         };
         Svc.ClientState.Logout += Logout;
         Svc.Condition.ConditionChange += ConditionChange;
-        EzCmd.Add("/autoretainer", CommandHandler, """
-            Open plugin interface
-            /ays - alias for /autoretainer
-            /autoretainer e|enable → Enable plugin
-            /autoretainer d|disable - Disable plugin
-            /autoretainer t|toggle - toggle plugin
-            /autoretainer m|multi - toggle MultiMode
-            /autoretainer relog Character Name@WorldName - relog to the targeted character if configured
-            /autoretainer b|browser - open venture browser
-            /autoretainer expert - toggle expert settings
-            /autoretainer debug - toggle debug menu and verbose output
-            /autoretainer shutdown <hours> [minutes] [seconds] - schedule a game shutdown in this amount of time
-            /autoretainer itemsell - begin selling items to NPC or retainer if possible
-            /autoretainer het - enter nearby own house or apartment if possible
-            /autoretainer reset - reset all pending tasks
-            /autoretainer deliver - deliver expert delivery items
-            """);
+        EzCmd.Add("/autoretainer", CommandHandler, "開啟插件介面\n/ays - /autoretainer 的別名\n/autoretainer e|enable → 啟用插件\n/autoretainer d|disable - 停用插件\n/autoretainer t|toggle - 切換插件開關\n/autoretainer m|multi - 切換多角色模式\n/autoretainer relog Character Name@WorldName - 若已設定，重新登入到指定角色\n/autoretainer b|browser - 開啟探險瀏覽器\n/autoretainer expert - 切換專家設定\n/autoretainer debug - 切換除錯選單與詳細輸出\n/autoretainer shutdown <hours> [minutes] [seconds] - 安排在這段時間後關閉遊戲\n/autoretainer itemsell - 若可行，開始向 NPC 或雇員出售物品\n/autoretainer het - 若可行，進入附近的自宅或公寓\n/autoretainer reset - 重設所有待處理任務\n/autoretainer deliver - 交付專家交付物品");
         EzCmd.Add("/ays", CommandHandler);
         Svc.Toasts.ErrorToast += Toasts_ErrorToast;
         Svc.Toasts.Toast += Toasts_Toast;
@@ -241,7 +225,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
         if(arguments.EqualsIgnoreCase("debug"))
         {
             config.Verbose = !config.Verbose;
-            DuoLog.Information($"Debug mode {(config.Verbose ? "enabled" : "disabled")}");
+            DuoLog.Information($"除錯模式 {(config.Verbose ? "enabled" : "disabled")}");
             S.NeoWindow.Reload();
         }
         else if(arguments.EqualsIgnoreCaseAny("e", "enable"))
@@ -280,7 +264,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
         else if(arguments.EqualsIgnoreCaseAny("n", "night"))
         {
             C.NightMode = !C.NightMode;
-            DuoLog.Information($"Night mode {(C.NightMode ? "enabled" : "disabled")}");
+            DuoLog.Information($"夜間模式 {(C.NightMode ? "enabled" : "disabled")}");
             if(C.NightMode)
             {
                 if(!MultiMode.Enabled)
@@ -310,7 +294,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
             {
                 C.NightMode = true;
             }
-            DuoLog.Information($"Night mode {(C.NightMode ? "enabled" : "disabled")}");
+            DuoLog.Information($"夜間模式 {(C.NightMode ? "enabled" : "disabled")}");
         }
         else if(arguments.EqualsIgnoreCaseAny("s", "settings"))
         {
@@ -746,7 +730,7 @@ public unsafe class AutoRetainer : IDalamudPlugin
                             if(bellBehavior != OpenBellBehavior.Pause_AutoRetainer && IsKeyPressed(C.Suppress) && !CSFramework.Instance()->WindowInactive)
                             {
                                 bellBehavior = OpenBellBehavior.Do_nothing;
-                                Notify.Info($"Open bell action cancelled");
+                                Notify.Info($"打開傳喚鈴的操作已取消");
                             }
                             if(SchedulerMain.PluginEnabled && bellBehavior == OpenBellBehavior.Pause_AutoRetainer)
                             {

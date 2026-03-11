@@ -1,4 +1,4 @@
-﻿using AutoRetainer.Internal;
+using AutoRetainer.Internal;
 using AutoRetainer.Modules.Voyage.Readers;
 using AutoRetainer.Scheduler.Tasks;
 using AutoRetainer.UiHelpers;
@@ -12,7 +12,7 @@ internal unsafe class DebugReader : DebugSectionBase
     public override void Draw()
     {
         {
-            if(TryGetAddonByName<AtkUnitBase>("FreeCompanyCreditShop", out var a) && IsAddonReady(a))
+            if(TryGetAddonByName<AtkUnitBase>("部隊軍票商店", out var a) && IsAddonReady(a))
             {
                 var reader = new ReaderFreeCompanyCreditShop(a);
                 ImGuiEx.Text($"""
@@ -33,7 +33,7 @@ internal unsafe class DebugReader : DebugSectionBase
         }
 
         {
-            if(TryGetAddonByName<AtkUnitBase>("RetainerList", out var a) && IsAddonReady(a))
+            if(TryGetAddonByName<AtkUnitBase>("僱員名單", out var a) && IsAddonReady(a))
             {
                 var reader = new ReaderRetainerList(a);
                 foreach(var x in reader.Retainers)
@@ -48,7 +48,7 @@ internal unsafe class DebugReader : DebugSectionBase
                 var reader = new ReaderRetainerItemTransferList(a);
                 foreach(var r in reader.Items)
                 {
-                    ImGuiEx.Text($"Item {r.ItemID}, isHQ = {r.IsHQ}");
+                    ImGuiEx.Text($"物品 {r.ItemID}，高品質 = {r.IsHQ}");
                 }
             }
         }
@@ -56,8 +56,8 @@ internal unsafe class DebugReader : DebugSectionBase
             if(TryGetAddonByName<AtkUnitBase>("AirShipExploration", out var a) && IsAddonReady(a))
             {
                 var reader = new ReaderAirShipExploration(a);
-                ImGuiEx.Text($"Distance: {reader.Distance}");
-                ImGuiEx.Text($"Fuel: {reader.Fuel}");
+                ImGuiEx.Text($"距離：{reader.Distance}");
+                ImGuiEx.Text($"燃料：{reader.Fuel}");
                 foreach(var r in reader.Destinations)
                 {
                     ImGuiEx.Text($"Destination {r.NameFull}, rank={r.RequiredRank}, status={r.StatusFlag}, canBeSelected={r.CanBeSelected}");
@@ -68,10 +68,10 @@ internal unsafe class DebugReader : DebugSectionBase
             if(TryGetAddonByName<AtkUnitBase>("SubmarineExplorationMapSelect", out var a) && IsAddonReady(a))
             {
                 var reader = new ReaderSubmarineExplorationMapSelect(a);
-                ImGuiEx.Text($"Current rank: {reader.SubmarineRank}");
+                ImGuiEx.Text($"目前階級：{reader.SubmarineRank}");
                 foreach(var r in reader.Maps)
                 {
-                    ImGuiEx.Text($"Map {r.Name}, rank={r.RequiredRank}");
+                    ImGuiEx.Text($"地圖 {r.Name}，階級={r.RequiredRank}");
                 }
             }
         }
