@@ -11,6 +11,9 @@ on:
         default: false
         type: boolean
 
+permissions:
+  contents: write
+
 jobs:
   autoretainer:
     uses: mcc1/dalamud-mod-localizer/.github/workflows/reusable-build-mod.yml@main
