@@ -1,4 +1,4 @@
-﻿using AutoRetainerAPI.Configuration;
+using AutoRetainerAPI.Configuration;
 using Dalamud.Utility;
 using Lumina.Excel.Sheets;
 using System.Collections.ObjectModel;
