@@ -13,7 +13,7 @@ public sealed class VenturePlanner : Window
     private int maxLevel = Player.MaxLevel;
     private Dictionary<uint, (string l, string r, bool avail)> Cache = [];
 
-    public VenturePlanner() : base("Venture Planner")
+    public VenturePlanner() : base("探險計畫")
     {
         P.WindowSystem.AddWindow(this);
     }

@@ -16,7 +16,7 @@ internal class VentureBrowser : Window
     private int minLevel = 1;
     private int maxLevel = Player.MaxLevel;
     private bool GatherBuddyPresent = false;
-    public VentureBrowser() : base("Venture Browser")
+    public VentureBrowser() : base("探險委託瀏覽器")
     {
         P.WindowSystem.AddWindow(this);
         SizeConstraints = new()

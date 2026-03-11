@@ -1,4 +1,4 @@
-﻿using AutoRetainer.UI.NeoUI.AdvancedEntries;
+using AutoRetainer.UI.NeoUI.AdvancedEntries;
 using AutoRetainer.UI.NeoUI.AdvancedEntries.DebugSection;
 using AutoRetainer.UI.NeoUI.Experiments;
 using AutoRetainer.UI.NeoUI.InventoryManagementEntries;
@@ -40,7 +40,7 @@ public sealed class NeoWindow : Window
 
     internal ConfigFileSystem FileSystem;
 
-    public NeoWindow() : base("AutoRetainer Configuration")
+    public NeoWindow() : base("AutoRetainer 設定")
     {
         P.WindowSystem.AddWindow(this);
         this.SetMinSize();

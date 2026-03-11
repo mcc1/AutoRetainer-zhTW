@@ -1,8 +1,8 @@
-﻿namespace AutoRetainer.UI.Windows;
+namespace AutoRetainer.UI.Windows;
 
 internal class LogWindow : Window
 {
-    public LogWindow() : base("AutoRetainer log")
+    public LogWindow() : base("AutoRetainer 日誌")
     {
         P.WindowSystem.AddWindow(this);
         SizeConstraints = new()

@@ -15,7 +15,7 @@ internal unsafe class SubmarineUnlockPlanUI : Window
     internal string SelectedPlanName => VoyageUtils.GetSubmarineUnlockPlanByGuid(SelectedPlanGuid)?.Name ?? "No or unknown plan selected";
     internal SubmarineUnlockPlan SelectedPlan => VoyageUtils.GetSubmarineUnlockPlanByGuid(SelectedPlanGuid);
 
-    public SubmarineUnlockPlanUI() : base("Submersible Voyage Unlockable Planner")
+    public SubmarineUnlockPlanUI() : base("潛水艇航行解鎖計劃")
     {
         P.WindowSystem.AddWindow(this);
     }

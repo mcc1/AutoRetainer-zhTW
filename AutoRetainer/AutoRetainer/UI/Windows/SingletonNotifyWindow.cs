@@ -3,7 +3,7 @@ public class SingletonNotifyWindow : NotifyWindow
 {
     private bool IAmIdiot = false;
     private WindowSystem ws;
-    public SingletonNotifyWindow() : base("AutoRetainer - warning!")
+    public SingletonNotifyWindow() : base("AutoRetainer - 警告!")
     {
         IsOpen = true;
         ws = new();
