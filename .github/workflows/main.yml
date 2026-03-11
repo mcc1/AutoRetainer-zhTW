@@ -10,6 +10,11 @@ on:
         required: true
         default: false
         type: boolean
+      publish_dev_release:
+        description: Update the fixed dev prerelease asset
+        required: true
+        default: true
+        type: boolean
 
 permissions:
   contents: write
@@ -54,3 +59,65 @@ jobs:
         無法取得飛空艇索引
       commit_changes: true
       publish_release: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
+
+  publish-dev:
+    name: Publish Fixed Dev Prerelease
+    needs: autoretainer
+    if: ${{ github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.publish_dev_release) }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      DEV_TAG: autoretainer-dev
+      DEV_TITLE: AutoRetainer-zhTW dev
+      DEV_NOTES: Latest automated dev build for in-game testing install.
+      ARTIFACT_NAME: AutoRetainer-4.5.1.13-4f658f35
+    steps:
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.ARTIFACT_NAME }}
+          path: dist
+
+      - name: Prepare Dev Package
+        run: |
+          python - <<'PY'
+          import json
+          import zipfile
+          from pathlib import Path
+
+          zip_path = next(Path("dist").glob("*.zip"))
+          temp_dir = Path("dist/unpacked")
+          temp_dir.mkdir(parents=True, exist_ok=True)
+
+          with zipfile.ZipFile(zip_path) as zf:
+              zf.extractall(temp_dir)
+
+          manifest_path = temp_dir / "AutoRetainer.json"
+          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          manifest["Changelog"] = (
+              "Dev testing channel. This prerelease tag is continuously updated "
+              "by automation with the latest AutoRetainer-zhTW build."
+          )
+          manifest_path.write_text(
+              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+              encoding="utf-8",
+          )
+
+          dev_zip = Path("dist") / "AutoRetainer-dev.zip"
+          with zipfile.ZipFile(dev_zip, "w", compression=zipfile.ZIP_DEFLATED) as zf:
+              for path in sorted(temp_dir.rglob("*")):
+                  if path.is_file():
+                      zf.write(path, path.relative_to(temp_dir).as_posix())
+          PY
+
+      - name: Create or Update Fixed Dev Prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh release view "$DEV_TAG" >/dev/null 2>&1; then
+            gh release upload "$DEV_TAG" dist/AutoRetainer-dev.zip --clobber
+            gh release edit "$DEV_TAG" --prerelease --title "$DEV_TITLE" --notes "$DEV_NOTES"
+          else
+            gh release create "$DEV_TAG" dist/AutoRetainer-dev.zip --prerelease --title "$DEV_TITLE" --notes "$DEV_NOTES"
+          fi
