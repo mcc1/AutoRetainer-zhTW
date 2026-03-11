@@ -133,27 +133,25 @@ public class RetainersTab : NeoUIEntry
                 {
                     SelectedEntrustPlan = plan;
                 }
-        }
-        ImGui.EndCombo();
-    }
-    ImGui.SameLine();
-    ImGui.BeginDisabled(SelectedEntrustPlan == null);
-    if(ImGuiEx.IconButtonWithText((FontAwesomeIcon)62566, "設定存放計畫"))
-    {
-        var num = 0;
-        foreach(var x in SelectedRetainers)
-        {
-            var odata = C.OfflineData.FirstOrDefault(z => z.CID == x.CID);
-            if(odata != null && SelectedEntrustPlan != null)
-            {
-                var adata = Utils.GetAdditionalData(x.CID, x.RetainerName);
-                adata.EntrustPlan = SelectedEntrustPlan.Guid;
-                num++;
             }
+            ImGui.EndCombo();
         }
-        Notify.Success($"Affected {num} retainers");
-    }
-    ImGui.EndDisabled();
+        ImGui.SameLine();
+        if(ImGuiEx.IconButtonWithText((FontAwesomeIcon)62566, "設定存放計畫"))
+        {
+            var num = 0;
+            foreach(var x in SelectedRetainers)
+            {
+                var odata = C.OfflineData.FirstOrDefault(z => z.CID == x.CID);
+                if(odata != null)
+                {
+                    var adata = Utils.GetAdditionalData(x.CID, x.RetainerName);
+                    adata.EntrustPlan = SelectedEntrustPlan.Guid;
+                    num++;
+                }
+            }
+            Notify.Success($"Affected {num} retainers");
+        }
 
         ImGui.Separator();
 
