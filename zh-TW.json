@@ -399,9 +399,9 @@
   "Accept and continue": "接受並繼續",
   "This character is located on a data center which you have temporarily disabled. Navigate to configuration to remove it.": "此角色位於您已暫時停用的資料中心。請前往配置介面取消停用。",
   "Service Account": "服務帳戶",
-  "Grand Company Delivery/Exchange Lists": "軍隊籌備/軍票交換清單",
-  "Grand Company Delivery/Character Configuration": "軍隊籌備/角色設定",
-  "Grand Company Delivery/General Settings": "軍隊籌備/一般設定",
+  "Grand Company Delivery/Exchange Lists": "大國防聯軍籌備/軍票交換清單",
+  "Grand Company Delivery/Character Configuration": "大國防聯軍籌備/角色設定",
+  "Grand Company Delivery/General Settings": "大國防聯軍籌備/一般設定",
   "Select the items to be purchased automatically during Grand Company Expert Delivery operations. Purchase Logic: - The system will attempt to purchase the first available item from the list. - Purchases will continue until the quantity of that item in your inventory reaches the specified target amount. If no listed items are available for purchase, or they cannot fit into your inventory: - The system will purchase Ventures instead. - Venture purchases will continue until your Venture count reaches 65,000. Once the Venture cap is reached and no other purchases are possible: - Any excess Grand Company Seals will be discarded.": "選擇在大國防聯軍專家籌備期間要自動購買的物品。購買邏輯：\n- 系統將嘗試購買清單中第一個可用的物品。\n- 購買將持續到該物品在背包中的數量達到指定目標為止。\n如果清單中沒有物品可供購買，或背包空間不足：\n- 系統將轉為購買探險幣。\n- 購買探險幣將持續到您的探險幣數量達到 65,000 個。\n一旦達到探險幣上限且無法再進行其他購買：\n- 任何多餘的軍票都將被丟棄。",
   "When Expert Delivery Continuation is enabled:\n- The plugin will automatically spend available Grand Company Seals to purchase items from the configured Exchange List.\n- If the Exchange List is empty, only Ventures will be purchased.\n- Make sure that \"Delivery Mode\" is not set to \"Disabled\" in \"Character Configuration\" section\n\nAfter seals have been spent:\n- Expert Delivery will resume automatically.\n- The process will repeat until there are no eligible items left to deliver or no seals remaining.": "啟用自動籌備交換後:\n- 插件會自動使用軍票交換已設定的兌換清單中的物品。\n- 若清單為空，則只會交換探險幣。\n- 請確認在角色設定中，\"交付模式\"未設為\"停用\"(Disabled)。\n\n軍票兌換完成後:\n- 將繼續執行籌備稀有品。\n- 該流程將重複至沒有可籌備的物品或是軍票使用完畢。",
   "When enabled:\n- Characters with teleportation enabled will automatically deliver items for expert delivery and buy items according to exchange plan, if their rank is sufficient, during multi mode.": "啟用後:\n- 在多角色模式下，啟用傳送的角色會自動進行專家委託並根據兌換方案購買物品（前提是角色軍階足夠）。",
@@ -1518,7 +1518,7 @@
   "If set to a value greater than 0, AutoRetainer will stop processing any retainers this number of minutes before any character is scheduled to redeploy submarines, taking all previous settings into account.": "若設為大於 0 的值，AutoRetainer 會在任一角色預計重新派遣潛艇前的指定分鐘數停止處理所有雇員，並會一併考量先前的所有設定。",
   "Check frequency, hours": "檢查頻率（小時）",
   "cols": "cols",
-  "Pick max amount of destinations": "Pick max amount of destinations",
-  "Spam one destination": "Spam one destination",
-  "Include one unlock destination while levelling": "Include one unlock destination while levelling"
+  "Pick max amount of destinations": "選擇最多數量的目的地",
+  "Spam one destination": "重複刷單一目的地",
+  "Include one unlock destination while levelling": "升級時包含一個解鎖用目的地"
 }
