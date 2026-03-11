@@ -23,6 +23,7 @@
 <h2>Docs</h2>
 
 - [AutoRetainer baseline](docs/AUTORETAINER_BASELINE.md)
+- [Localization custom changes](docs/LOCALIZATION_CUSTOM_CHANGES.md)
 
 <h2>Credits</h2>
 
