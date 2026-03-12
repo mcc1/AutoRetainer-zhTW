@@ -90,18 +90,61 @@ jobs:
           path: dist
 
       - name: Prepare Dev Package
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           python - <<'PY'
           import json
+          import subprocess
           import zipfile
           from pathlib import Path
 
-          def to_dev_version(version: str) -> str:
+          def first_dev_version(version: str) -> str:
               parts = version.split(".")
               if len(parts) != 4 or not all(part.isdigit() for part in parts):
                   raise SystemExit(f"Unsupported base version format for dev packaging: {version}")
               parts[-1] = f"{parts[-1]}01"
               return ".".join(parts)
+
+          def increment_dev_version(version: str) -> str:
+              parts = version.split(".")
+              if len(parts) != 4 or not all(part.isdigit() for part in parts):
+                  raise SystemExit(f"Unsupported existing dev version format: {version}")
+              parts[-1] = str(int(parts[-1]) + 1)
+              return ".".join(parts)
+
+          def read_existing_dev_version() -> str | None:
+              existing_dir = Path("dist/existing-dev")
+              existing_dir.mkdir(parents=True, exist_ok=True)
+              try:
+                  subprocess.run(
+                      [
+                          "gh",
+                          "release",
+                          "download",
+                          "autoretainer-dev",
+                          "--pattern",
+                          "AutoRetainer-dev.zip",
+                          "--dir",
+                          str(existing_dir),
+                          "--repo",
+                          "${{ github.repository }}",
+                      ],
+                      check=True,
+                      capture_output=True,
+                      text=True,
+                  )
+              except subprocess.CalledProcessError:
+                  return None
+
+              zip_path = existing_dir / "AutoRetainer-dev.zip"
+              if not zip_path.exists():
+                  return None
+
+              with zipfile.ZipFile(zip_path) as zf:
+                  with zf.open("AutoRetainer.json") as fp:
+                      manifest = json.load(fp)
+              return manifest.get("AssemblyVersion")
 
           zip_path = next(Path("dist").glob("*.zip"))
           temp_dir = Path("dist/unpacked")
@@ -110,12 +153,21 @@ jobs:
           with zipfile.ZipFile(zip_path) as zf:
               zf.extractall(temp_dir)
 
+          existing_version = read_existing_dev_version()
+          new_version = (
+              increment_dev_version(existing_version)
+              if existing_version
+              else first_dev_version(
+                  json.loads((temp_dir / "AutoRetainer.json").read_text(encoding="utf-8"))["AssemblyVersion"]
+              )
+          )
+
           for manifest_path in [
               temp_dir / "AutoRetainer.json",
               temp_dir / "AutoRetainer" / "AutoRetainer.json",
           ]:
               manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-              manifest["AssemblyVersion"] = to_dev_version(manifest["AssemblyVersion"])
+              manifest["AssemblyVersion"] = new_version
               manifest["Changelog"] = (
                   "Dev testing channel. This prerelease tag is continuously updated "
                   "by automation with the latest AutoRetainer-zhTW build."
@@ -142,3 +194,42 @@ jobs:
           else
             gh release create "$DEV_TAG" dist/AutoRetainer-dev.zip --prerelease --title "$DEV_TITLE" --notes "$DEV_NOTES"
           fi
+
+  sync-plugin-source:
+    name: Sync DalamudPlugins-zhTW
+    needs:
+      - autoretainer
+      - publish-dev
+    if: >-
+      ${{
+        (
+          github.event_name == 'schedule' ||
+          (
+            github.event_name == 'workflow_dispatch' &&
+            inputs.workflow_mode != 'extract' &&
+            (inputs.publish_dev_release || inputs.publish_release)
+          )
+        ) &&
+        needs.autoretainer.result == 'success' &&
+        (needs.publish-dev.result == 'success' || needs.publish-dev.result == 'skipped')
+      }}
+    runs-on: ubuntu-latest
+    permissions: {}
+    env:
+      TARGET_REPO: mcc1/DalamudPlugins-zhTW
+    steps:
+      - name: Trigger Plugin Source Sync
+        env:
+          GH_TOKEN: ${{ secrets.PLUGIN_SOURCE_SYNC_TOKEN }}
+        run: |
+          if [ -z "$GH_TOKEN" ]; then
+            echo "PLUGIN_SOURCE_SYNC_TOKEN is not configured; skipping plugin source sync."
+            exit 0
+          fi
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            "/repos/$TARGET_REPO/dispatches" \
+            -f event_type='sync-plugin-source' \
+            -F client_payload[source_repo]="$GITHUB_REPOSITORY" \
+            -F client_payload[source_run_id]="$GITHUB_RUN_ID"
