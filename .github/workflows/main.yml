@@ -110,17 +110,20 @@ jobs:
           with zipfile.ZipFile(zip_path) as zf:
               zf.extractall(temp_dir)
 
-          manifest_path = temp_dir / "AutoRetainer.json"
-          manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
-          manifest["AssemblyVersion"] = to_dev_version(manifest["AssemblyVersion"])
-          manifest["Changelog"] = (
-              "Dev testing channel. This prerelease tag is continuously updated "
-              "by automation with the latest AutoRetainer-zhTW build."
-          )
-          manifest_path.write_text(
-              json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
-              encoding="utf-8",
-          )
+          for manifest_path in [
+              temp_dir / "AutoRetainer.json",
+              temp_dir / "AutoRetainer" / "AutoRetainer.json",
+          ]:
+              manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+              manifest["AssemblyVersion"] = to_dev_version(manifest["AssemblyVersion"])
+              manifest["Changelog"] = (
+                  "Dev testing channel. This prerelease tag is continuously updated "
+                  "by automation with the latest AutoRetainer-zhTW build."
+              )
+              manifest_path.write_text(
+                  json.dumps(manifest, ensure_ascii=False, indent=2) + "\n",
+                  encoding="utf-8",
+              )
 
           dev_zip = Path("dist") / "AutoRetainer-dev.zip"
           with zipfile.ZipFile(dev_zip, "w", compression=zipfile.ZIP_DEFLATED) as zf:
