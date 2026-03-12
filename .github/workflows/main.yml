@@ -96,6 +96,13 @@ jobs:
           import zipfile
           from pathlib import Path
 
+          def to_dev_version(version: str) -> str:
+              parts = version.split(".")
+              if len(parts) != 4 or not all(part.isdigit() for part in parts):
+                  raise SystemExit(f"Unsupported base version format for dev packaging: {version}")
+              parts[-1] = f"{parts[-1]}01"
+              return ".".join(parts)
+
           zip_path = next(Path("dist").glob("*.zip"))
           temp_dir = Path("dist/unpacked")
           temp_dir.mkdir(parents=True, exist_ok=True)
@@ -105,6 +112,7 @@ jobs:
 
           manifest_path = temp_dir / "AutoRetainer.json"
           manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+          manifest["AssemblyVersion"] = to_dev_version(manifest["AssemblyVersion"])
           manifest["Changelog"] = (
               "Dev testing channel. This prerelease tag is continuously updated "
               "by automation with the latest AutoRetainer-zhTW build."
