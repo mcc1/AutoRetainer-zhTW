@@ -83,6 +83,9 @@ jobs:
       DEV_NOTES: Latest automated dev build for in-game testing install.
       ARTIFACT_NAME: AutoRetainer-4.5.1.13-4f658f35
     steps:
+      - name: Checkout Consumer Repo
+        uses: actions/checkout@v4
+
       - name: Download Build Artifact
         uses: actions/download-artifact@v4
         with:
