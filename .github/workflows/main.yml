@@ -67,6 +67,7 @@ jobs:
         飛空艇零件的物品 ID 為 0
         解鎖方案
         無法取得飛空艇索引
+        [AutoRetainer] 部分僱員的探險已完成！
       commit_changes: ${{ github.event_name == 'workflow_dispatch' && inputs.workflow_mode != 'build' }}
       publish_release: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_release }}
 
