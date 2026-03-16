@@ -54,12 +54,12 @@ public sealed class GilDisplayManager
                 {
                     if(!C.GilOnlyChars)
                     {
-                        ImGuiEx.Text($"    {Censor.Character(c.Name, c.World)}: {c.Gil:N0}");
+                        ImGuiEx.Text($"{Censor.Character(c.Name, c.World)}: {c.Gil:N0}");
                         foreach(var r in c.RetainerData)
                         {
                             if(r.Gil > C.MinGilDisplay)
                             {
-                                ImGuiEx.Text($"        {Censor.Retainer(r.Name)}: {r.Gil:N0}");
+                                ImGuiEx.Text($"{Censor.Retainer(r.Name)}: {r.Gil:N0}");
                             }
                         }
                         if(fcdata != null && fcdata.Gil > 0)
@@ -67,7 +67,7 @@ public sealed class GilDisplayManager
                             ImGuiEx.Text(ImGuiColors.DalamudYellow, $"        部隊 {fcdata.Name}: {fcdata.Gil:N0}");
                         }
                     }
-                    ImGuiEx.Text(ImGuiColors.DalamudViolet, $"    {Censor.Character(c.Name, c.World)}{(fcdata != null && fcdata.Gil > 0 ? "+FC" : "")} total: {charTotal:N0}");
+                    ImGuiEx.Text(ImGuiColors.DalamudViolet, $"{Censor.Character(c.Name, c.World)}{(fcdata != null && fcdata.Gil > 0 ? "+FC" : "")} total: {charTotal:N0}");
                     if(ImGuiEx.HoveredAndClicked("點擊重新登入"))
                     {
                         if(!MultiMode.Relog(c, out var error, Internal.RelogReason.Command))

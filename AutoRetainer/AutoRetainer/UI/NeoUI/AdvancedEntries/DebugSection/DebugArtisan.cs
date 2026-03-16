@@ -28,12 +28,12 @@ internal class DebugArtisan : DebugSectionBase
             if(ImGuiEx.EnumCombo(nameof(SchedulerMain.Reason), ref r)) SchedulerMain.Reason = r;
             try
             {
-                if(ImGui.Button(nameof(Artisan.SetEnduranceStatus) + " true")) Artisan.SetEnduranceStatus(true);
-                if(ImGui.Button(nameof(Artisan.SetEnduranceStatus) + " false")) Artisan.SetEnduranceStatus(false);
-                if(ImGui.Button(nameof(Artisan.SetListPause) + " true")) Artisan.SetListPause(true);
-                if(ImGui.Button(nameof(Artisan.SetListPause) + " false")) Artisan.SetListPause(false);
-                if(ImGui.Button(nameof(Artisan.SetStopRequest) + " true")) Artisan.SetStopRequest(true);
-                if(ImGui.Button(nameof(Artisan.SetStopRequest) + " false")) Artisan.SetStopRequest(false);
+                if(ImGui.Button(nameof(Artisan.SetEnduranceStatus) + "true")) Artisan.SetEnduranceStatus(true);
+                if(ImGui.Button(nameof(Artisan.SetEnduranceStatus) + "false")) Artisan.SetEnduranceStatus(false);
+                if(ImGui.Button(nameof(Artisan.SetListPause) + "true")) Artisan.SetListPause(true);
+                if(ImGui.Button(nameof(Artisan.SetListPause) + "false")) Artisan.SetListPause(false);
+                if(ImGui.Button(nameof(Artisan.SetStopRequest) + "true")) Artisan.SetStopRequest(true);
+                if(ImGui.Button(nameof(Artisan.SetStopRequest) + "false")) Artisan.SetStopRequest(false);
                 ImGuiEx.Text($"{nameof(Artisan.IsListPaused)}: {Artisan.IsListPaused}");
                 ImGuiEx.Text($"{nameof(Artisan.IsListRunning)}: {Artisan.IsListRunning}");
                 ImGuiEx.Text($"{nameof(Artisan.GetEnduranceStatus)}: {Artisan.GetEnduranceStatus}");

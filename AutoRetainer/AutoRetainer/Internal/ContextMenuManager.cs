@@ -11,7 +11,7 @@ namespace AutoRetainer.Internal;
 
 internal unsafe class ContextMenuManager
 {
-    private SeString Prefix = new SeStringBuilder().AddUiForeground(" ", 539).Build();
+    private SeString Prefix = new SeStringBuilder().AddUiForeground("", 539).Build();
 
     public ContextMenuManager()
     {
@@ -39,7 +39,7 @@ internal unsafe class ContextMenuManager
                             {
                                 var t = $"物品 {ExcelItemHelper.GetName(id)} 已從保護清單移除";
                                 Notify.Success(t);
-                                ChatPrinter.Red("[AutoRetainer] " + t);
+                                ChatPrinter.Red("[AutoRetainer]" + t);
                                 Data.GetIMSettings(true).IMProtectList.Remove(id);
                             }
                             else

@@ -6,7 +6,7 @@ public static unsafe class RetainerConfig
 {
     public static void Draw(OfflineRetainerData ret, OfflineCharacterData data, AdditionalRetainerData adata)
     {
-        ImGui.CollapsingHeader($"{Censor.Retainer(ret.Name)} - {Censor.Character(data.Name)} Configuration  ##conf", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.OpenOnArrow);
+        ImGui.CollapsingHeader($"{Censor.Retainer(ret.Name)} - {Censor.Character(data.Name)} Configuration ##conf", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.OpenOnArrow);
         ImGuiEx.Text($"附加的探險後任務:");
         //ImGui.Checkbox($"Entrust Duplicates", ref adata.EntrustDuplicates);
         var selectedPlan = C.EntrustPlans.FirstOrDefault(x => x.Guid == adata.EntrustPlan);

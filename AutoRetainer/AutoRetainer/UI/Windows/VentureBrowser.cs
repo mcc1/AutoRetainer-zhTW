@@ -157,22 +157,22 @@ internal class VentureBrowser : Window
                         ImGui.TableNextColumn();
 
                         Vector4? col = x.AvailableByGear && x.CurrentIndex == 0 ? ImGuiColors.ParsedGreen : null;
-                        ImGuiEx.TextCentered(col, $"  {n} < {x.Requirements[1]}  ");
+                        ImGuiEx.TextCentered(col, $"{n} < {x.Requirements[1]}");
                         ImGuiEx.TextCentered(col, $"  {x.Amounts[0].FancyDigits()}  ");
                         ImGui.TableNextColumn();
 
                         col = x.AvailableByGear && x.CurrentIndex == 1 ? ImGuiColors.ParsedGreen : null;
-                        ImGuiEx.TextCentered(col, $"  {n} {x.Requirements[1]} - {x.Requirements[2] - 1}  ");
+                        ImGuiEx.TextCentered(col, $"{n} {x.Requirements[1]} - {x.Requirements[2] - 1}");
                         ImGuiEx.TextCentered(col, $"  {x.Amounts[1].FancyDigits()}  ");
                         ImGui.TableNextColumn();
 
                         col = x.AvailableByGear && x.CurrentIndex == 2 ? ImGuiColors.ParsedGreen : null;
-                        ImGuiEx.TextCentered(col, $"  {n} {x.Requirements[2]} - {x.Requirements[3] - 1}  ");
+                        ImGuiEx.TextCentered(col, $"{n} {x.Requirements[2]} - {x.Requirements[3] - 1}");
                         ImGuiEx.TextCentered(col, $"  {x.Amounts[2].FancyDigits()}  ");
                         ImGui.TableNextColumn();
 
                         col = x.AvailableByGear && x.CurrentIndex == 3 ? ImGuiColors.ParsedGreen : null;
-                        ImGuiEx.TextCentered(col, $"  {n} {x.Requirements[3]} - {x.Requirements[4] - 1}  ");
+                        ImGuiEx.TextCentered(col, $"{n} {x.Requirements[3]} - {x.Requirements[4] - 1}");
                         ImGuiEx.TextCentered(col, $"  {x.Amounts[3].FancyDigits()}  ");
                         ImGui.TableNextColumn();
 

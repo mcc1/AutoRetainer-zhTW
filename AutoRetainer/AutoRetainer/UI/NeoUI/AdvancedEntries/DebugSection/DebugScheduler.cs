@@ -92,11 +92,11 @@ internal unsafe class DebugScheduler : DebugSectionBase
         {
             DuoLog.Information($"{RetainerHandlers.SetWithdrawGilAmount(100)}");
         }
-        if(ImGui.Button($"WithdrawGilOrCancel"))
+        if(ImGui.Button($"WithdrawGilOr取消"))
         {
             DuoLog.Information($"{RetainerHandlers.ProcessBankOrCancel()}");
         }
-        if(ImGui.Button($"WithdrawGilOrCancel (force cancel)"))
+        if(ImGui.Button($"WithdrawGilOr取消 (force cancel)"))
         {
             DuoLog.Information($"{RetainerHandlers.ProcessBankOrCancel(true)}");
         }

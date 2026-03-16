@@ -464,7 +464,7 @@ internal static unsafe class WorkshopUI
         }
         if(ImGuiEx.BeginPopupNextToElement(n))
         {
-            ImGui.CollapsingHeader($"{vessel.Name} - {Censor.Character(data.Name)} Configuration  ##conf", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.OpenOnArrow);
+            ImGui.CollapsingHeader($"{vessel.Name} - {Censor.Character(data.Name)} Configuration ##conf", ImGuiTreeNodeFlags.DefaultOpen | ImGuiTreeNodeFlags.Bullet | ImGuiTreeNodeFlags.OpenOnArrow);
             ImGuiEx.Text($"潛艇行為:");
             ImGuiEx.EnumCombo("##vbeh", ref adata.VesselBehavior);
             if(adata.VesselBehavior == VesselBehavior.Unlock)

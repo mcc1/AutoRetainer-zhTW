@@ -57,7 +57,7 @@ public sealed class VentureStatsManager
                         foreach(var c in array)
                         {
                             var iName = $"{Svc.Data.GetExcelSheet<Item>().GetRow(c.Key).Name}";
-                            ImGuiEx.Text($"             {iName}: {(C.StatsUnifyHQ ? c.Value.Amount + c.Value.AmountHQ : $"{c.Value.Amount}/{c.Value.AmountHQ}")}");
+                            ImGuiEx.Text($"{iName}: {(C.StatsUnifyHQ ? c.Value.Amount + c.Value.AmountHQ : $"{c.Value.Amount}/{c.Value.AmountHQ}")}");
                         }
                     }
                 }
