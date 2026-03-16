@@ -44,6 +44,9 @@ jobs:
       mod_repo_dir: AutoRetainer
       localizer_source_subpaths: AutoRetainer
       localizer_dict_path: zh-TW.json
+      dotnet_sdk_versions: |
+        8.0.x
+        9.0.x
       build_project_path: AutoRetainer/AutoRetainer/AutoRetainer.csproj
       package_build_dir: AutoRetainer/AutoRetainer/bin/Release
       artifact_basename: AutoRetainer
