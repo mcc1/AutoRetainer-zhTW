@@ -5,13 +5,7 @@ internal class NightMode : ExperimentUIEntry
     public override string Name => "夜間模式";
     public override void Draw()
     {
-        ImGuiEx.TextWrapped($"夜間模式:\n" +
-                $"- 在登入畫面等待選項將被強制啟用\n" +
-                $"- 將強制執行內建的 FPS 限制器規範\n" +
-                $"- 當視窗未聚焦且在等待時，遊戲將限制在 0.2 FPS\n" +
-                $"- 遊戲看起來可能會像當機，但在你重新激活遊戲視窗後，請給它最多 5 秒的時間恢復運作。\n" +
-                $"- 預設情況下，夜間模式僅啟用潛艇自動化\n" +
-                $"- 停用夜間模式後，救援管理器 (Bailout manager) 會啟動並帶領你重新登入遊戲。");
+        ImGuiEx.TextWrapped($"夜間模式:\n- 將強制啟用登入介面等待選項\n- 將強制套用內建的FPS限制器\n- 當遊戲視窗失去焦點且處於等待狀態時，遊戲幀率將被限制在0.2 FPS\n- 這看起來可能像是遊戲卡住了，但重新啟動遊戲視窗後，請給予最多5秒的時間讓其恢復\n- 預設情況下，夜間模式僅啟用遠航探索\n- 停用夜間模式後，緊急管理器將啟動以將您重新登入回遊戲");
         if(ImGui.Checkbox("啟用夜間模式", ref C.NightMode)) MultiMode.BailoutNightMode();
         ImGui.Checkbox("顯示夜間模式勾選框", ref C.ShowNightMode);
         ImGui.Checkbox("在夜間模式下處理僱員", ref C.NightModeRetainers);

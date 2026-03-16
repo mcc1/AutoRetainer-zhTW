@@ -18,7 +18,7 @@ public class FastAddition : InventoryManagemenrBase
             ImGuiEx.Text(!ImGui.GetIO().KeyCtrl ? ImGuiColors.DalamudGrey : ImGuiColors.DalamudRed, $"Ctrl - 添加至無條件出售清單");
             ImGuiEx.Text($"* 已在快速探險出售清單中的物品將會被移動到無條件出售清單");
             ImGuiEx.Text(!ImGui.GetIO().KeyAlt ? ImGuiColors.DalamudGrey : ImGuiColors.DalamudRed, $"Alt - 從任一清單刪除");
-            ImGuiEx.Text("\nItems that are protected are unaffected by these actions");
+            ImGuiEx.Text("受保護的物品不受此操作影響");
             if(Svc.GameGui.HoveredItem > 0)
             {
                 var id = (uint)(Svc.GameGui.HoveredItem % 1000000);
