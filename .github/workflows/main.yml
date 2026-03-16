@@ -88,10 +88,10 @@ jobs:
       ARTIFACT_NAME: AutoRetainer-4.5.1.13-4f658f35
     steps:
       - name: Checkout Consumer Repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download Build Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v6
         with:
           name: ${{ env.ARTIFACT_NAME }}
           path: dist
