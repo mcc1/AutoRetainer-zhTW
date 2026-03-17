@@ -205,7 +205,7 @@
   "Only display character total": "僅顯示角色總計",
   "Filter...": "篩選...",
   "Free Company {fcdata.Name}: {fcdata.Gil:N0}": "部隊 {fcdata.Name}: {fcdata.Gil:N0}",
-  "{Censor.Character(c.Name, c.World)}{(fcdata != null && fcdata.Gil > 0 ? \"+FC\" : \"\")} total: {charTotal:N0}": "{Censor.Character(c.Name, c.World)}{(fcdata != null && fcdata.Gil > 0 ? \"+部隊\" : \"\")} 總計: {charTotal:N0}",
+  "{Censor.Character(c.Name, c.World)}{(fcdata != null && fcdata.Gil > 0 ? \"+FC\" : \"\")} total: {charTotal:N0}": "{0}{1} 總計: {2}",
   "Click to relog": "點擊重新登入",
   "Data center total ({x.Key}): {dcTotal:N0}": "資料中心總計 ({x.Key}): {dcTotal:N0}",
   "Overall total: {globalTotal:N0}": "全域總計: {globalTotal:N0}",
