@@ -1,4 +1,4 @@
-﻿{
+{
   "Lock window position and size": "鎖定視窗位置和大小",
   "Abort {0} tasks": "中止 {0} 個流程",
   "Retainers": "僱員管理",
@@ -135,7 +135,7 @@
   "Automatically disable plugin when closing retainer list": "關閉僱員清單時自動停用插件",
   "Do not show plugin status icons": "不顯示插件狀態圖標",
   "Display multi mode type selector": "顯示多角色模式類型選擇器",
-  "Display deployables checkbox in workshop": "在部隊工房中顯示遠航探險",
+  "Display deployables checkbox in workshop": "在公會工坊中顯示遠航探險",
   "Enable bailout module": "啟用應急復原模組",
   "Timeout before AutoRetainer will attempt to unstuck, seconds": "AutoRetainer嘗試解除卡死前的超時時間(秒)",
   "Disable sorting and collapsing/expanding": "禁用排序和折疊/展開功能",
@@ -568,7 +568,7 @@
   "Advance Relog Threshold, seconds": "提前登入閾值（秒）",
   "Shutdown the game after all deployables have been processed": "處理完所有遠航探索後關閉遊戲",
   "Don't shutdown if there are deployables that return within this amount of hours": "如果有遠航探索將在此小時內返回，則不關閉遊戲",
-  "Auto-buy Ceruleum Tanks after entering Workshop:": "進入工房後自動購買青磷水：",
+  "Auto-buy Ceruleum Tanks after entering Workshop:": "進入工坊後自動購買青磷水：",
   "Enable on {0}": "在 {0} 上啟用",
   "In order to enable/disable fuel purchase for other characters, navigate to Functions, Exclusions, Order section.": "若要啟用/停用其他角色的燃料購買，請前往「功能、排除與排序」區塊。",
   "Tanks remaining to trigger purchase": "觸發購買的剩餘青磷水數量",
