@@ -16,7 +16,8 @@
       "Name": "AutoRetainer Dev",
       "Punchline": "AutoRetainer 繁中測試版。",
       "Description": "AutoRetainer 繁體中文測試版。此條目會追蹤固定更新的 dev prerelease。",
-      "RepoUrl": "https://github.com/mcc1/AutoRetainer-zhTW"
+      "RepoUrl": "https://github.com/mcc1/AutoRetainer-zhTW",
+      "IsTestingExclusive": true
     }
   },
   {
@@ -36,7 +37,8 @@
       "Name": "Artisan Dev",
       "Punchline": "Artisan 繁中測試版。",
       "Description": "Artisan 繁體中文測試版。此條目會追蹤固定更新的 dev prerelease。",
-      "RepoUrl": "https://github.com/mcc1/Artisan-zhTW"
+      "RepoUrl": "https://github.com/mcc1/Artisan-zhTW",
+      "IsTestingExclusive": true
     }
   }
 ]
