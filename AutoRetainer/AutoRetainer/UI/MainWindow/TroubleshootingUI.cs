@@ -270,7 +270,7 @@ public static unsafe class TroubleshootingUI
         CheckExpertSetting("關閉僱員列表時自動停用插件", nameof(C.AutoDisable));
         CheckExpertSetting("不顯示插件狀態圖標", nameof(C.HideOverlayIcons));
         CheckExpertSetting("顯示多角色模式類型選擇器", nameof(C.DisplayMMType));
-        CheckExpertSetting("在部隊工房中顯示遠航探險", nameof(C.ShowDeployables));
+        CheckExpertSetting("在公會工坊中顯示遠航探險", nameof(C.ShowDeployables));
         CheckExpertSetting("啟用應急復原模組", nameof(C.EnableBailout));
         CheckExpertSetting("AutoRetainer嘗試解除卡死前的超時時間(秒)", nameof(C.BailoutTimeout));
         CheckExpertSetting("禁用排序和折疊/展開功能", nameof(C.NoCurrentCharaOnTop));

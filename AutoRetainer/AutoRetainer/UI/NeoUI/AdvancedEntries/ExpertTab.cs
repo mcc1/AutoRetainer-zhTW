@@ -36,7 +36,7 @@ public class ExpertTab : NeoUIEntry
         .Checkbox($"關閉僱員列表時自動停用插件", () => ref C.AutoDisable, "僅在你手動退出選單時生效；否則將套用上方的設定。")
         .Checkbox($"不顯示插件狀態圖標", () => ref C.HideOverlayIcons)
         .Checkbox($"顯示多角色模式類型選擇器", () => ref C.DisplayMMType)
-        .Checkbox($"在部隊工房中顯示遠航探險", () => ref C.ShowDeployables)
+        .Checkbox($"在公會工坊中顯示遠航探險", () => ref C.ShowDeployables)
         .Checkbox("啟用應急復原模組", () => ref C.EnableBailout)
         .InputInt(150f, "AutoRetainer嘗試解除卡死前的超時時間(秒)", () => ref C.BailoutTimeout)
 
